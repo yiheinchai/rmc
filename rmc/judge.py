@@ -92,7 +92,7 @@ RELEVANCE_SCHEMA = {
             "type": "array",
             "items": {
                 "type": "object",
-                "required": ["id", "verdict"],
+                "required": ["id", "verdict", "descend", "why"],
                 "properties": {
                     "id": {"type": "string"},
                     "verdict": {

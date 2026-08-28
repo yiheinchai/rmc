@@ -100,7 +100,7 @@ DIAGNOSE_SCHEMA = {
 
 JUDGE_SCHEMA = {
     "type": "object",
-    "required": ["pass", "reason"],
+    "required": ["pass", "reason", "missing"],
     "properties": {
         "pass": {"type": "boolean"},
         "reason": {"type": "string"},
@@ -110,7 +110,7 @@ JUDGE_SCHEMA = {
 
 SELECT_SCHEMA = {
     "type": "object",
-    "required": ["picks"],
+    "required": ["picks", "searched", "rules_used"],
     "properties": {
         "picks": {
             "type": "array",
