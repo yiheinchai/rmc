@@ -266,16 +266,18 @@ def bench_adapter(base: Adapter | None = None) -> Adapter:
         if schema and "picks" in (schema.get("properties") or {}):
             question = _section(prompt, "WORK") or _section(prompt, "QUESTION")
             picks = []
+            qfacts = set(MockAdapter.facts(question))
             for ident, text in _candidates(prompt):
+                shared = MockAdapter.facts(text) & qfacts
+                # @recall-* tags are the primary signal; fall back to word overlap.
                 score = _overlap(question, text)
-                # Superficial overlap (e.g. "retry" in CI vs payments) stays below threshold.
-                verdict = "relevant" if score >= 0.22 else "unrelated"
+                verdict = "relevant" if shared or score >= 0.22 else "unrelated"
                 picks.append(
                     {
                         "id": ident,
                         "verdict": verdict,
                         "descend": False,
-                        "why": f"overlap {score:.0%}",
+                        "why": f"shared={sorted(shared)}" if shared else f"overlap {score:.0%}",
                     }
                 )
             return {"picks": picks}

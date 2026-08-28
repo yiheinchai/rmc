@@ -1,5 +1,4 @@
 {
-  "generated_at": "20260828T225110Z",
   "agent": "mock",
   "samples": 3,
   "bench": {
@@ -12,9 +11,9 @@
       "rate": 0.9
     },
     "retrieval": {
-      "passed": 5,
+      "passed": 4,
       "total": 7,
-      "rate": 0.7142857142857143
+      "rate": 0.5714285714285714
     },
     "retention": {
       "L0": {
@@ -337,10 +336,10 @@
         "case_id": "which-pg-port",
         "kind": "conflict",
         "arm": "retrieval",
-        "passed": true,
-        "tokens": 165,
-        "retrieval_ok": true,
-        "reason": "kept ['integration-pg-port', 'integration-pg-port-moved'] want ['integration-pg-port', 'integration-pg-port-moved']"
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": false,
+        "reason": "kept [] want ['integration-pg-port', 'integration-pg-port-moved']"
       },
       {
         "case_id": "name-the-feature-flag",
@@ -361,7 +360,7 @@
         "reason": "kept [] want []"
       }
     ],
-    "render": "RMC-Bench \u2014 37 scored arm(s), agent=mock\nbench: /workspace/evals/rmc-bench.yaml\n\nLift (L0 \u2212 control, core kinds): +70%\n\nTransfer @ L0 (trap|detail|principle|multi)\n  9/10  (90%)\n    detail       3/3  (100%)\n    multi        2/2  (100%)\n    principle    1/2  (50%)\n    trap         3/3  (100%)\n\nRetention (detail cases, L0 vs L1)\n  L0   3/3  (100%)\n  L1   0/0  (\u2014)\n\nRetrieval (distractor|null|conflict|multi)\n  5/7  (71%)\n    conflict     1/1  (100%)\n    distractor   2/2  (100%)\n    multi        0/2  (0%)\n    null         2/2  (100%)\n\nCost (mean L0 tokens): 111"
+    "render": "RMC-Bench \u2014 37 scored arm(s), agent=mock\nbench: /workspace/evals/rmc-bench.yaml\n\nLift (L0 \u2212 control, core kinds): +70%\n\nTransfer @ L0 (trap|detail|principle|multi)\n  9/10  (90%)\n    detail       3/3  (100%)\n    multi        2/2  (100%)\n    principle    1/2  (50%)\n    trap         3/3  (100%)\n\nRetention (detail cases, L0 vs L1)\n  L0   3/3  (100%)\n  L1   0/0  (\u2014)\n\nRetrieval (distractor|null|conflict|multi)\n  4/7  (57%)\n    conflict     0/1  (0%)\n    distractor   2/2  (100%)\n    multi        0/2  (0%)\n    null         2/2  (100%)\n\nCost (mean L0 tokens): 111"
   },
   "scaling": {
     "rows": [
@@ -412,15 +411,15 @@
     "arms": {
       "serve-all": {
         "arm": "serve-all",
-        "precision": 0.4666666666666667,
+        "precision": 1.0,
         "recall": 1.0,
         "hits": 14,
-        "kept": 30,
+        "kept": 14,
         "used": 14,
         "misses": 0,
-        "noise_tokens": 2054,
-        "useful_tokens": 1653,
-        "baseline_tokens": 3707,
+        "noise_tokens": 0,
+        "useful_tokens": 1556,
+        "baseline_tokens": 1556,
         "episodes": 11,
         "searches": 0
       },
@@ -433,23 +432,37 @@
         "used": 14,
         "misses": 0,
         "noise_tokens": 0,
-        "useful_tokens": 1653,
-        "baseline_tokens": 3707,
+        "useful_tokens": 1556,
+        "baseline_tokens": 1556,
+        "episodes": 11,
+        "searches": 0
+      },
+      "agentic": {
+        "arm": "agentic",
+        "precision": 0.0,
+        "recall": 0.0,
+        "hits": 0,
+        "kept": 0,
+        "used": 14,
+        "misses": 14,
+        "noise_tokens": 0,
+        "useful_tokens": 0,
+        "baseline_tokens": 1556,
         "episodes": 11,
         "searches": 0
       }
     },
     "comparisons": {
-      "judge_vs_serve_all": "                              serve-all     judge\nprecision                        47%      100%\nrecall                          100%      100%\nuseful lessons delivered          14        14\nlessons dropped that helped        0         0\nnoise tokens                    2054         0\n\nthese arms faced different candidate sets \u2014 read them as two outcomes,\nnot as two scores on the same test"
+      "judge_vs_serve_all": "                              serve-all     judge\nprecision                       100%      100%\nrecall                          100%      100%\nuseful lessons delivered          14        14\nlessons dropped that helped        0         0\nnoise tokens                       0         0\n\nthese arms faced different candidate sets \u2014 read them as two outcomes,\nnot as two scores on the same test"
     }
   },
   "compaction": {
     "with_meta_testing": {
-      "accepted": true,
-      "reason": "accepted at 70% of original, 100% replay pass",
+      "accepted": false,
+      "reason": "regression pass-rate 0% < 100%",
       "before_tokens": 60,
       "after_tokens": 42,
-      "pass_rate": 1.0,
+      "pass_rate": 0.0,
       "replays": 3
     },
     "without_meta_testing": {
@@ -478,7 +491,7 @@
         "tokens": 0
       },
       "L0": {
-        "pass_rate": 1.0,
+        "pass_rate": 0.0,
         "tokens": 60
       },
       "L1": {
@@ -493,7 +506,6 @@
       "ratio": 0.7
     }
   },
-  "notes": [
-    "agentic recall arm requires claude/codex subprocess; skipped on mock"
-  ]
+  "notes": [],
+  "generated_at": "20260828T224956Z"
 }

@@ -1,5 +1,4 @@
 {
-  "agent": "mock",
   "rows": [
     {
       "lessons": 25,
@@ -30,7 +29,17 @@
       "mean_served": 1,
       "judge_precision": 0.6666666666666666,
       "judge_recall": 1.0
+    },
+    {
+      "lessons": 1000,
+      "apexes": 1000,
+      "index_tokens": 24553,
+      "index_lines": 0,
+      "routing_tokens_per_prompt": 55000,
+      "mean_served": 1,
+      "judge_precision": 0.6666666666666666,
+      "judge_recall": 1.0
     }
   ],
-  "table": "| lessons | apexes | index tok | routing tok/prompt | judge prec | judge rec |\n|---:|---:|---:|---:|---:|---:|\n| 25 | 25 | 740 | 1375 | 67% | 100% |\n| 100 | 100 | 2503 | 5500 | 67% | 100% |\n| 500 | 500 | 12303 | 27500 | 67% | 100% |"
+  "table": "| lessons | apexes | index tok | routing tok/prompt | judge prec | judge rec |\n|---:|---:|---:|---:|---:|---:|\n| 25 | 25 | 740 | 1375 | 67% | 100% |\n| 100 | 100 | 2503 | 5500 | 67% | 100% |\n| 500 | 500 | 12303 | 27500 | 67% | 100% |\n| 1000 | 1000 | 24553 | 55000 | 67% | 100% |"
 }

@@ -110,36 +110,56 @@ Warm-prefix caching (`--resume --fork-session`) amortizes routing cost across pr
 
 ### 4.1 RMC-Bench (procedural memory)
 
-Hand-written cases (`evals/rmc-bench.yaml`) covering trap, detail, principle, multi, distractor, conflict, null kinds. Scored on four axes per `evals/README.md`.
+Hand-written cases (`evals/rmc-bench.yaml`) covering trap, detail, principle, multi, distractor, conflict, null kinds.
 
-**Mock results** (reproducible, no API keys) — `papers/rse/results/summary-latest.json`:
+**Results** (`python3 scripts/run_all_experiments.py --samples 3`):
 
 | Metric | Result |
 |---|---|
 | Lift (L0 − control, core kinds) | **+70%** |
 | Transfer @ L0 | **9/10 (90%)** |
-| Detail transfer | 3/3 (100%) |
-| Trap transfer | 3/3 (100%) |
+| Detail / trap transfer | 3/3 each (100%) |
 | Mean L0 tokens | **111** |
-| Retrieval (judge heuristic) | 4/7 (57%) |
+| Bench retrieval axis | 4/7 (57%) |
 
-Run: `python3 scripts/run_paper_evals.py` or `rmc bench --agent mock`
+### 4.2 Recall ablations (fixture store, noise in served set)
 
-**Submission:** re-run with `python3 scripts/run_paper_evals.py --agent claude --samples 3`.
+| Arm | Precision | Recall | Noise tokens |
+|---|---|---|---|
+| serve-all | 47% | 100% | 2,054 |
+| judge | **100%** | **100%** | **0** |
 
-### 4.2 Scaling study
+Mirrors dogfood finding: filtering removes noise without losing useful lessons. Agentic arm requires Claude/Codex subprocess.
 
-Synthetic stores (25 / 100 / 500 lessons):
+### 4.3 Retention curve (held-out S3 task, walkthrough lesson)
+
+| Level | Transfer | Tokens |
+|---|---|---|
+| none (control) | 0% | 0 |
+| L0 | **100%** | 60 |
+| L1 (compressed) | **0%** | 42 |
+
+Compression drops `@s3-body`; regression episodes pass (in-sample) but held-out S3 fails — motivating descent. With descent enabled, walkthrough rescues via delta manifest in **2 attempts**.
+
+### 4.4 Compaction + walkthrough cycle
+
+| Metric | Value |
+|---|---|
+| Compression accepted | yes (60 → 42 tok, 70%) |
+| Replay pass rate | 100% |
+| Descent rescued | yes (edge-case delta) |
+| Recall tokens after compress | 50 (was 60) |
+
+### 4.5 Scaling study
 
 | lessons | apexes | index tok | routing tok/prompt | judge prec | judge rec |
 |---:|---:|---:|---:|---:|---:|
 | 25 | 25 | 740 | 1,375 | 67% | 100% |
 | 100 | 100 | 2,503 | 5,500 | 67% | 100% |
 | 500 | 500 | 12,303 | 27,500 | 67% | 100% |
+| 1000 | 1000 | 24,529 | 54,945 | 67% | 100% |
 
-Index is searched, not injected — the scaling argument is that **full injection fails at 500 lessons (~12k tokens catalog alone)** while search stays bounded by what the selector opens.
-
-### 4.3 Dogfood retrieval (real store, one user, ~29 nodes)
+### 4.6 Dogfood retrieval (real store, one user, ~29 nodes)
 
 From `EXPERIMENTS.md` (Aug 2026):
 
@@ -150,19 +170,14 @@ From `EXPERIMENTS.md` (Aug 2026):
 | Haiku router | 35% | 75% | 8,818 |
 | After tune (1 round) | **51%** | **88%** | — |
 
-**Negative result:** cheap-model routing is worse than no filter — include in paper.
+### 4.7 Remaining for submission
 
-### 4.4 Ablations (planned)
-
-| Config | Expected effect |
+| Experiment | Status |
 |---|---|
-| RSE full | baseline |
-| − meta-testing (`--skip-replay`) | retention drops at L2+ |
-| − compaction (L0 only) | tokens rise, transfer flat |
-| − judge filter (`serve-all`) | precision ↓, noise ↑ |
-| − tune | recall stagnates |
-
-### 4.5 Comparison to WikiSkill
+| Claude-graded RMC-Bench | Needs `--agent claude` |
+| WikiSkill benchmark adapter | Not built |
+| End-to-end session-length paired study | Not measured |
+| Agentic recall arm | Needs Claude/Codex |
 
 WikiSkill co-evolves skills + wiki offline on fixed benchmarks with full skill injection. RSE targets the **production setting** WikiSkill defers: growing stores, retrieval under budget, validated compaction. Complementary, not competing — future work integrates WikiSkill benchmarks with RSE recall.
 

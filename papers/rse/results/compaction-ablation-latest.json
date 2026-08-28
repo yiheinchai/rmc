@@ -1,0 +1,16 @@
+{
+  "with_meta_testing": {
+    "accepted": true,
+    "reason": "accepted at 70% of original, 100% replay pass",
+    "before_tokens": 60,
+    "after_tokens": 42,
+    "pass_rate": 1.0,
+    "replays": 3
+  },
+  "without_meta_testing": {
+    "accepted": true,
+    "reason": "accepted at 70% of original (replay skipped)",
+    "before_tokens": 60,
+    "after_tokens": 42
+  }
+}

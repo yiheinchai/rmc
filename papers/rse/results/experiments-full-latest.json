@@ -1,5 +1,4 @@
 {
-  "generated_at": "20260828T225110Z",
   "agent": "mock",
   "samples": 3,
   "bench": {
@@ -495,5 +494,6 @@
   },
   "notes": [
     "agentic recall arm requires claude/codex subprocess; skipped on mock"
-  ]
+  ],
+  "generated_at": "20260828T225110Z"
 }

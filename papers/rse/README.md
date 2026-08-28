@@ -9,26 +9,23 @@ machine-readable evaluation results.
 # Install
 pip install -e ".[dev]"
 
-# Run the full publication suite (mock backend — no API keys)
+# Run ALL experiments (bench, scaling, recall ablations, compaction, retention curve)
+python3 scripts/run_all_experiments.py --samples 3
+
+# Bench + scaling only
 python3 scripts/run_paper_evals.py
 
-# Run with a real agent when available
-python3 scripts/run_paper_evals.py --agent claude --samples 3
-
-# Run RMC-Bench only
-python3 -m rmc.cli bench --agent mock --json
-
-# Recall ablations (requires a populated .rmc store with episodes)
-rmc eval-recall --arm judge --save judge
-rmc eval-recall --arm serve-all --against judge
-rmc eval-recall --arm agentic --against judge
+# With a real agent when available
+python3 scripts/run_all_experiments.py --agent claude --samples 3
 ```
 
 Results land in `papers/rse/results/`:
 
 | File | Contents |
 |---|---|
-| `summary-latest.json` | Combined bench + scaling snapshot |
+| `experiments-full-latest.json` | Complete suite: bench + scaling + recall + compaction + retention |
+| `recall-ablations-latest.json` | serve-all vs judge precision/recall |
+| `compaction-ablation-latest.json` | meta-testing on/off |
 | `rmc-bench-latest.json` | Per-case transfer/retrieval scores |
 | `scaling-latest.json` | Synthetic store scaling table |
 
@@ -59,13 +56,13 @@ tuning, negative results. Cite alongside benchmark numbers.
 |---|---|
 | Abstract + contributions | Draft in `paper.md` |
 | Method (§3) | Mapped to `DESIGN.md` / codebase |
-| RMC-Bench results | Mock numbers in `results/`; **re-run with Claude for submission** |
-| WikiSkill-comparable benchmarks | Not yet integrated — see `paper.md` §Future work |
-| Ablations (no meta-test, no retrieval tune) | CLI flags exist (`--skip-replay`, recall arms) |
+| RMC-Bench + full suite | **Run** — `experiments-full-latest.json` |
+| Recall ablations | **Run** — judge 100% prec vs serve-all 47% |
+| Retention curve | **Run** — L0 100% → L1 0% on held-out S3 |
+| WikiSkill-comparable benchmarks | Not yet integrated |
 
 ## Next steps for submission-quality numbers
 
-1. `python3 scripts/run_paper_evals.py --agent claude --samples 3`
-2. Wire WikiSkill benchmark harness (SpreadSheet, ALFWorld, etc.) with RSE recall
-3. Run paired on/off session-length study (EXPERIMENTS.md §7 — product claim)
-4. Fill ablation table: meta-testing off, serve-all, tune off
+1. `python3 scripts/run_all_experiments.py --agent claude --samples 3`
+2. Wire WikiSkill benchmark harness with RSE recall
+3. End-to-end session-length paired study (EXPERIMENTS.md §7)

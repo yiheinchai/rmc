@@ -265,11 +265,14 @@ def _classify(prompt: str) -> str:
 
 
 def _candidates(prompt: str) -> list[tuple[str, str]]:
-    """Parse the `[id: n_x] ...` blocks a relevance/related prompt renders."""
+    """Parse lesson blocks from relevance/related prompts."""
     body = _section(prompt, "LESSONS") or _section(prompt, "REMEMBERED")
+    if not body:
+        # Judge relevance format: [n_abc] title — gist
+        body = prompt
     out: list[tuple[str, str]] = []
-    for chunk in re.split(r"\n\s*\n(?=\[id: )", body):
-        match = re.match(r"\[id: ([^\]]+)\]", chunk.strip())
+    for chunk in re.split(r"\n\s*\n(?=\[)", body):
+        match = re.match(r"\[([^\]]+)\]", chunk.strip())
         if match:
             out.append((match.group(1).strip(), chunk))
     return out

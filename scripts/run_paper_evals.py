@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Run the RSE publication evaluation suite and write results to papers/rse/results/.
 
-Usage:
-    python3 scripts/run_paper_evals.py
-    python3 scripts/run_paper_evals.py --agent claude
+Prefer scripts/run_all_experiments.py for the complete suite (recall ablations,
+compaction, walkthrough, retention curve). This script runs bench + scaling only.
 """
 
 from __future__ import annotations
@@ -24,10 +23,16 @@ from rmc.scaling import render_table, run_scaling
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run RSE paper evaluation suite")
+    parser.add_argument("--full", action="store_true", help="run complete suite via run_all_experiments")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=1)
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     args = parser.parse_args()
+
+    if args.full:
+        from scripts.run_all_experiments import main as run_all_main
+        sys.argv = ["run_all_experiments", "--agent", args.agent, "--samples", str(args.samples)]
+        return run_all_main()
 
     adapter = get_adapter(args.agent)
     if not adapter.available():
