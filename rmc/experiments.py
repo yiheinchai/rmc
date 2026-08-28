@@ -375,6 +375,12 @@ def run_all(*, agent: str = "mock", samples: int = 3) -> ExperimentSuite:
                 "agentic recall arm requires claude/codex subprocess; skipped on mock"
             )
             suite.recall["arms"].pop("agentic", None)
+        else:
+            try:
+                agentic = run_recall(store, adapter, arm="agentic")
+                suite.recall["arms"]["agentic"] = _recall_report_dict(agentic)
+            except Exception as exc:
+                suite.notes.append(f"agentic recall failed: {exc}")
 
     suite.compaction = run_compaction_ablation(adapter)
     suite.walkthrough = run_walkthrough_cycle(adapter)
