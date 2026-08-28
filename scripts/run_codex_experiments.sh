@@ -31,11 +31,10 @@ fi
 
 codex login status
 
-echo "Smoke test ..."
-echo 'Reply with exactly: OK' | codex exec --skip-git-repo-check --ephemeral -s read-only -o /tmp/codex-smoke.txt
-echo "Smoke output: $(cat /tmp/codex-smoke.txt 2>/dev/null || echo '(empty)')"
+echo "Harness validation (cheap; ~4 Codex calls) ..."
+cd "${ROOT}"
+python3 scripts/validate_agent_harness.py --agent codex
 
 SAMPLES="${1:-3}"
 echo "Running full experiment suite (samples=${SAMPLES}) ..."
-cd "${ROOT}"
 python3 scripts/run_all_experiments.py --agent codex --samples "${SAMPLES}"
