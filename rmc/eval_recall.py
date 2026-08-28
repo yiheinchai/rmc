@@ -142,7 +142,11 @@ class Report:
             + (
                 "  (candidates: the whole store, searched cold)"
                 if self.arm == "agentic"
-                else "  (candidates: exactly what the episode was served)"
+                else (
+                    "  (candidates: everything served, no filter)"
+                    if self.arm == "serve-all"
+                    else "  (candidates: exactly what the episode was served)"
+                )
             ),
             f"precision      {self.precision:.0%}  ({self.hits}/{self.kept} kept lessons bore on the work)",
             f"recall         {self.recall_rate:.0%}  ({self.hits}/{self.used} useful lessons still delivered)",
@@ -160,7 +164,7 @@ class Report:
         return "\n".join(lines)
 
 
-ARMS = ("judge", "agentic")
+ARMS = ("judge", "agentic", "serve-all")
 
 
 def run(store: Store, adapter: Adapter, *, limit: int = 0, arm: str = "judge") -> Report:
@@ -210,7 +214,10 @@ def run(store: Store, adapter: Adapter, *, limit: int = 0, arm: str = "judge") -
         # `used` may name lessons since compressed away; only score what exists.
         used = {i for i in (episode.used or []) if store.get(i) is not None}
 
-        if arm == "judge":
+        if arm == "serve-all":
+            candidates = served
+            kept = {n.id for n in served}
+        elif arm == "judge":
             # A judge per episode, so nothing is carried between them — and its
             # own cache means re-running the eval on an unchanged store is free.
             picks = Judge(store, adapter).relevance(episode.prompt, served)

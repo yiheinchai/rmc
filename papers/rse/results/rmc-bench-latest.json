@@ -1,0 +1,360 @@
+{
+  "agent": "mock",
+  "bench_path": "/workspace/evals/rmc-bench.yaml",
+  "lift": 0.7,
+  "transfer": {
+    "passed": 9,
+    "total": 10,
+    "rate": 0.9
+  },
+  "retrieval": {
+    "passed": 4,
+    "total": 7,
+    "rate": 0.5714285714285714
+  },
+  "retention": {
+    "L0": {
+      "passed": 3,
+      "total": 3
+    },
+    "L1": {
+      "passed": 0,
+      "total": 0
+    }
+  },
+  "cases": [
+    {
+      "case_id": "delete-is-soft",
+      "kind": "trap",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 1/3 key terms (33%)"
+    },
+    {
+      "case_id": "delete-is-soft",
+      "kind": "trap",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 128,
+      "retrieval_ok": null,
+      "reason": "matched 2/3 key terms (67%)"
+    },
+    {
+      "case_id": "migrations-forward-only",
+      "kind": "trap",
+      "arm": "none",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "migrations-forward-only",
+      "kind": "trap",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 120,
+      "retrieval_ok": null,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "charges-not-idempotent",
+      "kind": "trap",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "charges-not-idempotent",
+      "kind": "trap",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 102,
+      "retrieval_ok": null,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "integration-pg-port",
+      "kind": "detail",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 0/3 key terms (0%)"
+    },
+    {
+      "case_id": "integration-pg-port",
+      "kind": "detail",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 111,
+      "retrieval_ok": null,
+      "reason": "matched 3/3 key terms (100%)"
+    },
+    {
+      "case_id": "retry-backoff-constants",
+      "kind": "detail",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 0/4 key terms (0%)"
+    },
+    {
+      "case_id": "retry-backoff-constants",
+      "kind": "detail",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 103,
+      "retrieval_ok": null,
+      "reason": "matched 4/4 key terms (100%)"
+    },
+    {
+      "case_id": "s3-two-hundred-error",
+      "kind": "detail",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "s3-two-hundred-error",
+      "kind": "detail",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 95,
+      "retrieval_ok": null,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "meaning-is-not-overlap",
+      "kind": "principle",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "meaning-is-not-overlap",
+      "kind": "principle",
+      "arm": "L0",
+      "passed": false,
+      "tokens": 178,
+      "retrieval_ok": null,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "teardown-cancels-hooks",
+      "kind": "principle",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "teardown-cancels-hooks",
+      "kind": "principle",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 101,
+      "retrieval_ok": null,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "retry-a-charge-properly",
+      "kind": "multi",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 1/6 key terms (17%)"
+    },
+    {
+      "case_id": "retry-a-charge-properly",
+      "kind": "multi",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 207,
+      "retrieval_ok": null,
+      "reason": "matched 6/6 key terms (100%)"
+    },
+    {
+      "case_id": "ship-a-schema-change",
+      "kind": "multi",
+      "arm": "none",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "matched 1/2 key terms (50%)"
+    },
+    {
+      "case_id": "ship-a-schema-change",
+      "kind": "multi",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 250,
+      "retrieval_ok": null,
+      "reason": "matched 2/2 key terms (100%)"
+    },
+    {
+      "case_id": "retry-a-ci-job",
+      "kind": "distractor",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/1"
+    },
+    {
+      "case_id": "retry-a-ci-job",
+      "kind": "distractor",
+      "arm": "L0",
+      "passed": false,
+      "tokens": 103,
+      "retrieval_ok": null,
+      "reason": "content terms 0/1"
+    },
+    {
+      "case_id": "cache-the-rendered-page",
+      "kind": "distractor",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/2"
+    },
+    {
+      "case_id": "cache-the-rendered-page",
+      "kind": "distractor",
+      "arm": "L0",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/2"
+    },
+    {
+      "case_id": "which-pg-port",
+      "kind": "conflict",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "conflict=False, terms 0/2"
+    },
+    {
+      "case_id": "which-pg-port",
+      "kind": "conflict",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 174,
+      "retrieval_ok": null,
+      "reason": "conflict=True, terms 2/2"
+    },
+    {
+      "case_id": "name-the-feature-flag",
+      "kind": "null",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/1"
+    },
+    {
+      "case_id": "name-the-feature-flag",
+      "kind": "null",
+      "arm": "L0",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/1"
+    },
+    {
+      "case_id": "explain-a-regex",
+      "kind": "null",
+      "arm": "none",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/1"
+    },
+    {
+      "case_id": "explain-a-regex",
+      "kind": "null",
+      "arm": "L0",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "content terms 0/1"
+    },
+    {
+      "case_id": "retry-a-charge-properly",
+      "kind": "multi",
+      "arm": "retrieval",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": false,
+      "reason": "kept [] want ['charges-not-idempotent', 'retry-backoff-constants']"
+    },
+    {
+      "case_id": "ship-a-schema-change",
+      "kind": "multi",
+      "arm": "retrieval",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": false,
+      "reason": "kept [] want ['delete-is-soft', 'migrations-forward-only']"
+    },
+    {
+      "case_id": "retry-a-ci-job",
+      "kind": "distractor",
+      "arm": "retrieval",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": true,
+      "reason": "kept [] want []"
+    },
+    {
+      "case_id": "cache-the-rendered-page",
+      "kind": "distractor",
+      "arm": "retrieval",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": true,
+      "reason": "kept [] want []"
+    },
+    {
+      "case_id": "which-pg-port",
+      "kind": "conflict",
+      "arm": "retrieval",
+      "passed": false,
+      "tokens": 0,
+      "retrieval_ok": false,
+      "reason": "kept [] want ['integration-pg-port', 'integration-pg-port-moved']"
+    },
+    {
+      "case_id": "name-the-feature-flag",
+      "kind": "null",
+      "arm": "retrieval",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": true,
+      "reason": "kept [] want []"
+    },
+    {
+      "case_id": "explain-a-regex",
+      "kind": "null",
+      "arm": "retrieval",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": true,
+      "reason": "kept [] want []"
+    }
+  ]
+}
