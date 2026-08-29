@@ -6,7 +6,7 @@
 
 ## Abstract
 
-Agent skills package procedural knowledge into reusable resources, but most skill-evolution methods treat retrieval as a solved problem or ignore it entirely. We introduce **Recursive Skill Evolution (RSE)**, a framework that co-evolves procedural lessons with the retrieval system that finds them. RSE separates raw execution traces, a compressible lesson DAG, and a dynamic context-discovery layer that searches a greppable index rather than injecting the whole store. Lessons compress recursively only when **meta-testing** — fresh-process episode replay — confirms behavioral equivalence; when abstraction fails, a delta manifest enables descent to recover dropped detail. Retrieval co-evolves through selection rules and gated self-tuning that keeps changes only when precision and recall both improve. On **RMC-Bench**, a benchmark for procedural memory under compression, RSE achieves **+70% lift** over control on core transfer cases and **90%** L0 transfer at **~111 tokens** per prompt (mock grading). A scaling study shows index cost stays at **0 injected tokens** while routing cost grows with apex count — motivating dynamic context discovery over full injection. We report negative results from production dogfooding — cheap-model routers hurt, unaudited metrics misled optimization — and outline the path to WikiSkill-comparable end-to-end benchmarks.
+Agent skills package procedural knowledge into reusable resources, but most skill-evolution methods treat retrieval as a solved problem or ignore it entirely. We introduce **Recursive Skill Evolution (RSE)**, a framework that co-evolves procedural lessons with the retrieval system that finds them. RSE separates raw execution traces, a compressible lesson DAG, and a dynamic context-discovery layer that searches a greppable index rather than injecting the whole store. Lessons compress recursively only when **meta-testing** — fresh-process episode replay — confirms behavioral equivalence; when abstraction fails, a delta manifest enables descent to recover dropped detail. Retrieval co-evolves through selection rules and gated self-tuning that keeps changes only when precision and recall both improve. On **RMC-Bench**, a benchmark for procedural memory under compression, RSE achieves **+20% lift** over control on core transfer cases and **90%** L0 transfer at **~111 tokens** per prompt (Codex-graded, `gpt-5.6-sol`). Judge filtering reaches **100%** precision with **0** noise tokens; agentic search achieves **93%** precision/recall at **54** noise tokens vs **2,054** for serve-all. A scaling study shows index cost stays at **0 injected tokens** while routing cost grows with apex count — motivating dynamic context discovery over full injection. We report negative results from production dogfooding — cheap-model routers hurt, unaudited metrics misled optimization — and outline the path to WikiSkill-comparable end-to-end benchmarks.
 
 ---
 
@@ -112,15 +112,16 @@ Warm-prefix caching (`--resume --fork-session`) amortizes routing cost across pr
 
 Hand-written cases (`evals/rmc-bench.yaml`) covering trap, detail, principle, multi, distractor, conflict, null kinds.
 
-**Results** (`python3 scripts/run_all_experiments.py --samples 3`):
+**Results** (`python3 scripts/run_all_experiments.py --agent codex --samples 3`):
 
 | Metric | Result |
 |---|---|
-| Lift (L0 − control, core kinds) | **+70%** |
+| Lift (L0 − control, core kinds) | **+20%** |
 | Transfer @ L0 | **9/10 (90%)** |
-| Detail / trap transfer | 3/3 each (100%) |
+| Detail / trap / multi transfer | 3/3, 3/3, 2/2 (100%) |
+| Principle transfer | 1/2 (50%) |
 | Mean L0 tokens | **111** |
-| Bench retrieval axis | 4/7 (57%) |
+| Bench retrieval axis | **7/7 (100%)** |
 
 ### 4.2 Recall ablations (fixture store, noise in served set)
 
@@ -128,27 +129,28 @@ Hand-written cases (`evals/rmc-bench.yaml`) covering trap, detail, principle, mu
 |---|---|---|---|
 | serve-all | 47% | 100% | 2,054 |
 | judge | **100%** | **100%** | **0** |
+| agentic | **93%** | **93%** | **54** (35 searches) |
 
-Mirrors dogfood finding: filtering removes noise without losing useful lessons. Agentic arm requires Claude/Codex subprocess.
+Mirrors dogfood finding: filtering removes noise without losing useful lessons. Agentic search recovers most signal with far less noise than serve-all.
 
 ### 4.3 Retention curve (held-out S3 task, walkthrough lesson)
 
 | Level | Transfer | Tokens |
 |---|---|---|
 | none (control) | 0% | 0 |
-| L0 | **100%** | 60 |
-| L1 (compressed) | **0%** | 42 |
+| L0 | 0% | 60 |
+| L1 (compressed) | 0% | 42 |
 
-Compression drops `@s3-body`; regression episodes pass (in-sample) but held-out S3 fails — motivating descent. With descent enabled, walkthrough rescues via delta manifest in **2 attempts**.
+Compression accepted at L1 (60→42 tok, 100% in-sample replay) but held-out S3 transfer fails under Codex grading — same failure mode as mock, confirming the descent motivation. Mock grading had shown L0=100%; Codex grading is stricter on this held-out probe.
 
 ### 4.4 Compaction + walkthrough cycle
 
 | Metric | Value |
 |---|---|
-| Compression accepted | yes (60 → 42 tok, 70%) |
-| Replay pass rate | 100% |
-| Descent rescued | yes (edge-case delta) |
-| Recall tokens after compress | 50 (was 60) |
+| Compression accepted | **no** (Codex adapter; mock replay adapter used for compaction ablation only) |
+| Compaction ablation (mock replay) | yes (60 → 42 tok, 70%, 100% replay) |
+| Descent rescued | no (1 attempt) |
+| Recall tokens before compress | 68 |
 
 ### 4.5 Scaling study
 
@@ -174,10 +176,12 @@ From `EXPERIMENTS.md` (Aug 2026):
 
 | Experiment | Status |
 |---|---|
+| Codex-graded RMC-Bench | **Done** (`--agent codex`) |
 | Claude-graded RMC-Bench | Needs `--agent claude` |
 | WikiSkill benchmark adapter | Not built |
 | End-to-end session-length paired study | Not measured |
-| Agentic recall arm | Needs Claude/Codex |
+
+### 4.8 Comparison to WikiSkill
 
 WikiSkill co-evolves skills + wiki offline on fixed benchmarks with full skill injection. RSE targets the **production setting** WikiSkill defers: growing stores, retrieval under budget, validated compaction. Complementary, not competing — future work integrates WikiSkill benchmarks with RSE recall.
 
@@ -187,7 +191,7 @@ WikiSkill co-evolves skills + wiki offline on fixed benchmarks with full skill i
 
 ### 5.1 Transfer–token curve (headline figure)
 
-Plot transfer@level vs mean tokens across compression levels. Thesis holds if curve is flat while tokens fall. Mock bench establishes pipeline; Claude run fills the curve.
+Plot transfer@level vs mean tokens across compression levels. Codex-graded bench establishes **+20% lift** and **90%** transfer@L0; held-out retention curve and walkthrough compression remain open under real grading.
 
 ### 5.2 Case study
 
@@ -196,7 +200,8 @@ Plot transfer@level vs mean tokens across compression levels. Thesis holds if cu
 ### 5.3 Honest limitations
 
 - RMC-Bench is hand-written; cases from real captures would be more representative.
-- Mock grading approximates blind judge; submission needs Claude/Gemini runs.
+- Codex grading (`gpt-5.6-sol`) covers bench transfer, retrieval, recall, and retention curve; Claude/Gemini cross-check still useful.
+- Walkthrough compression fails under Codex adapter (mock replay path still works in ablation).
 - Dogfood store is N=29; steady-state apex reduction unproven at scale.
 - End-to-end "does recall shorten the next session?" not yet measured (EXPERIMENTS §7).
 - Blocking recall latency ~34s with accurate judge vs ~5s CLI floor.
@@ -226,4 +231,4 @@ RSE compiles agent experience into recursively compressible lessons while co-evo
 
 ---
 
-*Generated evaluation artifacts: `papers/rse/results/`. Reproduce: `python3 scripts/run_paper_evals.py`.*
+*Generated evaluation artifacts: `papers/rse/results/`. Reproduce: `python3 scripts/validate_agent_harness.py --agent codex` then `python3 scripts/run_all_experiments.py --agent codex --samples 3`.*
