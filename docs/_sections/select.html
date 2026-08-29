@@ -1,6 +1,6 @@
 <h2 id="select">07 &nbsp;Selection lessons</h2>
     <p>
-      RMC applied to its own retrieval. Every other stage learns from outcomes;
+      ROSE applied to its own retrieval. Every other stage learns from outcomes;
       selection learned from nothing, and it is the stage measured to be worst.
     </p>
 
@@ -29,7 +29,7 @@
       Selection lessons are not stored under <code>nodes/</code>. If they were,
       they would be retrieved by the very mechanism they exist to fix, and would
       compete with real lessons for the same injection budget. They live in
-      <code>.rmc/routing/</code> and are always injected, under their own cap.
+      <code>.rose/routing/</code> and are always injected, under their own cap.
     </p>
     <p>
       They are also the <b>only</b> thing retrieval now costs per prompt. The
@@ -63,7 +63,7 @@
     <p>
       The bet is that selection lessons track <i>kinds of work</i>, not lessons,
       so the layer stays small while the store does not. That is a bet, not a
-      guarantee, so <code>rmc status</code> and <code>rmc route</code> report the
+      guarantee, so <code>rose status</code> and <code>rose route</code> report the
       ratio:
     </p>
     <pre><code>routing    4 selection rules over 210 lessons  (ratio 0.02, should fall as the store grows)</code></pre>
@@ -74,9 +74,9 @@
     </p>
 
     <h3>Inspecting and correcting them</h3>
-    <pre><code>rmc route                     # the rules, their record, and the growth ratio
-rmc route --when "..." --then "..."   # teach one by hand
-rmc route --forget r_e5fea0   # delete one</code></pre>
+    <pre><code>rose route                     # the rules, their record, and the growth ratio
+rose route --when "..." --then "..."   # teach one by hand
+rose route --forget r_e5fea0   # delete one</code></pre>
     <p>
       A rule that keeps sending the selector somewhere useless is charged for
       it, and drops out of the injected layer on its own once better rules

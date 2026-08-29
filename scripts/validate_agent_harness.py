@@ -14,11 +14,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import get_adapter
-from rmc.bench import bench_adapter, load_bench, score_transfer
-from rmc.evaluate import _grade
-from rmc.judge import RELEVANCE_SCHEMA
-from rmc.prompts import BLIND_JUDGE, JUDGE_SCHEMA
+from rose.adapters import get_adapter
+from rose.bench import bench_adapter, load_bench, score_transfer
+from rose.evaluate import _grade
+from rose.judge import RELEVANCE_SCHEMA
+from rose.prompts import BLIND_JUDGE, JUDGE_SCHEMA
 
 
 def _fail(msg: str) -> int:

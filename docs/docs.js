@@ -19,7 +19,7 @@
     themeBtn.addEventListener('click', function () {
       var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
       root.dataset.theme = next;
-      try { localStorage.setItem('rmc-theme', next); } catch (e) {}
+      try { localStorage.setItem('rose-theme', next); } catch (e) {}
     });
   }
 
@@ -99,7 +99,7 @@
 
   /* ------------------------------------------------------------ search */
   var data = [];
-  try { data = JSON.parse($('#rmc-search').textContent); } catch (e) {}
+  try { data = JSON.parse($('#rose-search').textContent); } catch (e) {}
 
   var box = $('#searchbox');
   var input = $('#q');

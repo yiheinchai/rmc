@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run WikiSkill-comparable benchmark evals with RSE recall arms."""
+"""Run WikiSkill-comparable benchmark evals with ROSE recall arms."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import get_adapter
-from rmc.bench import bench_adapter
-from rmc.wikiskill import _bench_paths_match, from_checkpoint_dict, run, to_dict
+from rose.adapters import get_adapter
+from rose.bench import bench_adapter
+from rose.wikiskill import _bench_paths_match, from_checkpoint_dict, run, to_dict
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="WikiSkill-comparable RSE benchmark")
+    parser = argparse.ArgumentParser(description="WikiSkill-comparable ROSE benchmark")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--bench", type=Path, default=None, help="YAML or JSONL benchmark path")
@@ -30,7 +30,7 @@ def main() -> int:
         default=None,
         help="subset of arms (default: all). e.g. --arms no-skill full-inject recall-agentic",
     )
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     parser.add_argument("--checkpoint", action="store_true", help="write partial results after each task")
     parser.add_argument("--resume", action="store_true", help="resume from wikiskill-latest.json checkpoint")
     args = parser.parse_args()

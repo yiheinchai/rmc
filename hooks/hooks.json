@@ -5,9 +5,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/rmc hook user-prompt-submit",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/rose hook user-prompt-submit",
             "timeout": 30,
-            "_rmc": true,
+            "_rose": true,
             "statusMessage": "Recalling lessons\u2026"
           }
         ]
@@ -18,9 +18,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/rmc hook session-end",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/rose hook session-end",
             "timeout": 30,
-            "_rmc": true,
+            "_rose": true,
             "statusMessage": "Learning from this session\u2026"
           }
         ]
@@ -31,10 +31,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/bin/rmc hook stop",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/rose hook stop",
             "timeout": 15,
             "statusMessage": "Learning check\u2026",
-            "_rmc": true
+            "_rose": true
           }
         ]
       }

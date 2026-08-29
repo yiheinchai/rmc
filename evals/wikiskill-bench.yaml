@@ -1,8 +1,8 @@
-# WikiSkill-comparable benchmark subset for RSE evaluation.
+# WikiSkill-comparable benchmark subset for ROSE evaluation.
 #
 # Mirrors the five WikiSkill domains (Table 6, arXiv:2608.27454) with
 # single-turn probeable tasks. Each case ships an evolved skill (lesson) that
-# full-inject loads WikiSkill-style; RSE recall arms select from the store.
+# full-inject loads WikiSkill-style; ROSE recall arms select from the store.
 #
 # Arms: no-skill | full-inject | recall-judge | recall-agentic
 

@@ -1,7 +1,7 @@
 <h2 id="gaps">What it still gets wrong</h2>
 <p>
   Stated plainly, because a system that only reports its wins is not credible
-  about the ones it has. Every number below comes from <code>rmc status</code>
+  about the ones it has. Every number below comes from <code>rose status</code>
   on a real store rather than an estimate.
 </p>
 
@@ -20,14 +20,14 @@
   nothing. The new criteria are better founded — they trigger on observed
   steering rather than judged wrongness — but they are a prompt, and a prompt is
   a hypothesis. When the reflector misses something, that is a defect to file
-  with <code>rmc report</code>, not a fact of life.
+  with <code>rose report</code>, not a fact of life.
 </p>
 
 <h3>Capture has no eval</h3>
 <p>
   Recall, compression and descent all have ground truth in the loop: used
   against served, replay pass-rate against a threshold, rescues against
-  attempts. <code>rmc eval</code> measures transfer, retention, retrieval and
+  attempts. <code>rose eval</code> measures transfer, retention, retrieval and
   cost — and every one of those takes the store as given. There is no axis for
   <i>given this session, did the reflector find what was in it?</i>, so the
   capture criteria are the one part of the pipeline that cannot regress

@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rmc.experiments import run_all
+from rose.experiments import run_all
 
 
 class TestExperiments(unittest.TestCase):

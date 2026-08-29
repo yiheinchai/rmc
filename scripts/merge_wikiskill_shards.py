@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.wikiskill import _bench_paths_match, from_checkpoint_dict, merge_reports, to_dict
+from rose.wikiskill import _bench_paths_match, from_checkpoint_dict, merge_reports, to_dict
 
 
 def merge_shard_paths(paths: list[Path]) -> dict:
@@ -46,7 +46,7 @@ def main() -> int:
     parser.add_argument(
         "--out",
         type=Path,
-        default=ROOT / "papers" / "rse" / "results" / "wikiskill-latest.json",
+        default=ROOT / "papers" / "rose" / "results" / "wikiskill-latest.json",
     )
     args = parser.parse_args()
 

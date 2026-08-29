@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the complete RSE experiment suite and write all results."""
+"""Run the complete ROSE experiment suite and write all results."""
 
 from __future__ import annotations
 
@@ -12,14 +12,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.experiments import render_summary, run_all
+from rose.experiments import render_summary, run_all
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run all RSE publication experiments")
+    parser = argparse.ArgumentParser(description="Run all ROSE publication experiments")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=3)
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     args = parser.parse_args()
 
     out = args.out
@@ -59,7 +59,7 @@ def main() -> int:
         "notes": suite.notes,
     }
     (out / "summary-latest.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    (out / "rmc-bench-latest.json").write_text(json.dumps(suite.bench, indent=2), encoding="utf-8")
+    (out / "rose-bench-latest.json").write_text(json.dumps(suite.bench, indent=2), encoding="utf-8")
     (out / "scaling-latest.json").write_text(json.dumps(suite.scaling, indent=2), encoding="utf-8")
     (out / "recall-ablations-latest.json").write_text(
         json.dumps(suite.recall, indent=2), encoding="utf-8"

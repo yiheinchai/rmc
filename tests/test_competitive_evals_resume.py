@@ -30,9 +30,9 @@ class TestCompetitiveEvalsResume(unittest.TestCase):
         cls.mod = _load()
 
     def test_load_upstream_existing_from_wikiskill_checkpoint(self) -> None:
-        from rmc.adapters.mock import MockAdapter
-        from rmc.bench import bench_adapter
-        from rmc.wikiskill import run, to_dict
+        from rose.adapters.mock import MockAdapter
+        from rose.bench import bench_adapter
+        from rose.wikiskill import run, to_dict
 
         bench = ROOT / "evals" / "upstream" / "sealqa-test.jsonl"
         report = run(
@@ -48,7 +48,7 @@ class TestCompetitiveEvalsResume(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             wiki = Path(tmp) / "wikiskill-latest.json"
             wiki.write_text(json.dumps(ckpt), encoding="utf-8")
-            orig = ROOT / "papers" / "rse" / "results" / "wikiskill-latest.json"
+            orig = ROOT / "papers" / "rose" / "results" / "wikiskill-latest.json"
             backup = None
             if orig.exists():
                 backup = orig.read_text(encoding="utf-8")

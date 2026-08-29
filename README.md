@@ -1,4 +1,4 @@
-# RMC — Recursive Memory Compaction
+# ROSE — Recursive Online Skill Evolution
 
 A continual-learning harness for **Claude Code** and **Codex**. Lessons are
 learned once in verbose form, then **recursively compressed each time they are
@@ -8,7 +8,7 @@ for detail when the abstraction fails.
 
 You do not drive it. You work normally, and it runs in hooks.
 
-**[Read the docs →](https://yiheinchai.com/rmc)**
+**[Read the docs →](https://yiheinchai.com/rose)**
 
 ---
 
@@ -41,7 +41,7 @@ The standard learning cycle produces one artifact and stops:
 task + steering  ->  correct output  ->  reflection  ->  lesson
 ```
 
-RMC keeps going. Every time a lesson is *used* and the work succeeds, that is
+ROSE keeps going. Every time a lesson is *used* and the work succeeds, that is
 evidence the lesson contained slack, so it earns a compression attempt:
 
 ```
@@ -66,11 +66,11 @@ the whole idea: usage drives abstraction.
 | you submit a prompt | matching lessons are injected as context | 0–1, cached |
 | context is about to compact | the record of what you were shown is cleared | 0 |
 | a substantial turn ends | a reflector runs off-thread: did anything teach us something, and which lessons actually mattered | 1–2, detached |
-| you teach it something | `rmc add` records it immediately, reconciled against what is known | 1–2 |
+| you teach it something | `rose add` records it immediately, reconciled against what is known | 1–2 |
 | the session ends | the transcript is judged, lessons minted, compression attempted, selection rules written | 2–4, detached |
 
 Everything expensive is **detached** — spawned as a separate process that
-outlives the hook. Spawned agents get `RMC_CHILD=1`, which makes RMC's own hooks
+outlives the hook. Spawned agents get `ROSE_CHILD=1`, which makes ROSE's own hooks
 no-op; without it a reflector would trigger reflectors forever.
 
 ---
@@ -83,7 +83,7 @@ The harness owns the graph, the traversal, budgets, caches, the schemas answers
 must fit, and *whether to ask at all*. The model owns every question about
 meaning, each behind a JSON schema, cached so nothing is judged twice.
 
-There are exactly five semantic calls in the system (`rmc/judge.py`):
+There are exactly five semantic calls in the system (`rose/judge.py`):
 
 | Call | Question |
 |---|---|
@@ -167,8 +167,8 @@ text being tracked.
 
 ```
 ⋯ Recalling lessons…                                    (while the hook runs)
-⋯ RMC · 2 lessons · 512 tok — Retry policy, Cache TTLs   (after injection)
-⋯ RMC · 1 lesson · 118 tok — Retry policy · 1 refreshed, 2 already in context
+⋯ ROSE · 2 lessons · 512 tok — Retry policy, Cache TTLs   (after injection)
+⋯ ROSE · 1 lesson · 118 tok — Retry policy · 1 refreshed, 2 already in context
 ```
 
 The counts distinguish three different things: a lesson injected in full, a
@@ -192,7 +192,7 @@ thought" — measured by `nudge_after_tool_calls` (12), `nudge_after_turns` (3),
 triggered on failed tool calls, which sounds structural but is a mechanical
 proxy for a semantic question, and it biases hard toward the cheapest mistakes.
 Conceptual errors — believing a system works one way when it does not — exit
-zero and pass their tests. During RMC's own development the worst mistake ran
+zero and pass their tests. During ROSE's own development the worst mistake ran
 green the whole way.
 
 ### Where it runs — `learning.nudge_mode`
@@ -229,7 +229,7 @@ Two sources, best first:
 
 1. **The in-session reflector.** The fork holds the real conversation, so it can
    see a principle being applied and not merely a command being run. It reports
-   with `rmc used --session <id> --used <ids> --unused <ids>`.
+   with `rose used --session <id> --used <ids> --unused <ids>`.
 2. **The digest judge.** `assess` is shown the served lessons and the session
    digest and answers `lessons_used` per lesson. Weaker: influence on *reasoning*
    is nearly invisible in a digest of commands, so it under-credits principles.
@@ -248,7 +248,7 @@ three possible causes and only the first is a retrieval problem:
 | redundant | the agent knew it anyway |
 | relevant and ignored | the lesson isn't landing — a salience failure |
 
-`rmc status` reports `precision` (used ÷ served).
+`rose status` reports `precision` (used ÷ served).
 
 ---
 
@@ -263,7 +263,7 @@ a vendor API filed under one repo is invisible from every other one, so nothing
 downstream can rescue it — not recall, not compression, not descent.
 
 So `scope` asks: does this depend on *this repository*, or would it be true for
-anyone using these tools anywhere? Global lessons go to `~/.rmc`, project
+anyone using these tools anywhere? Global lessons go to `~/.rose`, project
 lessons stay local. The error is asymmetric: a global lesson filed locally is
 **lost**, a project lesson filed globally is merely noise.
 
@@ -293,7 +293,7 @@ rots. Both lessons stay servable, and the question is raised at recall time:
 > only temporarily unavailable at the time?
 ```
 
-`rmc conflicts` lists them, `rmc resolve <id> [--drop]` settles them.
+`rose conflicts` lists them, `rose resolve <id> [--drop]` settles them.
 
 ---
 
@@ -401,7 +401,7 @@ If that fails too, it is a genuine knowledge gap, not a compression bug.
 
 ## 7. Selection lessons
 
-RMC applied to its own retrieval. Every other stage learns from outcomes;
+ROSE applied to its own retrieval. Every other stage learns from outcomes;
 selection learned from nothing, and it is the stage measured worst — filtering
 lifts precision from 28% to 48%, which means **over half of what recall serves
 is never used**.
@@ -421,7 +421,7 @@ skips one it now knows is fruitless.
 
 Not under `nodes/`. If they were lessons they would be retrieved by the
 mechanism they exist to fix, and would compete with real lessons for the same
-budget. They live in `.rmc/routing/`, are always injected, and are capped by
+budget. They live in `.rose/routing/`, are always injected, and are capped by
 `routing.max_tokens`.
 
 They are also the **only** thing retrieval still costs per prompt — the index is
@@ -457,9 +457,9 @@ routing    4 selection rules over 210 lessons  (ratio 0.02, should fall as the s
 If that ratio climbs, the approach to the long tail is wrong.
 
 ```bash
-rmc route                              # the rules, their record, the growth ratio
-rmc route --when "..." --then "..."    # teach one by hand
-rmc route --forget r_e5fea0            # delete one
+rose route                              # the rules, their record, the growth ratio
+rose route --when "..." --then "..."    # teach one by hand
+rose route --forget r_e5fea0            # delete one
 ```
 
 ---
@@ -502,13 +502,13 @@ accepted_summary: "..."    # what the agent ended up doing
 ```
 
 This is the **ambient oracle**. Nobody writes YAML oracles for their own repo,
-so instead RMC records what happened when work was accepted, and later asks
+so instead ROSE records what happened when work was accepted, and later asks
 whether a compressed lesson still reproduces it.
 
 ### Store layout
 
 ```
-.rmc/
+.rose/
   config.yaml          settings
   nodes/<family>/*.md  the graph. Worth committing.
   episodes/*.json      the replay corpus. Worth committing.
@@ -517,13 +517,13 @@ whether a compressed lesson still reproduces it.
   judge-cache.json     cached judgements. Machine-local.
 ```
 
-**Two scopes.** If `~/.rmc` exists it is layered under the project store: both
+**Two scopes.** If `~/.rose` exists it is layered under the project store: both
 are recalled, new lessons are written to the project one, and editing a global
 lesson writes back to it rather than forking a local copy that drifts.
 
 **Privacy.** Everything passes through `redact.py` before touching disk — API
 keys, tokens, private keys, card numbers, `secret=…` assignments. Biased toward
-over-redaction: a mangled lesson is recoverable, a leaked key is not. RMC never
+over-redaction: a mangled lesson is recoverable, a leaked key is not. ROSE never
 sends anything anywhere; model calls go through whichever CLI you already have.
 
 ---
@@ -534,46 +534,46 @@ Python 3.10+ and at least one of `claude` / `codex`. No third-party
 dependencies.
 
 ```bash
-uv tool install rmc-memory
-rmc install --scope user
+uv tool install rose-memory
+rose install --scope user
 ```
 
-That is the whole thing. `rmc install` wires the hooks and RMC runs in every
+That is the whole thing. `rose install` wires the hooks and ROSE runs in every
 repo you open — you do not drive it, you just work. Drop `--scope user` to
 limit it to the project you run it from.
 
-Try it without installing anything: `uvx rmc-memory doctor`. Without uv:
-`pipx install rmc-memory`, or `pip install --user rmc-memory`.
+Try it without installing anything: `uvx rose-memory doctor`. Without uv:
+`pipx install rose-memory`, or `pip install --user rose-memory`.
 
-> The distribution is `rmc-memory` because `rmc` was taken on PyPI. The command
-> it installs, and the package you import, are both `rmc`.
+> The distribution is `rose-memory` because `rose` was taken on PyPI. The command
+> it installs, and the package you import, are both `rose`.
 
 **As a Claude Code plugin**, if you would rather not install anything yourself:
 
 ```
-/plugin marketplace add yiheinchai/rmc
-/plugin install rmc@rmc
+/plugin marketplace add yiheinchai/rose
+/plugin install rose@rose
 ```
 
-**Codex** gets an `AGENTS.md` block instructing the agent to call `rmc recall`
+**Codex** gets an `AGENTS.md` block instructing the agent to call `rose recall`
 itself, since Codex's hook schema is less settled. Codex also works as an
-execution backend for any RMC install (`rmc config agent codex`).
+execution backend for any ROSE install (`rose config agent codex`).
 
-### Working on RMC itself
+### Working on ROSE itself
 
 ```bash
-git clone https://github.com/yiheinchai/rmc && cd rmc
+git clone https://github.com/yiheinchai/rose && cd rose
 python3 -m unittest discover -s tests
-./bin/rmc install --scope user
+./bin/rose install --scope user
 ```
 
-`./bin/rmc` runs from a clone with no virtualenv, since the package is
+`./bin/rose` runs from a clone with no virtualenv, since the package is
 stdlib-only. Installing from a clone also symlinks the command into
 `~/.local/bin`; pass `--no-link` to skip that. Note the scope — without
 `--scope user` the hooks land in the clone, and every repo you actually work in
 gets nothing.
 
-`rmc uninstall` removes only what RMC added, and `rmc doctor` reports what is
+`rose uninstall` removes only what ROSE added, and `rose doctor` reports what is
 wired where.
 
 ---
@@ -581,21 +581,21 @@ wired where.
 ## Inspecting it
 
 ```bash
-rmc status                     # families, levels, precision, capture stats
-rmc tree --family retry        # the graph, with delta manifests
-rmc recall --prompt "..."      # what would be injected, and the model's reason
-rmc trace --prompt "..."       # every stage, ending in the verbatim block
-rmc index                      # is the lesson the selector searches actually indexed
-rmc route                      # the selection rules, their record, and the growth ratio
-rmc conflicts                  # unresolved contradictions
-rmc doctor                     # backends, store, hook wiring
-rmc report --about "..."       # a redacted defect report; sends nothing
-rmc events --kind inject       # raw telemetry
+rose status                     # families, levels, precision, capture stats
+rose tree --family retry        # the graph, with delta manifests
+rose recall --prompt "..."      # what would be injected, and the model's reason
+rose trace --prompt "..."       # every stage, ending in the verbatim block
+rose index                      # is the lesson the selector searches actually indexed
+rose route                      # the selection rules, their record, and the growth ratio
+rose conflicts                  # unresolved contradictions
+rose doctor                     # backends, store, hook wiring
+rose report --about "..."       # a redacted defect report; sends nothing
+rose events --kind inject       # raw telemetry
 ```
 
-`rmc trace` is the agent's-eye view: what was offered to the model, its verdict
+`rose trace` is the agent's-eye view: what was offered to the model, its verdict
 and reason for each candidate, the exact injected text, and what you see in
-Claude Code. Use it when you want to know precisely what RMC is doing to your
+Claude Code. Use it when you want to know precisely what ROSE is doing to your
 prompts.
 
 Full command reference: [docs/cli.md](docs/cli.md). Wiring details:
@@ -614,7 +614,7 @@ Stated plainly, because a harness that hides its gaps is useless:
   Argo's dedupe key stays invisible because your prompt never said "Argo". The
   fix is a second pass with the first results in hand.
 - **Agent-driven search.** Lessons are plain markdown on disk, so
-  `grep -r "argo" .rmc/nodes/` already works — the agent is just never told it
+  `grep -r "argo" .rose/nodes/` already works — the agent is just never told it
   can.
 - **Held-out evaluation.** Compressions are validated against the episodes they
   were tested on. In-sample. There is no measurement of whether a compressed
@@ -656,6 +656,6 @@ python3 docs/build.py
 ```
 
 Edit a fragment, run the build, commit the output — GitHub Pages serves it
-directly. The configuration reference is read out of `rmc/config.py` at build
+directly. The configuration reference is read out of `rose/config.py` at build
 time rather than retyped, because the hand-kept version drifted from the code
 and nobody noticed for weeks.

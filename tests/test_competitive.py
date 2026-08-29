@@ -6,11 +6,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from rmc.adapters.mock import MockAdapter
-from rmc.bench import bench_adapter
-from rmc.memgpt_bench import load_bench as load_memgpt_bench, run as run_memgpt
-from rmc.skill_baselines import evoskill_pack, oracle_skill_pack, trace2skill_pack
-from rmc.wikiskill import WikiSkillCase, build_store, load_bench as load_wikiskill_bench
+from rose.adapters.mock import MockAdapter
+from rose.bench import bench_adapter
+from rose.memgpt_bench import load_bench as load_memgpt_bench, run as run_memgpt
+from rose.skill_baselines import evoskill_pack, oracle_skill_pack, trace2skill_pack
+from rose.wikiskill import WikiSkillCase, build_store, load_bench as load_wikiskill_bench
 
 
 class TestSkillBaselines(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestMemgptBench(unittest.TestCase):
 
 class TestCrossTransfer(unittest.TestCase):
     def test_mock_cross_transfer(self) -> None:
-        from rmc.cross_transfer import run_cross_transfer, to_dict
+        from rose.cross_transfer import run_cross_transfer, to_dict
 
         report = run_cross_transfer(["mock"], samples=1, limit=3)
         payload = to_dict(report)
@@ -61,8 +61,8 @@ class TestCompetitiveEvalHelpers(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             merge = Path(tmp) / "comp.json"
-            merge.write_text(json.dumps({"rmc_bench": {"lift": 0.25}, "upstream": {}}))
+            merge.write_text(json.dumps({"rose_bench": {"lift": 0.25}, "upstream": {}}))
             adapter = bench_adapter(MockAdapter())
             payload = mod._load_payload(merge, stamp="t", adapter=adapter, samples=1)
-            self.assertEqual(payload["rmc_bench"]["lift"], 0.25)
+            self.assertEqual(payload["rose_bench"]["lift"], 0.25)
             self.assertEqual(payload["agent"], "mock")

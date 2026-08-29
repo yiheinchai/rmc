@@ -8,13 +8,13 @@ venv/
 .pytest_cache/
 .DS_Store
 
-# RMC's own store, ignored here because this repo's lessons are about RMC
+# ROSE's own store, ignored here because this repo's lessons are about ROSE
 # development rather than something to ship. In a normal project you usually
-# WANT to commit .rmc/nodes and .rmc/episodes so the team shares the lessons and
-# their regression corpus — `.rmc/.gitignore` already excludes the machine-local
+# WANT to commit .rose/nodes and .rose/episodes so the team shares the lessons and
+# their regression corpus — `.rose/.gitignore` already excludes the machine-local
 # parts (sessions/, events.jsonl). See docs/integration.md.
-.rmc/
-!examples/**/.rmc/
+.rose/
+!examples/**/.rose/
 sandbox/
 *.log
 

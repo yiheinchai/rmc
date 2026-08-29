@@ -13,7 +13,7 @@
     <ul>
       <li><b>The in-session reflector.</b> The fork holds the real conversation,
         so it can see a principle being applied and not merely a command being
-        run. It reports with <code>rmc used --session &lt;id&gt; --used &lt;ids&gt;
+        run. It reports with <code>rose used --session &lt;id&gt; --used &lt;ids&gt;
         --unused &lt;ids&gt;</code>.</li>
       <li><b>The digest judge.</b> <code>assess</code> is shown the served
         lessons and the session digest. Weaker: influence on <i>reasoning</i> is
@@ -39,7 +39,7 @@
       <tr><td>relevant and ignored</td><td>the lesson isn't landing — a salience failure</td></tr>
     </table>
     </div>
-    <p><code>rmc status</code> reports <code>precision</code> (used ÷ served).</p>
+    <p><code>rose status</code> reports <code>precision</code> (used ÷ served).</p>
 
     <!-- ============================================= 04 consolidate -->
 
@@ -47,10 +47,10 @@
 <p>
   A reflector capturing a lesson is the system working. The <i>live session</i>
   capturing one means the evidence was sitting there and the reflector walked
-  past it, so a person had to notice. <code>RMC_CHILD</code> is set in every
+  past it, so a person had to notice. <code>ROSE_CHILD</code> is set in every
   spawned reflector, so this is observed rather than inferred: captures record
   <code>by=reflector</code> or <code>by=session</code>, and
-  <code>rmc status</code> reports the miss rate.
+  <code>rose status</code> reports the miss rate.
 </p>
 <div class="note">
   The metric this replaced counted captures that followed no nudge, and read a

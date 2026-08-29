@@ -42,7 +42,7 @@ class TestAuditCompetitiveBar(unittest.TestCase):
                 "% AUTO:SEALQA_TABLE_BEGIN\n% AUTO:SEALQA_TABLE_END\n"
             )
             (results / "competitive-latest.json").write_text(
-                json.dumps({"agent": "mock", "rmc_bench": {"transfer": {"total": 10}}})
+                json.dumps({"agent": "mock", "rose_bench": {"transfer": {"total": 10}}})
             )
             failures = self.mod.audit()
             self.assertTrue(any("agent must be codex" in f for f in failures))
@@ -67,7 +67,7 @@ class TestAuditCompetitiveBar(unittest.TestCase):
 
             comp = {
                 "agent": "codex",
-                "rmc_bench": {"transfer": {"total": 25}},
+                "rose_bench": {"transfer": {"total": 25}},
                 "upstream": {
                     "sealqa-test": _upstream("sealqa-test", 111),
                     "hotpotqa-dev": _upstream("hotpotqa-dev", 100),

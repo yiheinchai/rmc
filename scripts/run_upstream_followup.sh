@@ -4,16 +4,16 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
 
-COMPETITIVE="papers/rse/results/competitive-latest.json"
-WIKISKILL="papers/rse/results/wikiskill-latest.json"
+COMPETITIVE="papers/rose/results/competitive-latest.json"
+WIKISKILL="papers/rose/results/wikiskill-latest.json"
 
 echo "=== Merge full SealQA from wikiskill-latest (if step 3 completed) ==="
 python3 scripts/merge_competitive_upstream.py \
   --competitive "$COMPETITIVE" \
   --wikiskill "$WIKISKILL" || true
 
-HOTPOT_WS="papers/rse/results/hotpot-workspace/competitive-latest.json"
-HOTPOT2="papers/rse/results/hotpot-shard2/competitive-latest.json"
+HOTPOT_WS="papers/rose/results/hotpot-workspace/competitive-latest.json"
+HOTPOT2="papers/rose/results/hotpot-shard2/competitive-latest.json"
 if [[ -f "$HOTPOT_WS" && -f "$HOTPOT2" ]]; then
   python3 scripts/merge_competitive_upstream.py \
     --competitive "$HOTPOT_WS" \
@@ -47,6 +47,6 @@ python3 scripts/run_competitive_evals.py \
 python3 scripts/generate_submission_report.py
 python3 scripts/generate_paper_figures.py
 python3 scripts/inject_paper_results.py || true
-cd papers/rse && make
+cd papers/rose && make
 
 echo "=== Upstream follow-up done ==="

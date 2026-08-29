@@ -1,0 +1,2726 @@
+{
+  "generated_at": "20260829T042100Z",
+  "agent": "mock",
+  "samples": 1,
+  "available_backends": [
+    "claude",
+    "codex",
+    "mock"
+  ],
+  "rose_bench": {
+    "agent": "mock",
+    "bench_path": "/workspace/evals/rose-bench.yaml",
+    "lift": 0.7,
+    "transfer": {
+      "passed": 9,
+      "total": 10,
+      "rate": 0.9
+    },
+    "retrieval": {
+      "passed": 5,
+      "total": 7,
+      "rate": 0.7142857142857143
+    },
+    "retention": {
+      "L0": {
+        "passed": 3,
+        "total": 3
+      },
+      "L1": {
+        "passed": 0,
+        "total": 0
+      }
+    },
+    "cases": [
+      {
+        "case_id": "delete-is-soft",
+        "kind": "trap",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 1/3 key terms (33%)"
+      },
+      {
+        "case_id": "delete-is-soft",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 128,
+        "retrieval_ok": null,
+        "reason": "matched 2/3 key terms (67%)"
+      },
+      {
+        "case_id": "migrations-forward-only",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "migrations-forward-only",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 120,
+        "retrieval_ok": null,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "charges-not-idempotent",
+        "kind": "trap",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "charges-not-idempotent",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 102,
+        "retrieval_ok": null,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "integration-pg-port",
+        "kind": "detail",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 0/3 key terms (0%)"
+      },
+      {
+        "case_id": "integration-pg-port",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 111,
+        "retrieval_ok": null,
+        "reason": "matched 3/3 key terms (100%)"
+      },
+      {
+        "case_id": "retry-backoff-constants",
+        "kind": "detail",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 0/4 key terms (0%)"
+      },
+      {
+        "case_id": "retry-backoff-constants",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 103,
+        "retrieval_ok": null,
+        "reason": "matched 4/4 key terms (100%)"
+      },
+      {
+        "case_id": "s3-two-hundred-error",
+        "kind": "detail",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "s3-two-hundred-error",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 95,
+        "retrieval_ok": null,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "meaning-is-not-overlap",
+        "kind": "principle",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "meaning-is-not-overlap",
+        "kind": "principle",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 178,
+        "retrieval_ok": null,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "teardown-cancels-hooks",
+        "kind": "principle",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "teardown-cancels-hooks",
+        "kind": "principle",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 101,
+        "retrieval_ok": null,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "retry-a-charge-properly",
+        "kind": "multi",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 1/6 key terms (17%)"
+      },
+      {
+        "case_id": "retry-a-charge-properly",
+        "kind": "multi",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 207,
+        "retrieval_ok": null,
+        "reason": "matched 6/6 key terms (100%)"
+      },
+      {
+        "case_id": "ship-a-schema-change",
+        "kind": "multi",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "matched 1/2 key terms (50%)"
+      },
+      {
+        "case_id": "ship-a-schema-change",
+        "kind": "multi",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 250,
+        "retrieval_ok": null,
+        "reason": "matched 2/2 key terms (100%)"
+      },
+      {
+        "case_id": "retry-a-ci-job",
+        "kind": "distractor",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/1"
+      },
+      {
+        "case_id": "retry-a-ci-job",
+        "kind": "distractor",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 103,
+        "retrieval_ok": null,
+        "reason": "content terms 0/1"
+      },
+      {
+        "case_id": "cache-the-rendered-page",
+        "kind": "distractor",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/2"
+      },
+      {
+        "case_id": "cache-the-rendered-page",
+        "kind": "distractor",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/2"
+      },
+      {
+        "case_id": "which-pg-port",
+        "kind": "conflict",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "conflict=False, terms 0/2"
+      },
+      {
+        "case_id": "which-pg-port",
+        "kind": "conflict",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 174,
+        "retrieval_ok": null,
+        "reason": "conflict=True, terms 2/2"
+      },
+      {
+        "case_id": "name-the-feature-flag",
+        "kind": "null",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/1"
+      },
+      {
+        "case_id": "name-the-feature-flag",
+        "kind": "null",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/1"
+      },
+      {
+        "case_id": "explain-a-regex",
+        "kind": "null",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/1"
+      },
+      {
+        "case_id": "explain-a-regex",
+        "kind": "null",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "content terms 0/1"
+      },
+      {
+        "case_id": "retry-a-charge-properly",
+        "kind": "multi",
+        "arm": "retrieval",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": false,
+        "reason": "kept [] want ['charges-not-idempotent', 'retry-backoff-constants']"
+      },
+      {
+        "case_id": "ship-a-schema-change",
+        "kind": "multi",
+        "arm": "retrieval",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": false,
+        "reason": "kept [] want ['delete-is-soft', 'migrations-forward-only']"
+      },
+      {
+        "case_id": "retry-a-ci-job",
+        "kind": "distractor",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": true,
+        "reason": "kept [] want []"
+      },
+      {
+        "case_id": "cache-the-rendered-page",
+        "kind": "distractor",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": true,
+        "reason": "kept [] want []"
+      },
+      {
+        "case_id": "which-pg-port",
+        "kind": "conflict",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 165,
+        "retrieval_ok": true,
+        "reason": "kept ['integration-pg-port', 'integration-pg-port-moved'] want ['integration-pg-port', 'integration-pg-port-moved']"
+      },
+      {
+        "case_id": "name-the-feature-flag",
+        "kind": "null",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": true,
+        "reason": "kept [] want []"
+      },
+      {
+        "case_id": "explain-a-regex",
+        "kind": "null",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": true,
+        "reason": "kept [] want []"
+      }
+    ]
+  },
+  "wikiskill_probe": {
+    "agent": "mock",
+    "bench_path": "/workspace/evals/wikiskill-bench.yaml",
+    "arms": {
+      "no-skill": {
+        "passed": 0,
+        "total": 10,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": {
+          "mean": 0.0,
+          "low": 0.0,
+          "high": 0.0,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 0,
+            "total": 2,
+            "accuracy": 0.0
+          },
+          "LiveMath": {
+            "passed": 0,
+            "total": 2,
+            "accuracy": 0.0
+          },
+          "OfficeQA": {
+            "passed": 0,
+            "total": 2,
+            "accuracy": 0.0
+          },
+          "SealQA": {
+            "passed": 0,
+            "total": 2,
+            "accuracy": 0.0
+          },
+          "SpreadSheet": {
+            "passed": 0,
+            "total": 2,
+            "accuracy": 0.0
+          }
+        }
+      },
+      "full-inject": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0,
+        "mean_tokens": 534,
+        "bootstrap_ci": {
+          "mean": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "LiveMath": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "OfficeQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "recall-judge": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0,
+        "mean_tokens": 64,
+        "bootstrap_ci": {
+          "mean": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "LiveMath": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "OfficeQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "recall-agentic": {
+        "passed": 10,
+        "total": 10,
+        "accuracy": 1.0,
+        "mean_tokens": 64,
+        "bootstrap_ci": {
+          "mean": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "LiveMath": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "OfficeQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "trace2skill": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "evoskill": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "skillopt": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "keyword-rag": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "oracle-skill": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      }
+    },
+    "cases": [
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 94,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 94,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/2 key terms (0%)"
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 2/2 key terms (100%)"
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 57,
+        "reason": "matched 2/2 key terms (100%)"
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 57,
+        "reason": "matched 2/2 key terms (100%)"
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 62,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 62,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 58,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 58,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 113,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 113,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/3 key terms (0%)"
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 3/3 key terms (100%)"
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 50,
+        "reason": "matched 3/3 key terms (100%)"
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 50,
+        "reason": "matched 3/3 key terms (100%)"
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 60,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 60,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 42,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 42,
+        "reason": "matched 1/1 key terms (100%)"
+      }
+    ],
+    "render": "WikiSkill-comparable bench \u2014 40 arm scores, agent=mock\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/10  (0%)  mean_tokens=0\n  full-inject      10/10  (100%)  mean_tokens=534\n  recall-judge     10/10  (100%)  mean_tokens=64\n  recall-agentic   10/10  (100%)  mean_tokens=64\n  trace2skill      0/0  (\u2014)  mean_tokens=0\n  evoskill         0/0  (\u2014)  mean_tokens=0\n  skillopt         0/0  (\u2014)  mean_tokens=0\n  keyword-rag      0/0  (\u2014)  mean_tokens=0\n  oracle-skill     0/0  (\u2014)  mean_tokens=0\n\nPer-benchmark (full-inject vs recall-judge):\n  ALFWorld       full=2/2 (100%)  recall=2/2 (100%)\n  LiveMath       full=2/2 (100%)  recall=2/2 (100%)\n  OfficeQA       full=2/2 (100%)  recall=2/2 (100%)\n  SealQA         full=2/2 (100%)  recall=2/2 (100%)\n  SpreadSheet    full=2/2 (100%)  recall=2/2 (100%)",
+    "significance_vs_full_inject": {
+      "recall-judge": {
+        "mean_a": 1.0,
+        "mean_b": 1.0,
+        "delta": 0.0,
+        "p_value": 1.0,
+        "significant": false,
+        "iterations": 1000
+      },
+      "recall-agentic": {
+        "mean_a": 1.0,
+        "mean_b": 1.0,
+        "delta": 0.0,
+        "p_value": 1.0,
+        "significant": false,
+        "iterations": 1000
+      }
+    },
+    "comparisons": {
+      "full_inject_vs_no_skill": {
+        "delta_accuracy": 1.0
+      },
+      "recall_judge_vs_full_inject": {
+        "delta_accuracy": 0.0,
+        "token_savings": 470
+      },
+      "recall_agentic_vs_full_inject": {
+        "delta_accuracy": 0.0,
+        "token_savings": 470
+      },
+      "recall_agentic_vs_recall_judge": {
+        "delta_accuracy": 0.0
+      }
+    }
+  },
+  "upstream": {
+    "sealqa-test": {
+      "agent": "mock",
+      "bench_path": "/workspace/evals/upstream/sealqa-test.jsonl",
+      "arms": {
+        "no-skill": {
+          "passed": 0,
+          "total": 15,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 0,
+              "total": 15,
+              "accuracy": 0.0
+            }
+          }
+        },
+        "full-inject": {
+          "passed": 15,
+          "total": 15,
+          "accuracy": 1.0,
+          "mean_tokens": 621,
+          "bootstrap_ci": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 15,
+              "total": 15,
+              "accuracy": 1.0
+            }
+          }
+        },
+        "recall-judge": {
+          "passed": 15,
+          "total": 15,
+          "accuracy": 1.0,
+          "mean_tokens": 47,
+          "bootstrap_ci": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 15,
+              "total": 15,
+              "accuracy": 1.0
+            }
+          }
+        },
+        "recall-agentic": {
+          "passed": 15,
+          "total": 15,
+          "accuracy": 1.0,
+          "mean_tokens": 47,
+          "bootstrap_ci": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 15,
+              "total": 15,
+              "accuracy": 1.0
+            }
+          }
+        },
+        "trace2skill": {
+          "passed": 0,
+          "total": 15,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 0,
+              "total": 15,
+              "accuracy": 0.0
+            }
+          }
+        },
+        "evoskill": {
+          "passed": 0,
+          "total": 15,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 0,
+              "total": 15,
+              "accuracy": 0.0
+            }
+          }
+        },
+        "skillopt": {
+          "passed": 0,
+          "total": 15,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 0,
+              "total": 15,
+              "accuracy": 0.0
+            }
+          }
+        },
+        "keyword-rag": {
+          "passed": 0,
+          "total": 15,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": {
+            "mean": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "n": 15,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "SealQA": {
+              "passed": 0,
+              "total": 15,
+              "accuracy": 0.0
+            }
+          }
+        },
+        "oracle-skill": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        }
+      },
+      "cases": [
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0001",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0002",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0003",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0004",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0005",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0006",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0007",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0008",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0009",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0010",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0011",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0012",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0013",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0014",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "no-skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 621,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "recall-judge",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 47,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "trace2skill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "evoskill",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "skillopt",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        },
+        {
+          "case_id": "sealqa-test-0015",
+          "benchmark": "SealQA",
+          "arm": "keyword-rag",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 1,
+          "tokens": 0,
+          "reason": "matched 0/1 key terms (0%)"
+        }
+      ],
+      "render": "WikiSkill-comparable bench \u2014 120 arm scores, agent=mock\nbench: /workspace/evals/upstream/sealqa-test.jsonl\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/15  (0%)  mean_tokens=0\n  full-inject      15/15  (100%)  mean_tokens=621\n  recall-judge     15/15  (100%)  mean_tokens=47\n  recall-agentic   15/15  (100%)  mean_tokens=47\n  trace2skill      0/15  (0%)  mean_tokens=0\n  evoskill         0/15  (0%)  mean_tokens=0\n  skillopt         0/15  (0%)  mean_tokens=0\n  keyword-rag      0/15  (0%)  mean_tokens=0\n  oracle-skill     0/0  (\u2014)  mean_tokens=0\n\nPer-benchmark (full-inject vs recall-judge):\n  SealQA         full=15/15 (100%)  recall=15/15 (100%)",
+      "significance_vs_full_inject": {
+        "recall-judge": {
+          "mean_a": 1.0,
+          "mean_b": 1.0,
+          "delta": 0.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        },
+        "recall-agentic": {
+          "mean_a": 1.0,
+          "mean_b": 1.0,
+          "delta": 0.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        },
+        "trace2skill": {
+          "mean_a": 0.0,
+          "mean_b": 1.0,
+          "delta": -1.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        },
+        "evoskill": {
+          "mean_a": 0.0,
+          "mean_b": 1.0,
+          "delta": -1.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        },
+        "skillopt": {
+          "mean_a": 0.0,
+          "mean_b": 1.0,
+          "delta": -1.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        },
+        "keyword-rag": {
+          "mean_a": 0.0,
+          "mean_b": 1.0,
+          "delta": -1.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        }
+      },
+      "comparisons": {
+        "full_inject_vs_no_skill": {
+          "delta_accuracy": 1.0
+        },
+        "recall_judge_vs_full_inject": {
+          "delta_accuracy": 0.0,
+          "token_savings": 574
+        },
+        "recall_agentic_vs_full_inject": {
+          "delta_accuracy": 0.0,
+          "token_savings": 574
+        },
+        "recall_agentic_vs_recall_judge": {
+          "delta_accuracy": 0.0
+        }
+      }
+    }
+  },
+  "memgpt_nested_kv": {
+    "agent": "mock",
+    "bench_path": "/workspace/evals/memgpt-nested-kv.yaml",
+    "arms": {
+      "fixed-context": {
+        "passed": 8,
+        "total": 8,
+        "accuracy": 1.0
+      },
+      "recall-agentic": {
+        "passed": 0,
+        "total": 8,
+        "accuracy": 0.0
+      }
+    },
+    "render": "MemGPT nested KV \u2014 agent=mock\n\n  fixed-context    8/8 (100%)\n  recall-agentic   0/8 (0%)"
+  },
+  "session_study": {
+    "agent": "mock",
+    "arms": {
+      "memory-off": {
+        "passed": 2,
+        "total": 5,
+        "accuracy": 0.4,
+        "mean_tokens": 0
+      },
+      "memory-on": {
+        "passed": 5,
+        "total": 5,
+        "accuracy": 1.0,
+        "mean_tokens": 168
+      }
+    },
+    "lift": 0.6,
+    "pairs": [
+      {
+        "pair_id": "charge-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "matched 1/6 key terms (17%)"
+      },
+      {
+        "pair_id": "charge-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 223,
+        "reason": "matched 6/6 key terms (100%)"
+      },
+      {
+        "pair_id": "schema-purge-followup",
+        "arm": "memory-off",
+        "passed": true,
+        "tokens": 0,
+        "reason": "matched 1/2 key terms (50%)"
+      },
+      {
+        "pair_id": "schema-purge-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 264,
+        "reason": "matched 2/2 key terms (100%)"
+      },
+      {
+        "pair_id": "s3-upload-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "matched 0/1 key terms (0%)"
+      },
+      {
+        "pair_id": "s3-upload-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 103,
+        "reason": "matched 1/1 key terms (100%)"
+      },
+      {
+        "pair_id": "gdpr-erasure-followup",
+        "arm": "memory-off",
+        "passed": true,
+        "tokens": 0,
+        "reason": "matched 1/2 key terms (50%)"
+      },
+      {
+        "pair_id": "gdpr-erasure-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 135,
+        "reason": "matched 2/2 key terms (100%)"
+      },
+      {
+        "pair_id": "pg-port-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "matched 0/4 key terms (0%)"
+      },
+      {
+        "pair_id": "pg-port-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 118,
+        "reason": "matched 4/4 key terms (100%)"
+      }
+    ],
+    "render": "Session-length paired study \u2014 agent=mock\n\n  memory-off  2/5 (40%)  mean_tokens=0\n  memory-on   5/5 (100%)  mean_tokens=168\n\n  lift (memory-on \u2212 off): +60%"
+  }
+}

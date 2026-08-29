@@ -3,11 +3,11 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-# The distribution is `rmc-memory` because `rmc` is taken on PyPI; the command
-# it installs is still `rmc`, and the import package is still `rmc`.
-name = "rmc-memory"
+# The distribution is `rose-memory` because `rose` is taken on PyPI; the command
+# it installs is still `rose`, and the import package is still `rose`.
+name = "rose-memory"
 version = "0.1.0"
-description = "Recursive Memory Compaction — agent memory that gets cheaper the more you use it"
+description = "Recursive Online Skill Evolution — agent memory that gets cheaper the more you use it"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -30,20 +30,20 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://yiheinchai.com/rmc"
-Documentation = "https://yiheinchai.com/rmc/docs.html"
-Source = "https://github.com/yiheinchai/rmc"
-Issues = "https://github.com/yiheinchai/rmc/issues"
+Homepage = "https://yiheinchai.com/rose"
+Documentation = "https://yiheinchai.com/rose/docs.html"
+Source = "https://github.com/yiheinchai/rose"
+Issues = "https://github.com/yiheinchai/rose/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "build", "twine"]
 paper = ["matplotlib>=3.8", "numpy>=1.26", "datasets>=2.19"]
 
 [project.scripts]
-rmc = "rmc.cli:main"
+rose = "rose.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["rmc*"]
+include = ["rose*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

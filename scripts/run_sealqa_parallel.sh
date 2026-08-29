@@ -5,8 +5,8 @@ cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
 
 BENCH="evals/upstream/sealqa-test.jsonl"
-MAIN_OUT="papers/rse/results"
-SHARD2_OUT="papers/rse/results/sealqa-shard2"
+MAIN_OUT="papers/rose/results"
+SHARD2_OUT="papers/rose/results/sealqa-shard2"
 SPLIT=56
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 LOG="/tmp/sealqa-parallel-${STAMP}.log"

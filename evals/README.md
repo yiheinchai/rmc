@@ -1,10 +1,10 @@
-# RMC-Bench
+# ROSE-Bench
 
 An eval set for **procedural memory under compression** — which is a different
 claim from factual recall, and needs a different set.
 
 OpenAI's factual-recall eval asks: *given a fact about the user, is it recalled
-and used correctly?* One axis, one failure mode. RMC's claim is larger and more
+and used correctly?* One axis, one failure mode. ROSE's claim is larger and more
 fragile:
 
 > A lesson can be compressed repeatedly and keep changing behaviour, while the
@@ -24,7 +24,7 @@ the case measures the model's prior rather than the memory. Every case here
 therefore names its **trap** — the specific wrong thing a good model does by
 default — and the set is only valid if the control arm actually falls into it.
 
-`rmc eval` reports control transfer first for exactly this reason. A case whose
+`rose eval` reports control transfer first for exactly this reason. A case whose
 control passes should be **deleted, not celebrated**.
 
 ---
@@ -91,11 +91,11 @@ answer happens to be right — a system that is right by luck is not right.
 Run the benchmark:
 
 ```bash
-rmc bench --agent mock          # reproducible, no API keys
-rmc bench --agent claude --samples 3
+rose bench --agent mock          # reproducible, no API keys
+rose bench --agent claude --samples 3
 ```
 
-See `papers/rse/README.md` for the publication evaluation suite.
+See `papers/rose/README.md` for the publication evaluation suite.
 
 ---
 

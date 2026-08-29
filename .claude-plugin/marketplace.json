@@ -1,14 +1,14 @@
 {
-  "name": "rmc",
+  "name": "rose",
   "owner": {
     "name": "Yi Hein Chai",
     "url": "https://github.com/yiheinchai"
   },
   "plugins": [
     {
-      "name": "rmc",
+      "name": "rose",
       "source": "./",
-      "description": "Recursive Memory Compaction — a lesson tree that compresses itself as you use it."
+      "description": "Recursive Online Skill Evolution — a lesson tree that compresses itself as you use it."
     }
   ]
 }

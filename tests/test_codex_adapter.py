@@ -6,9 +6,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from rmc.adapters import Session
-from rmc.adapters.codex import CodexAdapter, build_argv, reflection_fork_argv
-from rmc import select_agent
+from rose.adapters import Session
+from rose.adapters.codex import CodexAdapter, build_argv, reflection_fork_argv
+from rose import select_agent
 
 
 SESSION = "0e7c1a42-1f3b-4c0d-9a55-2b8e6d4f10aa"
@@ -64,7 +64,7 @@ class TestCodexAdapterRun(unittest.TestCase):
             return 0, "", "", 0.1
 
         with patch.object(adapter, "available", return_value=True), patch(
-            "rmc.adapters.codex.run_cmd", side_effect=fake_run
+            "rose.adapters.codex.run_cmd", side_effect=fake_run
         ):
             adapter.run(
                 "pick lessons",
@@ -79,7 +79,7 @@ class TestCodexAdapterRun(unittest.TestCase):
 
 class TestSelectAgentCodex(unittest.TestCase):
     def test_codex_can_fork_when_available(self) -> None:
-        from rmc.store import Store
+        from rose.store import Store
         from tempfile import TemporaryDirectory
 
         with TemporaryDirectory() as tmp:
@@ -90,8 +90,8 @@ class TestSelectAgentCodex(unittest.TestCase):
             self.assertTrue(ok, why)
 
     def test_mock_still_cannot_fork(self) -> None:
-        from rmc.adapters.mock import MockAdapter
-        from rmc.store import Store
+        from rose.adapters.mock import MockAdapter
+        from rose.store import Store
         from tempfile import TemporaryDirectory
 
         with TemporaryDirectory() as tmp:

@@ -9,8 +9,8 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FIGURES = ROOT / "papers" / "rse" / "figures"
-RESULTS = ROOT / "papers" / "rse" / "results"
+FIGURES = ROOT / "papers" / "rose" / "figures"
+RESULTS = ROOT / "papers" / "rose" / "results"
 
 
 def _has_matplotlib() -> bool:

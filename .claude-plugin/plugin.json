@@ -1,11 +1,11 @@
 {
-  "name": "rmc",
+  "name": "rose",
   "version": "0.1.0",
-  "description": "Recursive Memory Compaction — lessons that get cheaper the more you use them. Recalls compressed lessons on every prompt, learns from corrections, and recursively compresses memories that keep working.",
+  "description": "Recursive Online Skill Evolution — lessons that get cheaper the more you use them. Recalls compressed lessons on every prompt, learns from corrections, and recursively compresses memories that keep working.",
   "author": {
     "name": "Yi Hein Chai"
   },
-  "homepage": "https://github.com/yiheinchai/rmc",
+  "homepage": "https://github.com/yiheinchai/rose",
   "keywords": [
     "memory",
     "continual-learning",

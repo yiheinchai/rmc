@@ -5,11 +5,11 @@ cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
 
 INTERVAL="${1:-60}"
-MAIN="papers/rse/results/competitive-latest.json"
-HOTPOT="papers/rse/results/hotpot-workspace/competitive-latest.json"
-HOTPOT2="papers/rse/results/hotpot-shard2/competitive-latest.json"
-WIKI="papers/rse/results/wikiskill-latest.json"
-SHARD2="papers/rse/results/sealqa-shard2/wikiskill-latest.json"
+MAIN="papers/rose/results/competitive-latest.json"
+HOTPOT="papers/rose/results/hotpot-workspace/competitive-latest.json"
+HOTPOT2="papers/rose/results/hotpot-shard2/competitive-latest.json"
+WIKI="papers/rose/results/wikiskill-latest.json"
+SHARD2="papers/rose/results/sealqa-shard2/wikiskill-latest.json"
 
 echo "=== Upstream merge watcher (every ${INTERVAL}s) ==="
 

@@ -87,7 +87,7 @@ class TestMergeCompetitiveUpstream(unittest.TestCase):
                 json.dumps(
                     {
                         "agent": "codex",
-                        "rmc_bench": {"lift": 0.25},
+                        "rose_bench": {"lift": 0.25},
                         "upstream": {},
                     }
                 )

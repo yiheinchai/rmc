@@ -12,9 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import available_backends, get_adapter
-from rmc.bench import bench_adapter
-from rmc.wikiskill import CORE_ARMS, run, to_dict
+from rose.adapters import available_backends, get_adapter
+from rose.bench import bench_adapter
+from rose.wikiskill import CORE_ARMS, run, to_dict
 
 
 def main() -> int:
@@ -27,7 +27,7 @@ def main() -> int:
         help="run additional Codex variants (e.g. --codex-models gpt-5.6-sol)",
     )
     parser.add_argument("--samples", type=int, default=3)
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     parser.add_argument("--resume", action="store_true", help="skip models already in multimodel-latest.json")
     args = parser.parse_args()
 

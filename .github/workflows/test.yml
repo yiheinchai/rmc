@@ -21,5 +21,5 @@ jobs:
         run: |
           pipx run build --wheel
           python -m venv /tmp/v && /tmp/v/bin/pip install -q dist/*.whl
-          /tmp/v/bin/rmc --version
-          /tmp/v/bin/rmc doctor || true
+          /tmp/v/bin/rose --version
+          /tmp/v/bin/rose doctor || true

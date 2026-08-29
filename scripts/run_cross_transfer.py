@@ -12,9 +12,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import available_backends
-from rmc.cross_transfer import run_cross_transfer, to_dict as cross_transfer_to_dict
-from rmc.grader_specs import default_multimodel_specs
+from rose.adapters import available_backends
+from rose.cross_transfer import run_cross_transfer, to_dict as cross_transfer_to_dict
+from rose.grader_specs import default_multimodel_specs
 
 
 def main() -> int:
@@ -23,7 +23,7 @@ def main() -> int:
     parser.add_argument("--bench", type=Path, default=None)
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     args = parser.parse_args()
 
     graders = args.graders or default_multimodel_specs()
