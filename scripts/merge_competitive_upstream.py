@@ -83,6 +83,43 @@ def merge_wikiskill_into_competitive(
     return True
 
 
+def merge_upstream_shards_into_competitive(
+    competitive: Path,
+    stem: str,
+    shard_paths: list[Path],
+) -> bool:
+    """Merge upstream.* blobs from parallel competitive workspace shards."""
+    from rmc.wikiskill import from_checkpoint_dict, merge_reports, to_dict
+
+    reports = []
+    for path in shard_paths:
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        blob = (data.get("upstream") or {}).get(stem)
+        if blob and blob.get("cases"):
+            reports.append(from_checkpoint_dict(blob))
+    if not reports:
+        return False
+    merged = merge_reports(*reports)
+    payload = to_dict(merged)
+    if not competitive.exists():
+        return False
+    comp = json.loads(competitive.read_text(encoding="utf-8"))
+    comp.setdefault("upstream", {})
+    old_total = (
+        (comp["upstream"].get(stem) or {}).get("arms", {}).get("full-inject") or {}
+    ).get("total", 0)
+    new_total = (payload.get("arms") or {}).get("full-inject", {}).get("total", 0)
+    if new_total <= old_total:
+        return False
+    comp["upstream"][stem] = payload
+    comp["generated_at"] = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    competitive.write_text(json.dumps(comp, indent=2), encoding="utf-8")
+    print(f"merged upstream shards {stem}: {old_total} → {new_total} tasks into {competitive}")
+    return True
+
+
 def merge_upstream_from_competitive(
     competitive: Path,
     other: Path,
@@ -143,6 +180,13 @@ def main() -> int:
         help="merge upstream.* from another competitive-latest.json",
     )
     parser.add_argument("--check", action="store_true", help="print stems needing full upstream eval")
+    parser.add_argument(
+        "--merge-shards",
+        nargs="+",
+        type=Path,
+        default=None,
+        help="merge upstream stem from parallel competitive workspace JSON shards",
+    )
     args = parser.parse_args()
 
     if args.check:
@@ -150,6 +194,13 @@ def main() -> int:
             if upstream_needs_run(args.competitive, stem):
                 print(stem)
         return 0
+
+    if args.merge_shards:
+        stem = args.stem or "hotpotqa-dev"
+        if merge_upstream_shards_into_competitive(args.competitive, stem, args.merge_shards):
+            return 0
+        print("no upstream shard merge performed", file=sys.stderr)
+        return 1
 
     if args.from_competitive:
         stems = (args.stem,) if args.stem else None

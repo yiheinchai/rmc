@@ -100,6 +100,7 @@ def main() -> int:
     parser.add_argument("--agent", default="mock")
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--limit", type=int, default=None, help="cap upstream tasks per split")
+    parser.add_argument("--offset", type=int, default=0, help="skip first N upstream tasks")
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     parser.add_argument("--skip-upstream", action="store_true")
     parser.add_argument("--skip-memgpt", action="store_true")
@@ -228,6 +229,7 @@ def main() -> int:
                 adapter,
                 path=path,
                 samples=args.samples,
+                offset=args.offset,
                 limit=args.limit,
                 arms=UPSTREAM_ARMS,
                 on_progress=_upstream_checkpoint,

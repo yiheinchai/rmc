@@ -7,6 +7,7 @@ export PYTHONUNBUFFERED=1
 INTERVAL="${1:-60}"
 MAIN="papers/rse/results/competitive-latest.json"
 HOTPOT="papers/rse/results/hotpot-workspace/competitive-latest.json"
+HOTPOT2="papers/rse/results/hotpot-shard2/competitive-latest.json"
 WIKI="papers/rse/results/wikiskill-latest.json"
 SHARD2="papers/rse/results/sealqa-shard2/wikiskill-latest.json"
 
@@ -28,6 +29,12 @@ while true; do
     fi
   fi
   if [[ -f "$HOTPOT" ]]; then
+    if [[ -f "$HOTPOT2" ]]; then
+      python3 scripts/merge_competitive_upstream.py \
+        --competitive "$HOTPOT" \
+        --merge-shards "$HOTPOT" "$HOTPOT2" \
+        --stem hotpotqa-dev 2>&1 && merged=true || true
+    fi
     if python3 scripts/merge_competitive_upstream.py \
       --competitive "$MAIN" \
       --from-competitive "$HOTPOT" \

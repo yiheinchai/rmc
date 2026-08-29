@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run HotPotQA upstream in parallel with SealQA (separate workspace, merge at end).
+# Run HotPotQA upstream as two parallel Codex shards (cases 0-49 and 50-99).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
@@ -10,10 +10,12 @@ exec > >(tee -a "$LOG") 2>&1
 
 MAIN="papers/rse/results/competitive-latest.json"
 WORK="papers/rse/results/hotpot-workspace"
+SHARD2="papers/rse/results/hotpot-shard2"
+SPLIT=50
 STEP2_PATTERN='run_competitive_evals.py --agent codex --samples 1 --skip-upstream'
 LOCK="/tmp/hotpot-parallel.lock"
 
-echo "=== HotPotQA parallel runner ==="
+echo "=== HotPotQA parallel shards (split at case $SPLIT) ==="
 echo "log: $LOG"
 
 exec 9>"$LOCK"
@@ -44,16 +46,22 @@ sys.exit(0 if ok else 1)
   echo "$(date -u +%H:%M:%S) waiting for competitive-latest.json step-2 sections..."
   sleep 30
 done
-echo "$(date -u +%H:%M:%S) step 2 complete — injecting Codex results into manuscript"
-python3 scripts/inject_paper_results.py || true
-echo "$(date -u +%H:%M:%S) starting HotPotQA"
 
 if ! python3 scripts/merge_competitive_upstream.py --check --competitive "$MAIN" | grep -qx hotpotqa-dev; then
   echo "HotPotQA already complete in $MAIN"
   exit 0
 fi
 
-mkdir -p "$WORK"
+mkdir -p "$WORK" "$SHARD2"
+
+# Stop single-threaded HotPot driver if still running (replaced by this orchestrator).
+if pgrep -f "run_competitive_evals.py.*hotpotqa-dev" >/dev/null 2>&1; then
+  echo "stopping existing HotPotQA driver..."
+  pkill -f "run_competitive_evals.py.*hotpotqa-dev" || true
+  sleep 3
+fi
+
+echo "$(date -u +%H:%M:%S) shard1: cases 0-$((SPLIT - 1)) (limit=$SPLIT, resume)"
 python3 scripts/run_competitive_evals.py \
   --agent codex \
   --samples 1 \
@@ -64,7 +72,31 @@ python3 scripts/run_competitive_evals.py \
   --merge "$MAIN" \
   --out "$WORK" \
   --resume \
-  --upstream hotpotqa-dev
+  --limit "$SPLIT" \
+  --upstream hotpotqa-dev &
+PID1=$!
+
+echo "$(date -u +%H:%M:%S) shard2: cases $SPLIT-99 (offset=$SPLIT)"
+python3 scripts/run_competitive_evals.py \
+  --agent codex \
+  --samples 1 \
+  --skip-bench \
+  --skip-probe \
+  --skip-memgpt \
+  --skip-session \
+  --merge "$MAIN" \
+  --out "$SHARD2" \
+  --offset "$SPLIT" \
+  --upstream hotpotqa-dev &
+PID2=$!
+
+wait "$PID1" "$PID2"
+
+echo "$(date -u +%H:%M:%S) merging HotPot shards into $WORK/competitive-latest.json"
+python3 scripts/merge_competitive_upstream.py \
+  --competitive "$WORK/competitive-latest.json" \
+  --merge-shards "$WORK/competitive-latest.json" "$SHARD2/competitive-latest.json" \
+  --stem hotpotqa-dev
 
 python3 scripts/merge_competitive_upstream.py \
   --competitive "$MAIN" \

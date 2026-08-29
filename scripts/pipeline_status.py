@@ -146,14 +146,26 @@ def main() -> int:
     print(f"cross-transfer-latest    models={list((ct.get('table') or {}).keys())}")
 
     hotpot_path = RESULTS / "hotpot-workspace" / "competitive-latest.json"
-    if hotpot_path.exists():
-        hotpot_ws = json.loads(hotpot_path.read_text(encoding="utf-8"))
-        hp_blob = (hotpot_ws.get("upstream") or {}).get("hotpotqa-dev") or {}
-        hp_total = ((hp_blob.get("arms") or {}).get("full-inject") or {}).get("total", 0)
-        hp_scores = len(hp_blob.get("cases") or [])
+    hotpot2_path = RESULTS / "hotpot-shard2" / "competitive-latest.json"
+    if hotpot_path.exists() or hotpot2_path.exists():
+        hp_cases = set()
+        hp_scores = 0
+        hp_total = 0
+        for hp_path in (hotpot_path, hotpot2_path):
+            if not hp_path.exists():
+                continue
+            hotpot_ws = json.loads(hp_path.read_text(encoding="utf-8"))
+            hp_blob = (hotpot_ws.get("upstream") or {}).get("hotpotqa-dev") or {}
+            hp_total = ((hp_blob.get("arms") or {}).get("full-inject") or {}).get("total", 0)
+            hp_scores += len(hp_blob.get("cases") or [])
+            for c in hp_blob.get("cases") or []:
+                if c.get("case_id"):
+                    hp_cases.add(c["case_id"])
+        combined_hp = len(hp_cases) if hp_cases else hp_total
+        shard_note = " (+shard2)" if hotpot2_path.exists() else ""
         print(
-            f"hotpot-workspace         tasks={hp_total}/100  scores={hp_scores}  "
-            f"updated={_mtime(hotpot_path)}"
+            f"hotpot-workspace         tasks={combined_hp}/100  scores={hp_scores}  "
+            f"updated={_mtime(hotpot_path if hotpot_path.exists() else hotpot2_path)}{shard_note}"
         )
 
     jobs = [
@@ -192,20 +204,34 @@ def main() -> int:
             )
         if _running_script("run_hotpot_parallel.sh"):
             hp_logs = sorted(Path("/tmp").glob("hotpot-parallel-*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
-            if hp_logs:
+            hp_cases = 0
+            hp_scores = 0
+            if hotpot_path.exists() or hotpot2_path.exists():
+                hp_case_ids: set[str] = set()
+                for hp_path in (hotpot_path, hotpot2_path):
+                    if not hp_path.exists():
+                        continue
+                    hp_blob = (json.loads(hp_path.read_text(encoding="utf-8")).get("upstream") or {}).get("hotpotqa-dev") or {}
+                    hp_scores += len(hp_blob.get("cases") or [])
+                    for c in hp_blob.get("cases") or []:
+                        if c.get("case_id"):
+                            hp_case_ids.add(c["case_id"])
+                hp_cases = len(hp_case_ids)
+            if hp_logs and not hp_cases:
                 hp_text = hp_logs[0].read_text(encoding="utf-8")
                 hp_prog = re.findall(r"upstream progress: (\d+) scores \((\d+) cases\)", hp_text)
                 if hp_prog:
-                    scores, cases = hp_prog[-1]
-                    pct = 100 * int(cases) / EXPECTED["hotpotqa-dev"]
-                    eta = _eta("hotpot", int(cases), EXPECTED["hotpotqa-dev"])
-                    eta_s = f"  {eta}" if eta else ""
-                    print(
-                        f"HotPotQA parallel: {cases}/100 cases "
-                        f"({pct:.0f}%, {scores} arm-scores){eta_s}"
-                    )
-                else:
-                    print("HotPotQA parallel: starting (first task in flight)")
+                    hp_scores, hp_cases = map(int, hp_prog[-1])
+            if hp_cases:
+                pct = 100 * hp_cases / EXPECTED["hotpotqa-dev"]
+                eta = _eta("hotpot", hp_cases, EXPECTED["hotpotqa-dev"])
+                eta_s = f"  {eta}" if eta else ""
+                print(
+                    f"HotPotQA parallel: {hp_cases}/100 cases "
+                    f"({pct:.0f}%, {hp_scores} arm-scores){eta_s}"
+                )
+            else:
+                print("HotPotQA parallel: starting (first task in flight)")
         elif "=== WikiSkill probe" in text:
             print("\nStep 2 phase: WikiSkill probe (10-task)")
         elif "=== MemGPT" in text or "memgpt" in text.lower() and "=== [2/6]" not in text:
