@@ -210,16 +210,20 @@ def compress_node(
     k = int(config.get("compaction.regression_k", 5))
 
     episodes = store.regression_set(node, limit=k)
+    from . import probes as probes_mod
+
+    probe_list = probes_mod.select_for_replay(store, node, limit=k)
     result = CompactionResult(node_id=node.id, accepted=False, before_tokens=node.tokens)
 
     if not episodes:
-        result.reason = "no regression episodes; refusing to compress blind"
+        result.reason = "no regression probes or episodes; refusing to compress blind"
         return result
 
     target = max(24, int(node.tokens * ratio))
     run = adapter.run(
         COMPRESS.format(
             body=node.body,
+            probes=probes_mod.render_for_compress(probe_list),
             covers="\n".join(f"- {truncate(e.prompt, 240)}" for e in episodes) or "(none)",
             preserve="\n".join(f"- {p}" for p in node.preserve) or "(none)",
             # What reflection actually watched this lesson do. Without it the
@@ -385,6 +389,9 @@ def _promote(
             manifest.append(inherited)
             seen.add(inherited.claim)
 
+    from . import probes as probes_mod
+
+    probe_ids = [p.id for p in probes_mod.collect(store, node)]
     new = Node(
         id=stable_id("n", node.id, body[:400]),
         family=node.family,
@@ -394,6 +401,7 @@ def _promote(
         gist=str(gist or node.gist or ""),
         derived_from=[node.id],
         covers_tasks=sorted({*node.covers_tasks, *(e.id for e in episodes)}),
+        probes=sorted({*node.probes, *probe_ids}),
         tags=list(node.tags),
         dropped=manifest,
         origin="compression",

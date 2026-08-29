@@ -1319,6 +1319,151 @@ class TestCompaction(StoreCase):
         self.assertEqual([n.id for n in due_nodes(self.store)], ["n_base"])
 
 
+class TestProbes(StoreCase):
+    def setUp(self) -> None:
+        super().setUp()
+        from rose import probes
+
+        self.probes = probes
+
+    def test_duplicate_axes_are_not_stored_twice(self) -> None:
+        node = self.add_node(id="n1", family="retry", body="retry stuff")
+        first = self.probes.Probe(
+            id="p1", node_id="n1", task="retry idempotent calls", outcome="check idempotency", axis="idempotency"
+        )
+        second = self.probes.Probe(
+            id="p2",
+            node_id="n1",
+            task="only retry safe operations",
+            outcome="skip non-idempotent writes",
+            axis="idempotency",
+        )
+        self.assertIsNotNone(self.probes.add(self.store, first))
+        self.assertIsNone(self.probes.add(self.store, second))
+        self.assertEqual(len(self.probes.load_for_node(self.store, "n1")), 1)
+
+    def test_near_duplicate_tasks_are_rejected(self) -> None:
+        node = self.add_node(id="n1", family="retry", body="retry stuff")
+        first = self.probes.Probe(
+            id="p1", node_id="n1", task="retry idempotent remote calls", outcome="check first", axis="policy"
+        )
+        second = self.probes.Probe(
+            id="p2",
+            node_id="n1",
+            task="retry idempotent remote calls carefully",
+            outcome="check again",
+            axis="format",
+        )
+        self.probes.add(self.store, first)
+        self.assertIsNone(self.probes.add(self.store, second))
+
+    def test_the_cap_drops_the_oldest_probe(self) -> None:
+        self.store.config.set("compaction.max_probes", 2)
+        node = self.add_node(id="n1", family="retry", body="retry stuff")
+        p1 = self.probes.Probe(id="p1", node_id="n1", task="task one", outcome="one", axis="a")
+        p2 = self.probes.Probe(id="p2", node_id="n1", task="task two", outcome="two", axis="b")
+        p3 = self.probes.Probe(id="p3", node_id="n1", task="task three", outcome="three", axis="c")
+        self.probes.add(self.store, p1)
+        self.probes.add(self.store, p2)
+        self.probes.add(self.store, p3)
+        remaining = {p.id for p in self.probes.load_for_node(self.store, "n1")}
+        self.assertEqual(remaining, {"p2", "p3"})
+
+    def test_replay_selection_prefers_distinct_axes(self) -> None:
+        node = self.add_node(id="n1", family="retry", body="retry stuff")
+        for i, axis in enumerate(["a", "b", "c", "a-extra"]):
+            self.probes.add(
+                self.store,
+                self.probes.Probe(
+                    id=f"p{i}",
+                    node_id="n1",
+                    task=f"task {axis} {i}",
+                    outcome=f"out {i}",
+                    axis=axis if axis != "a-extra" else "d",
+                ),
+            )
+        picked = self.probes.select_for_replay(self.store, node, limit=3)
+        self.assertEqual(len(picked), 3)
+        self.assertEqual(len({p.axis for p in picked}), 3)
+
+    def test_regression_set_prefers_probes_over_episodes(self) -> None:
+        node = self.add_node(id="n1", family="retry", body="retry stuff")
+        self.add_episode("e1", "retry", "episode task", served=["n1"])
+        node.covers_tasks = ["e1"]
+        self.store.save_node(node)
+        self.probes.add(
+            self.store,
+            self.probes.Probe(id="p1", node_id="n1", task="probe task", outcome="probe outcome", axis="core"),
+        )
+        self.store.invalidate()
+        cases = self.store.regression_set(node)
+        self.assertEqual([c.id for c in cases], ["p1"])
+        self.assertEqual(cases[0].prompt, "probe task")
+
+    def test_compaction_replays_probes(self) -> None:
+        body = (
+            "Retry only idempotent operations. @idempotent\n"
+            "Use jittered exponential backoff. @backoff"
+        )
+        node = self.add_node(id="n_base", family="retry", title="Retry", body=body, level=0)
+        self.probes.add(
+            self.store,
+            self.probes.Probe(
+                id="p1", node_id="n_base", task="retry the http call", outcome="idempotent retry", axis="idempotency"
+            ),
+        )
+        self.probes.add(
+            self.store,
+            self.probes.Probe(
+                id="p2", node_id="n_base", task="add backoff to the client", outcome="jittered backoff", axis="backoff"
+            ),
+        )
+        node.stats.successes = 3
+        self.store.save_node(node)
+        self.store.invalidate()
+
+        world = MockWorld({"p1": {"idempotent"}, "p2": {"idempotent", "backoff"}})
+
+        def route(prompt, schema):
+            if "ROSE:compress" in prompt:
+                return {
+                    "body": "Retry idempotent ops with jittered backoff. @idempotent @backoff",
+                    "dropped": [{"claim": "extra detail", "kind": "rationale"}],
+                    "lossless": False,
+                }
+            return {"pass": True, "reason": "ok"}
+
+        result = compress_node(self.store, MockAdapter(router=route, world=world), node)
+        self.assertTrue(result.accepted, result.reason)
+        self.assertEqual(result.pass_rate, 1.0)
+
+    def test_distill_writes_a_probe_from_a_meta_call(self) -> None:
+        node = self.add_node(id="n1", family="retry", body="Retry idempotent calls with backoff.")
+
+        def route(prompt, schema):
+            if "ROSE:distill-probe" in prompt:
+                return {
+                    "task": "a flaky HTTP client keeps failing",
+                    "outcome": "retry only idempotent requests with jittered backoff",
+                    "axis": "retry-policy",
+                }
+            return {}
+
+        probe = self.probes.distill(
+            self.store,
+            MockAdapter(router=route),
+            node_id="n1",
+            lesson_body=node.body,
+            task="the user asked to fix the payment service retry loop in prod logs",
+            outcome="switched to idempotent retries with exponential backoff",
+            context="lots of session detail",
+        )
+        self.assertIsNotNone(probe)
+        self.assertEqual(probe.axis, "retry-policy")
+        self.assertIn("flaky", probe.task.lower())
+        self.assertEqual(self.probes.load_for_node(self.store, "n1")[0].id, probe.id)
+
+
 class TestDescent(StoreCase):
     def test_the_dropped_fact_is_found_past_distractors(self) -> None:
         base = self.add_node(

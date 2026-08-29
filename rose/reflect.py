@@ -401,6 +401,21 @@ def mint(
     )
     if applied.node is None:
         return MintResult(reason=f"{decision.relation}: {decision.rationale}", placement=decision)
+
+    from . import probes as probes_mod
+
+    task = correction or (outcome.summary if outcome else "") or facts.first_prompt
+    outcome_text = (outcome.summary if outcome else "") or correction or applied.node.body[:400]
+    probes_mod.distill_and_add(
+        store,
+        adapter,
+        node_id=applied.node.id,
+        lesson_body=applied.node.body,
+        task=task,
+        outcome=outcome_text,
+        context=digest(facts, limit=4000),
+    )
+
     return MintResult(
         created=applied.node,
         reason=decision.describe(),

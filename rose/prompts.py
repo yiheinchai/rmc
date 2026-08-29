@@ -165,9 +165,69 @@ REFLECT_SCHEMA = {
     },
 }
 
+DISTILL_PROBE_SCHEMA = {
+    "type": "object",
+    "required": ["task", "outcome", "axis"],
+    "properties": {
+        "task": {
+            "type": "string",
+            "description": (
+                "A minimal standalone task that tests whether the lesson transfers. "
+                "Strip session-specific names and narrative; keep only the constraint "
+                "that made the lesson necessary."
+            ),
+        },
+        "outcome": {
+            "type": "string",
+            "description": (
+                "What correct application of the lesson looks like on this task — "
+                "the decision, constraint or command shape, not a full implementation."
+            ),
+        },
+        "axis": {
+            "type": "string",
+            "description": (
+                "One kebab-case phrase naming what dimension this tests — e.g. "
+                "'output-format', 'tool-choice', 'retry-policy', 'precondition'. "
+                "Not a restatement of the task."
+            ),
+        },
+    },
+}
+
 # --------------------------------------------------------------------------- #
 # templates
 # --------------------------------------------------------------------------- #
+
+DISTILL_PROBE = """ROSE:distill-probe
+
+Distil a real use of a lesson into a **minimal regression probe**: a tiny task
+that captures the crux of what the lesson enabled, without the session around it.
+
+The probe must be:
+  - **Standalone** — readable without the original conversation.
+  - **Minimal** — one test, one decision; no compound "and also".
+  - **Abstract** — strip repo-specific paths, branch names and proper nouns unless
+    they are the actual subject of the lesson.
+  - **Not a union** — do not concatenate multiple scenarios; pick the single
+    constraint this use proved the lesson handles.
+
+<<<LESSON
+{lesson}
+LESSON>>>
+
+<<<REAL TASK
+{task}
+REAL TASK>>>
+
+<<<WHAT CORRECT LOOKED LIKE
+{outcome}
+WHAT CORRECT LOOKED LIKE>>>
+
+<<<CONTEXT
+{context}
+CONTEXT>>>
+"""
 
 COMPRESS = """ROSE:compress
 
@@ -178,7 +238,8 @@ Rules:
 1. Preserve every load-bearing detail: exact parameters, preconditions, edge
    cases, and anything an agent would get wrong by guessing.
 2. Cut narrative, restatement, hedging, and worked examples whose principle is
-   already stated. Generalise where several specifics share one rule.
+   already stated. Generalise where several probes test the same underlying rule.
+   Do NOT enumerate scenarios — state the principle that makes every probe pass.
 3. You MUST declare everything you removed in `dropped`. Each entry is one
    self-contained claim, written so it can be re-injected verbatim later as a
    patch. An unreported drop is the worst possible failure here: it makes the
@@ -195,7 +256,13 @@ Target: at most {target_tokens} tokens ({ratio:.0%} of the original).
 {body}
 LESSON>>>
 
-Tasks this lesson must keep working for:
+Regression probes this compression must still pass (one general principle, not a
+list of scenarios):
+<<<PROBES
+{probes}
+PROBES>>>
+
+Older episode summaries (fallback context only):
 <<<COVERS
 {covers}
 COVERS>>>

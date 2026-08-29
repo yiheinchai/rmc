@@ -141,6 +141,9 @@ class Node:
     derived_from: list[str] = field(default_factory=list)
     parents: list[str] = field(default_factory=list)
     covers_tasks: list[str] = field(default_factory=list)
+    # Minimal regression probes distilled from attributed uses. Stored under
+    # ``probes/``; ids here are for bookkeeping and promotion.
+    probes: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
     dropped: list[Delta] = field(default_factory=list)
     stats: Stats = field(default_factory=Stats)
@@ -204,6 +207,7 @@ class Node:
             "derived_from": list(self.derived_from),
             "parents": list(self.parents),
             "covers_tasks": list(self.covers_tasks),
+            "probes": list(self.probes),
             "tags": list(self.tags),
             "preserve": list(self.preserve),
             "load_bearing": list(self.load_bearing),
@@ -238,6 +242,7 @@ class Node:
             # stores keep working.
             parents=_as_list(meta.get("parents")) or _as_list(meta.get("compressed_into")),
             covers_tasks=_as_list(meta.get("covers_tasks")),
+            probes=_as_list(meta.get("probes")),
             tags=_as_list(meta.get("tags")),
             dropped=[Delta.from_dict(d) for d in (meta.get("dropped") or [])],
             stats=Stats.from_dict(meta.get("stats")),
