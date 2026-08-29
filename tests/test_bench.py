@@ -33,6 +33,22 @@ class TestBench(unittest.TestCase):
         self.assertIn("RMC-Bench", text)
         self.assertIn("Lift", text)
 
+    def test_run_bench_on_progress_fires_per_transfer_case(self) -> None:
+        seen: list[int] = []
+
+        def _track(report) -> None:
+            seen.append(len(report.cases))
+
+        run(
+            MockAdapter(),
+            path=DEFAULT_BENCH,
+            retention=False,
+            retrieval=False,
+            on_progress=_track,
+        )
+        self.assertEqual(len(seen), 25)
+        self.assertEqual(seen[-1], 50)
+
     def test_control_worse_than_treatment_on_trap(self) -> None:
         report = run(MockAdapter(), path=DEFAULT_BENCH, retention=False, retrieval=False)
         core = {"trap", "detail", "principle"}

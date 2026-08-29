@@ -110,7 +110,12 @@ def main() -> int:
 
     if not args.skip_bench:
         print("=== RMC-Bench ===", flush=True)
-        bench_report = run_bench(adapter, samples=args.samples)
+
+        def _bench_checkpoint(report) -> None:
+            payload["rmc_bench"] = bench_to_dict(report)
+            _flush()
+
+        bench_report = run_bench(adapter, samples=args.samples, on_progress=_bench_checkpoint)
         payload["rmc_bench"] = bench_to_dict(bench_report)
         print(bench_report.render(), flush=True)
         _flush()

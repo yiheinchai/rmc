@@ -17,7 +17,7 @@ import re
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from . import index as index_mod
 from . import yamlish
@@ -481,6 +481,7 @@ def run(
     retrieval: bool = True,
     kinds: set[str] | None = None,
     timeout: int = 180,
+    on_progress: Callable[[BenchReport], None] | None = None,
 ) -> BenchReport:
     cases, by_id = load_bench(path)
     if kinds:
@@ -503,6 +504,8 @@ def run(
             )
             report.cases.append(score)
         print(f"  rmc-bench transfer {i}/{len(transfer_cases)}: {case.id}", flush=True)
+        if on_progress is not None:
+            on_progress(report)
 
     if retrieval:
         with tempfile.TemporaryDirectory() as tmp:

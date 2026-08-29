@@ -23,9 +23,21 @@ def _load(name: str) -> dict:
 
 
 def _running(pattern: str) -> bool:
+    """Match python driver processes only (ignore bash wait-loop wrappers)."""
     try:
         proc = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True)
-        return proc.returncode == 0
+        if proc.returncode != 0:
+            return False
+        for pid in proc.stdout.strip().split():
+            if not pid:
+                continue
+            try:
+                cmd = Path(f"/proc/{pid}/cmdline").read_bytes().decode("latin-1").replace("\0", " ")
+            except OSError:
+                continue
+            if "python3" in cmd and pattern in cmd:
+                return True
+        return False
     except OSError:
         return False
 
@@ -60,11 +72,10 @@ def main() -> int:
 
     jobs = [
         ("sequential pipeline", "run_sequential_codex_evals.sh"),
-        ("competitive step 2", "run_competitive_evals.py --agent codex --samples 1 --skip-upstream"),
-        ("SealQA upstream", "run_wikiskill_evals.py --agent codex"),
-        ("multimodel", "run_multimodel_evals.py"),
+        ("competitive step 2", "scripts/run_competitive_evals.py --agent codex --samples 1 --skip-upstream"),
+        ("SealQA upstream", "scripts/run_wikiskill_evals.py --agent codex"),
+        ("multimodel", "scripts/run_multimodel_evals.py"),
         ("HotPotQA parallel", "run_hotpot_parallel.sh"),
-        ("codex exec", "codex exec"),
     ]
     print("\nRunning:")
     any_running = False
