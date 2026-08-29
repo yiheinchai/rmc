@@ -1,0 +1,304 @@
+{
+  "bench_path": "/workspace/evals/sealqa-ablation/probe-dev.yaml",
+  "agent": "codex",
+  "train_steps": [
+    {
+      "case_id": "sealqa-axis-format-1",
+      "axis": "answer-format",
+      "passed_before_learn": true,
+      "recall_tokens": 0,
+      "probe_count": 1,
+      "compacted": false
+    },
+    {
+      "case_id": "sealqa-axis-count-1",
+      "axis": "explicit-count",
+      "passed_before_learn": true,
+      "recall_tokens": 16,
+      "probe_count": 1,
+      "compacted": false
+    },
+    {
+      "case_id": "sealqa-axis-entity-1",
+      "axis": "entity-match",
+      "passed_before_learn": true,
+      "recall_tokens": 32,
+      "probe_count": 1,
+      "compacted": false
+    },
+    {
+      "case_id": "sealqa-axis-noguess-1",
+      "axis": "no-guess",
+      "passed_before_learn": true,
+      "recall_tokens": 48,
+      "probe_count": 1,
+      "compacted": false
+    },
+    {
+      "case_id": "sealqa-axis-table-1",
+      "axis": "table-row",
+      "passed_before_learn": true,
+      "recall_tokens": 46,
+      "probe_count": 1,
+      "compacted": false
+    },
+    {
+      "case_id": "sealqa-axis-stated-1",
+      "axis": "stated-count",
+      "passed_before_learn": true,
+      "recall_tokens": 46,
+      "probe_count": 1,
+      "compacted": false
+    }
+  ],
+  "test_scores": [
+    {
+      "case_id": "sealqa-axis-format-2",
+      "axis": "answer-format",
+      "arm": "no-memory",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate gives the exact required answer: 377 IATA airline members.",
+      "answer": "Use the explicit count in the provided snippet: **377 IATA airline members**. No implementation, repository inspection, or external lookup is needed because the question asks for the value stated in t"
+    },
+    {
+      "case_id": "sealqa-axis-count-2",
+      "axis": "explicit-count",
+      "arm": "no-memory",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate gives the same answer as the known-good outcome: Serban Ghenea. The added count and role clarification are consistent with the task.",
+      "answer": "I would answer **Serban Ghenea, with five Album of the Year wins as an engineer/mixer**. I would treat the role qualifier as decisive: Taylor Swift\u2019s wins as a performer should not be counted toward t"
+    },
+    {
+      "case_id": "sealqa-axis-entity-2",
+      "axis": "entity-match",
+      "arm": "no-memory",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate identifies the IMO/IOI confusion but never states the required conclusion that no IOI contestant has won 5 golds and 1 bronze. It only proposes research and conditionally says it would c",
+      "answer": "I would treat this as a potential false-premise/entity-confusion question: the snippet concerns the IMO, while the question asks about the IOI. I would not transfer Zhuo Qun Song\u2019s record between comp"
+    },
+    {
+      "case_id": "sealqa-axis-noguess-2",
+      "axis": "no-guess",
+      "arm": "no-memory",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate correctly states the essential conclusion that no perfect square is prime, explains why, and therefore correctly concludes that no such sum exists.",
+      "answer": "No such positive integer exists. A \u201cperfect-square prime\u201d would need to be both prime and a perfect square. Every positive square greater than 1 has a nontrivial factorization \\(n^2=n\\cdot n\\), so it "
+    },
+    {
+      "case_id": "sealqa-axis-table-2",
+      "axis": "table-row",
+      "arm": "no-memory",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate does not provide the required numeric deficit of 150. It only explains the calculation method and says the table is unavailable, so it does not achieve the known-good outcome.",
+      "answer": "I would locate the table\u2019s \u201cOutlays\u201d and \u201cReceipts\u201d values for the relevant row and compute:\n\n`deficit = outlays \u2212 receipts`\n\nI would preserve the table\u2019s units (for example, millions or billions of d"
+    },
+    {
+      "case_id": "sealqa-axis-stated-2",
+      "axis": "stated-count",
+      "arm": "no-memory",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate gives the correct answer, 6, matching the known-good outcome. The extra explanation does not change the substance.",
+      "answer": "I would answer directly from the supplied snippet: **6 YouTube music videos** surpassed 7 billion views. No browsing, repository inspection, commands, or implementation are needed because the question"
+    },
+    {
+      "case_id": "sealqa-axis-format-2",
+      "axis": "answer-format",
+      "arm": "static-composite",
+      "passed": true,
+      "tokens": 211,
+      "reason": "The candidate gives the essential answer, 377, matching the known-good outcome exactly.",
+      "answer": "Answer: Use the explicitly stated count, 377. I would not infer from a partial list, count \u201cet al.\u201d-style omissions, or substitute unrelated figures. No commands are needed."
+    },
+    {
+      "case_id": "sealqa-axis-count-2",
+      "axis": "explicit-count",
+      "arm": "static-composite",
+      "passed": true,
+      "tokens": 211,
+      "reason": "The candidate identifies Serban Ghenea, matching the known-good outcome, and correctly ties the answer to the engineer/mixer role.",
+      "answer": "Answer: Use only the snippet\u2019s explicit evidence and match the requested role, engineer/mixer, to Serban Ghenea. Ignore Taylor Swift because she is labeled \u201cperformer.\u201d Report Serban Ghenea as holding"
+    },
+    {
+      "case_id": "sealqa-axis-entity-2",
+      "axis": "entity-match",
+      "arm": "static-composite",
+      "passed": false,
+      "tokens": 211,
+      "reason": "The candidate correctly avoids confusing IMO with IOI, but it does not reach the essential known-good conclusion. It says only that the snippet lacks enough evidence, whereas the required answer state",
+      "answer": "Answer: I would rely only on the snippet, verify the entity match, and avoid guessing. The evidence identifies Zhuo Qun Song as the most decorated **IMO** contestant, while the question asks about the"
+    },
+    {
+      "case_id": "sealqa-axis-noguess-2",
+      "axis": "no-guess",
+      "arm": "static-composite",
+      "passed": true,
+      "tokens": 211,
+      "reason": "The candidate reaches the same essential conclusion: a perfect square cannot be prime, so no sum of two perfect-square primes exists.",
+      "answer": "Answer: State that no such positive integer exists, because the snippet says primes and perfect squares are mutually exclusive. I would not guess a value, reinterpret \u201cperfect-square primes,\u201d or compu"
+    },
+    {
+      "case_id": "sealqa-axis-table-2",
+      "axis": "table-row",
+      "arm": "static-composite",
+      "passed": false,
+      "tokens": 211,
+      "reason": "The candidate does not provide the required numeric deficit. The known-good outcome is 150, while the candidate declines to calculate or state it.",
+      "answer": "Answer: I would use the table\u2019s explicitly labeled deficit or \u201cTotal deficit\u201d row. If absent, I would calculate outlays minus receipts only from the table\u2019s stated values, preserving units and sign. B"
+    },
+    {
+      "case_id": "sealqa-axis-stated-2",
+      "axis": "stated-count",
+      "arm": "static-composite",
+      "passed": true,
+      "tokens": 211,
+      "reason": "The candidate exactly matches the known-good answer: 6.",
+      "answer": "Answer: 6"
+    },
+    {
+      "case_id": "sealqa-axis-format-2",
+      "axis": "answer-format",
+      "arm": "continual-recall",
+      "passed": true,
+      "tokens": 47,
+      "reason": "The candidate explicitly answers 377, matching the known-good outcome. The additional explanation does not contradict or obscure the answer.",
+      "answer": "I would match the question entity (\u201cIATA airline members\u201d) directly to the snippet topic (\u201c377 airline members\u201d from an IATA directory excerpt). I would answer **377**.\n\nKey constraints: use only the "
+    },
+    {
+      "case_id": "sealqa-axis-count-2",
+      "axis": "explicit-count",
+      "arm": "continual-recall",
+      "passed": true,
+      "tokens": 47,
+      "reason": "The candidate identifies Serban Ghenea as the engineer/mixer with the most Album of the Year wins, matching the known-good outcome. The extra explanation does not alter the answer.",
+      "answer": "I would match the requested entity and role precisely: the question asks about an engineer/mixer, so Taylor Swift\u2019s performer record is irrelevant. The snippet explicitly identifies Serban Ghenea as t"
+    },
+    {
+      "case_id": "sealqa-axis-entity-2",
+      "axis": "entity-match",
+      "arm": "continual-recall",
+      "passed": false,
+      "tokens": 47,
+      "reason": "The candidate correctly rejects Zhuo Qun Song as an IOI answer, but it does not reach the essential known-good conclusion: no IOI contestant has won 5 golds and 1 bronze. Instead, it merely says the s",
+      "answer": "I would reject the question\u2019s premise rather than answer with Zhuo Qun Song. The snippet identifies Song as the most decorated **IMO** contestant, while the question asks about the **IOI**, a differen"
+    },
+    {
+      "case_id": "sealqa-axis-noguess-2",
+      "axis": "no-guess",
+      "arm": "continual-recall",
+      "passed": true,
+      "tokens": 47,
+      "reason": "The candidate correctly states the essential conclusion that no positive integer is both a perfect square and prime, and therefore no such sum or smallest positive integer exists. Its clarification ab",
+      "answer": "Interpret \u201cperfect-square primes\u201d as numbers that are both perfect squares and prime. No such positive integers exist: every square \\(n^2\\) with \\(n>1\\) is composite, while \\(1\\) is not prime. Therefo"
+    },
+    {
+      "case_id": "sealqa-axis-table-2",
+      "axis": "table-row",
+      "arm": "continual-recall",
+      "passed": false,
+      "tokens": 43,
+      "reason": "The candidate gives only the method and never provides the required numeric deficit of 150, so it does not achieve the known-good outcome.",
+      "answer": "I would inspect the referenced table and use the **Total receipts** row for receipts, paired with the corresponding **Total outlays** value for the same entity, period, and units. I would compute:\n\n`d"
+    },
+    {
+      "case_id": "sealqa-axis-stated-2",
+      "axis": "stated-count",
+      "arm": "continual-recall",
+      "passed": true,
+      "tokens": 46,
+      "reason": "The candidate explicitly gives the correct answer, 6, matching the known-good outcome.",
+      "answer": "Use the count explicitly stated in the snippet: **6**. I would not infer a different number, recount items, or apply the unrelated author-count and year-format lessons. Because the question asks \u201chow "
+    },
+    {
+      "case_id": "sealqa-axis-format-2",
+      "axis": "answer-format",
+      "arm": "oracle",
+      "passed": true,
+      "tokens": 10,
+      "reason": "The candidate gives the same count as the known-good answer: 377.",
+      "answer": "Answer: 377."
+    },
+    {
+      "case_id": "sealqa-axis-count-2",
+      "axis": "explicit-count",
+      "arm": "oracle",
+      "passed": true,
+      "tokens": 8,
+      "reason": "The candidate identifies Serban Ghenea as the engineer/mixer with the most Album of the Year wins, matching the known-good outcome.",
+      "answer": "Focus strictly on the named role: engineer/mixer. From the snippet, select Serban Ghenea with five Album of the Year wins. Do not choose Taylor Swift, because her wins are attributed to the performer "
+    },
+    {
+      "case_id": "sealqa-axis-entity-2",
+      "axis": "entity-match",
+      "arm": "oracle",
+      "passed": false,
+      "tokens": 10,
+      "reason": "The candidate does not answer the question or state the essential conclusion that no IOI contestant has won 5 gold medals and 1 bronze. It only proposes a verification process, leaving the reader with",
+      "answer": "I would treat the IMO snippet only as a warning about the medal pattern, not evidence about IOI identity. I would independently query official IOI contestant statistics or results archives for contest"
+    },
+    {
+      "case_id": "sealqa-axis-noguess-2",
+      "axis": "no-guess",
+      "arm": "oracle",
+      "passed": true,
+      "tokens": 10,
+      "reason": "The candidate correctly states that no integer can be both prime and a perfect square, explains why, and concludes that the requested sum does not exist. This fully captures the known-good outcome.",
+      "answer": "I would first formalize \u201cperfect-square prime\u201d as an integer that is both prime and a perfect square. Any positive perfect square \\(n=k^2\\) with \\(k>1\\) has nontrivial factors \\(k\\cdot k\\), so it is c"
+    },
+    {
+      "case_id": "sealqa-axis-table-2",
+      "axis": "table-row",
+      "arm": "oracle",
+      "passed": false,
+      "tokens": 10,
+      "reason": "The candidate gives only the method and refuses to provide the required numeric result. The known-good answer is 150, so the candidate does not achieve the task outcome.",
+      "answer": "Use the table\u2019s labeled \u201cOutlays\u201d and \u201cReceipts\u201d rows, ensuring both values refer to the same period and use the same units. Compute:\n\n`deficit = outlays \u2212 receipts`\n\nI would preserve the table\u2019s prec"
+    },
+    {
+      "case_id": "sealqa-axis-stated-2",
+      "axis": "stated-count",
+      "arm": "oracle",
+      "passed": true,
+      "tokens": 8,
+      "reason": "The candidate gives the same answer as the known-good outcome: 6.",
+      "answer": "I would answer directly from the snippet: **6 YouTube music videos** surpassed 7 billion views. I would not infer additional context, search externally, reinterpret \u201csurpassed,\u201d or extrapolate beyond "
+    }
+  ],
+  "probe_pass_rate": 1.0,
+  "probe_passed": 6,
+  "probe_total": 6,
+  "compaction_accepted": false,
+  "compaction_reason": "no compaction accepted",
+  "tokens_before_compact": 54,
+  "tokens_after_compact": 54,
+  "arms": {
+    "no-memory": {
+      "passed": 4,
+      "total": 6,
+      "accuracy": 0.6666666666666666
+    },
+    "static-composite": {
+      "passed": 4,
+      "total": 6,
+      "accuracy": 0.6666666666666666
+    },
+    "continual-recall": {
+      "passed": 4,
+      "total": 6,
+      "accuracy": 0.6666666666666666
+    },
+    "oracle": {
+      "passed": 4,
+      "total": 6,
+      "accuracy": 0.6666666666666666
+    }
+  },
+  "lift_vs_no_memory": 0.0,
+  "render": "SealQA continual learning \u2014 /workspace/evals/sealqa-ablation/probe-dev.yaml\nagent=codex  train=6  test=6\n\nTrain stream (recall before ingest):\n  sealqa-axis-format-1         answer-format    before=ok  probes=1\n  sealqa-axis-count-1          explicit-count   before=ok  probes=1\n  sealqa-axis-entity-1         entity-match     before=ok  probes=1\n  sealqa-axis-noguess-1        no-guess         before=ok  probes=1\n  sealqa-axis-table-1          table-row        before=ok  probes=1\n  sealqa-axis-stated-1         stated-count     before=ok  probes=1\n\nCompaction: accepted=False  probes=6/6 (100%)  tokens 54\u219254\n  reason: no compaction accepted\n\narm                    accuracy  mean_tok\nno-memory            4/6 (67%)         0\nstatic-composite     4/6 (67%)       211\ncontinual-recall     4/6 (67%)        46\noracle               4/6 (67%)         9\n\nPer-axis test (continual-recall vs no-memory):\n  answer-format      continual=1/1  no-memory=1/1\n  entity-match       continual=0/1  no-memory=0/1\n  explicit-count     continual=1/1  no-memory=1/1\n  no-guess           continual=1/1  no-memory=1/1\n  stated-count       continual=1/1  no-memory=1/1\n  table-row          continual=0/1  no-memory=0/1\n\nLift (continual \u2212 no-memory): +0%",
+  "generated_at": "20260829T160657Z"
+}
