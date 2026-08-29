@@ -10,11 +10,6 @@ exec > >(tee -a "$LOG") 2>&1
 
 echo "=== Log: $LOG ==="
 
-MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
-bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
-MULTI_PID=$!
-echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
-
 echo "=== [1/6] Cross-model transfer (Codex) ==="
 if [[ -f papers/rse/results/cross-transfer-latest.json ]] && \
    python3 -c "import json; d=json.load(open('papers/rse/results/cross-transfer-latest.json')); exit(0 if 'codex' in d.get('table',{}) else 1)"; then
@@ -30,11 +25,16 @@ python3 scripts/run_competitive_evals.py \
   --skip-upstream
 cp papers/rse/results/competitive-latest.json "papers/rse/results/competitive-codex-${STAMP}.json" 2>/dev/null || true
 
-echo "=== [2b/6] HotPotQA upstream (parallel with SealQA) ==="
+echo "=== [2b/6] HotPotQA + multi-model (parallel with SealQA) ==="
 HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"
 bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
 HOTPOT_PID=$!
 echo "HotPotQA background pid=$HOTPOT_PID log=$HOTPOT_LOG"
+
+MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
+bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
+MULTI_PID=$!
+echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
 
 echo "=== [3/6] Full upstream SealQA (111 tasks, checkpoint) ==="
 python3 scripts/run_wikiskill_evals.py \
