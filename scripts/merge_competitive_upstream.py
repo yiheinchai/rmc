@@ -83,6 +83,42 @@ def merge_wikiskill_into_competitive(
     return True
 
 
+def merge_upstream_from_competitive(
+    competitive: Path,
+    other: Path,
+    *,
+    stems: tuple[str, ...] | None = None,
+) -> bool:
+    """Merge upstream.* sections from another competitive JSON payload."""
+    if not competitive.exists() or not other.exists():
+        return False
+    comp = json.loads(competitive.read_text(encoding="utf-8"))
+    src = json.loads(other.read_text(encoding="utf-8"))
+    comp.setdefault("upstream", {})
+    changed = False
+    for stem, blob in (src.get("upstream") or {}).items():
+        if stems and stem not in stems:
+            continue
+        fi = (blob.get("arms") or {}).get("full-inject") or {}
+        if not fi.get("total"):
+            continue
+        existing = (comp["upstream"].get(stem) or {}).get("arms", {}).get("full-inject", {})
+        new_total = fi.get("total", 0)
+        old_total = existing.get("total", 0)
+        if new_total <= old_total:
+            continue
+        comp["upstream"][stem] = blob
+        changed = True
+        print(f"merged {stem}: {old_total} → {new_total} tasks into {competitive}")
+    if not changed:
+        return False
+    if comp.get("agent") != "codex" and src.get("agent") == "codex":
+        comp["agent"] = "codex"
+    comp["generated_at"] = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    competitive.write_text(json.dumps(comp, indent=2), encoding="utf-8")
+    return True
+
+
 def upstream_needs_run(competitive: Path, stem: str) -> bool:
     expected = EXPECTED_TASKS.get(stem)
     if not expected:
@@ -100,6 +136,12 @@ def main() -> int:
     parser.add_argument("--competitive", type=Path, default=RESULTS / "competitive-latest.json")
     parser.add_argument("--wikiskill", type=Path, default=RESULTS / "wikiskill-latest.json")
     parser.add_argument("--stem", default=None)
+    parser.add_argument(
+        "--from-competitive",
+        type=Path,
+        default=None,
+        help="merge upstream.* from another competitive-latest.json",
+    )
     parser.add_argument("--check", action="store_true", help="print stems needing full upstream eval")
     args = parser.parse_args()
 
@@ -108,6 +150,13 @@ def main() -> int:
             if upstream_needs_run(args.competitive, stem):
                 print(stem)
         return 0
+
+    if args.from_competitive:
+        stems = (args.stem,) if args.stem else None
+        if merge_upstream_from_competitive(args.competitive, args.from_competitive, stems=stems):
+            return 0
+        print("no upstream merge from competitive performed", file=sys.stderr)
+        return 1
 
     if merge_wikiskill_into_competitive(args.competitive, args.wikiskill, stem=args.stem):
         return 0

@@ -78,3 +78,39 @@ class TestMergeCompetitiveUpstream(unittest.TestCase):
             )
             self.assertTrue(self.mod.upstream_needs_run(comp, "sealqa-test"))
             self.assertTrue(self.mod.upstream_needs_run(comp, "hotpotqa-dev"))
+
+    def test_merge_upstream_from_competitive(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            comp = Path(tmp) / "competitive.json"
+            other = Path(tmp) / "other.json"
+            comp.write_text(
+                json.dumps(
+                    {
+                        "agent": "codex",
+                        "rmc_bench": {"lift": 0.25},
+                        "upstream": {},
+                    }
+                )
+            )
+            other.write_text(
+                json.dumps(
+                    {
+                        "agent": "codex",
+                        "upstream": {
+                            "hotpotqa-dev": {
+                                "arms": {
+                                    "full-inject": {"total": 100, "passed": 55, "accuracy": 0.55}
+                                }
+                            }
+                        },
+                    }
+                )
+            )
+            self.assertTrue(
+                self.mod.merge_upstream_from_competitive(comp, other, stems=("hotpotqa-dev",))
+            )
+            data = json.loads(comp.read_text())
+            self.assertEqual(
+                data["upstream"]["hotpotqa-dev"]["arms"]["full-inject"]["total"],
+                100,
+            )

@@ -25,6 +25,12 @@ python3 scripts/run_competitive_evals.py \
   --skip-upstream
 cp papers/rse/results/competitive-latest.json "papers/rse/results/competitive-codex-${STAMP}.json" 2>/dev/null || true
 
+echo "=== [2b/6] HotPotQA upstream (parallel with SealQA) ==="
+HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"
+bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
+HOTPOT_PID=$!
+echo "HotPotQA background pid=$HOTPOT_PID log=$HOTPOT_LOG"
+
 echo "=== [3/6] Full upstream SealQA (111 tasks, checkpoint) ==="
 python3 scripts/run_wikiskill_evals.py \
   --agent codex \
@@ -32,6 +38,9 @@ python3 scripts/run_wikiskill_evals.py \
   --samples 1 \
   --checkpoint \
   --resume
+
+echo "=== waiting for HotPotQA parallel job (pid=$HOTPOT_PID) ==="
+wait "$HOTPOT_PID" || true
 
 echo "=== [4/6] Multi-model WikiSkill probe ==="
 if python3 -c "from scripts.generate_submission_report import _claude_authenticated; import sys; sys.exit(0 if _claude_authenticated() else 1)"; then
