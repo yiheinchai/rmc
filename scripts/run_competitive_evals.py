@@ -64,7 +64,17 @@ def main() -> int:
     _flush()
 
     print("\n=== WikiSkill probe (core arms) ===", flush=True)
-    ws_probe = run_wikiskill(adapter, samples=args.samples, arms=CORE_ARMS)
+
+    def _probe_checkpoint(report) -> None:
+        payload["wikiskill_probe"] = wikiskill_to_dict(report)
+        _flush()
+
+    ws_probe = run_wikiskill(
+        adapter,
+        samples=args.samples,
+        arms=CORE_ARMS,
+        on_progress=_probe_checkpoint,
+    )
     payload["wikiskill_probe"] = wikiskill_to_dict(ws_probe)
     print(ws_probe.render(), flush=True)
     _flush()
@@ -74,12 +84,18 @@ def main() -> int:
         payload["upstream"] = {}
         for path in upstream_files:
             print(f"\n=== Upstream: {path.name} ===", flush=True)
+
+            def _upstream_checkpoint(report, stem=path.stem) -> None:
+                payload["upstream"][stem] = wikiskill_to_dict(report)
+                _flush()
+
             report = run_wikiskill(
                 adapter,
                 path=path,
                 samples=args.samples,
                 limit=args.limit,
                 arms=CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill"),
+                on_progress=_upstream_checkpoint,
             )
             payload["upstream"][path.stem] = wikiskill_to_dict(report)
             print(report.render(), flush=True)
