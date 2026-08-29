@@ -1,0 +1,34 @@
+# Upstream benchmark manifests for WikiSkill-comparable full-scale evals.
+# Import with: python3 scripts/import_upstream_bench.py --all
+
+version: 1
+
+sources:
+  - id: sealqa-test
+    benchmark: SealQA
+    family: sealqa
+    hf_dataset: vtllms/sealqa
+    hf_config: seal_0
+    hf_split: test
+    task_field: question
+    expected_field: answer
+    skill: |
+      SealQA: answer from provided evidence only. When snippets conflict,
+      prefer the snippet whose title matches the question entity. Format:
+      "Answer: <short fact>".
+
+  # HotPotQA: Reflexion uses 100 dev questions from the distractor split.
+  - id: hotpotqa-dev
+    benchmark: HotPotQA
+    family: hotpotqa
+    hf_dataset: hotpotqa/hotpot_qa
+    hf_config: distractor
+    hf_split: validation
+    limit: 100
+    task_field: question
+    expected_field: answer
+    evidence_mode: hotpot
+    skill: |
+      HotPotQA: multi-hop QA over the evidence paragraphs below.
+      Use only the provided context. Answer with "Answer: yes", "Answer: no",
+      or "Answer: <short phrase>".

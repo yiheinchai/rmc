@@ -37,7 +37,7 @@ Issues = "https://github.com/yiheinchai/rmc/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "build", "twine"]
-paper = ["matplotlib>=3.8", "numpy>=1.26"]
+paper = ["matplotlib>=3.8", "numpy>=1.26", "datasets>=2.19"]
 
 [project.scripts]
 rmc = "rmc.cli:main"

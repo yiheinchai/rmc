@@ -17,7 +17,7 @@ import re
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from . import index as index_mod
 from . import yamlish
@@ -481,6 +481,7 @@ def run(
     retrieval: bool = True,
     kinds: set[str] | None = None,
     timeout: int = 180,
+    on_progress: Callable[[BenchReport], None] | None = None,
 ) -> BenchReport:
     cases, by_id = load_bench(path)
     if kinds:
@@ -489,9 +490,8 @@ def run(
     wrapped = bench_adapter(adapter)
 
     transfer_kinds = {"trap", "detail", "principle", "multi", "distractor", "null", "conflict"}
-    for case in cases:
-        if case.kind not in transfer_kinds:
-            continue
+    transfer_cases = [c for c in cases if c.kind in transfer_kinds]
+    for i, case in enumerate(transfer_cases, 1):
         pack = pack_for_case(case, by_id)
         for arm in (CONTROL, "L0"):
             score = score_transfer(
@@ -503,6 +503,9 @@ def run(
                 timeout=timeout,
             )
             report.cases.append(score)
+        print(f"  rmc-bench transfer {i}/{len(transfer_cases)}: {case.id}", flush=True)
+        if on_progress is not None:
+            on_progress(report)
 
     if retrieval:
         with tempfile.TemporaryDirectory() as tmp:

@@ -14,14 +14,25 @@ sys.path.insert(0, str(ROOT))
 
 from rmc.adapters import get_adapter
 from rmc.bench import bench_adapter
-from rmc.wikiskill import run, to_dict
+from rmc.wikiskill import _bench_paths_match, from_checkpoint_dict, run, to_dict
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="WikiSkill-comparable RSE benchmark")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=3)
+    parser.add_argument("--bench", type=Path, default=None, help="YAML or JSONL benchmark path")
+    parser.add_argument("--limit", type=int, default=None, help="cap tasks (upstream splits)")
+    parser.add_argument("--offset", type=int, default=0, help="skip first N tasks (shard parallel runs)")
+    parser.add_argument(
+        "--arms",
+        nargs="*",
+        default=None,
+        help="subset of arms (default: all). e.g. --arms no-skill full-inject recall-agentic",
+    )
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--checkpoint", action="store_true", help="write partial results after each task")
+    parser.add_argument("--resume", action="store_true", help="resume from wikiskill-latest.json checkpoint")
     args = parser.parse_args()
 
     raw = get_adapter(args.agent)
@@ -30,8 +41,50 @@ def main() -> int:
         raw = get_adapter("mock")
     adapter = bench_adapter(raw) if args.agent == "mock" else raw
 
+    out = args.out
+    out.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+    def _write_checkpoint(report) -> None:
+        payload = to_dict(report)
+        payload["generated_at"] = stamp
+        payload["samples"] = args.samples
+        payload["checkpoint"] = True
+        latest = out / "wikiskill-latest.json"
+        latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        n_cases = len({c.case_id for c in report.cases})
+        n_scores = len(report.cases)
+        bench_label = (args.bench or Path("wikiskill-bench.yaml")).name
+        print(
+            f"  upstream progress: {n_scores} scores ({n_cases} cases) — {bench_label}",
+            flush=True,
+        )
+
+    on_progress = _write_checkpoint if args.checkpoint else None
+    use_arms = tuple(args.arms) if args.arms else None
+    existing = None
+    latest = out / "wikiskill-latest.json"
+    bench_path = args.bench or None
+    if args.resume and latest.exists():
+        ckpt = json.loads(latest.read_text(encoding="utf-8"))
+        if ckpt.get("checkpoint") and _bench_paths_match(ckpt.get("bench_path"), bench_path):
+            existing = from_checkpoint_dict(ckpt)
+            n_cases = len({c.case_id for c in existing.cases})
+            print(
+                f"Resuming from checkpoint ({len(existing.cases)} scores, {n_cases} cases)",
+                flush=True,
+            )
     print(f"Running WikiSkill-comparable bench (agent={adapter.name}, samples={args.samples})...")
-    report = run(adapter, samples=args.samples)
+    report = run(
+        adapter,
+        path=args.bench,
+        samples=args.samples,
+        offset=args.offset,
+        limit=args.limit,
+        arms=use_arms,
+        on_progress=on_progress,
+        existing=existing,
+    )
     text = report.render()
     print(text)
 
@@ -41,6 +94,7 @@ def main() -> int:
     payload = to_dict(report)
     payload["generated_at"] = stamp
     payload["samples"] = args.samples
+    payload.pop("checkpoint", None)
 
     latest = out / "wikiskill-latest.json"
     latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")

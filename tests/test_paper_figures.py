@@ -5,38 +5,53 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import unittest
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 FIGURES = ROOT / "papers" / "rse" / "figures"
 RESULTS = ROOT / "papers" / "rse" / "results"
 
 
-def test_generate_paper_figures_creates_pdfs() -> None:
-    if not (RESULTS / "submission-latest.json").exists():
-        pytest.skip("submission-latest.json missing")
+def _has_matplotlib() -> bool:
+    try:
+        import matplotlib  # noqa: F401
 
-    subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "generate_paper_figures.py")],
-        check=True,
-        cwd=ROOT,
-    )
-    for name in (
-        "fig_wikiskill",
-        "fig_recall_ablations",
-        "fig_scaling",
-        "fig_transfer_tokens",
-        "fig_session_study",
-    ):
-        assert (FIGURES / f"{name}.pdf").exists()
+        return True
+    except ImportError:
+        return False
 
 
-def test_submission_report_has_manuscript_fields() -> None:
-    path = RESULTS / "submission-latest.json"
-    if not path.exists():
-        pytest.skip("submission-latest.json missing")
-    data = json.loads(path.read_text(encoding="utf-8"))
-    assert "headline_findings" in data
-    assert data.get("wikiskill")
+@unittest.skipUnless(
+    _has_matplotlib() and (RESULTS / "submission-latest.json").exists(),
+    "matplotlib or submission-latest.json missing",
+)
+class TestGeneratePaperFigures(unittest.TestCase):
+    def test_generate_paper_figures_creates_pdfs(self) -> None:
+        subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "generate_paper_figures.py")],
+            check=True,
+            cwd=ROOT,
+        )
+        for name in (
+            "fig_architecture",
+            "fig_case_study",
+            "fig_wikiskill",
+            "fig_recall_ablations",
+            "fig_scaling",
+            "fig_transfer_tokens",
+            "fig_session_study",
+        ):
+            self.assertTrue((FIGURES / f"{name}.pdf").exists())
+
+
+@unittest.skipUnless(
+    (RESULTS / "submission-latest.json").exists(),
+    "submission-latest.json missing",
+)
+class TestSubmissionReport(unittest.TestCase):
+    def test_submission_report_has_manuscript_fields(self) -> None:
+        path = RESULTS / "submission-latest.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        self.assertIn("headline_findings", data)
+        self.assertTrue(data.get("wikiskill"))

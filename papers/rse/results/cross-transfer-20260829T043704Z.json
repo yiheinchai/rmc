@@ -1,0 +1,231 @@
+{
+  "bench_path": "/workspace/evals/wikiskill-bench.yaml",
+  "table": {
+    "mock": {
+      "LiveMath": {
+        "full-inject": 1.0,
+        "recall-agentic": 1.0
+      },
+      "SealQA": {
+        "full-inject": 1.0,
+        "recall-agentic": 1.0
+      }
+    }
+  },
+  "models": {
+    "mock": {
+      "skill_source": "wikiskill-probe",
+      "agent": "mock",
+      "bench_path": "/workspace/evals/wikiskill-bench.yaml",
+      "arms": {
+        "no-skill": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        },
+        "full-inject": {
+          "passed": 3,
+          "total": 3,
+          "accuracy": 1.0,
+          "mean_tokens": 194,
+          "bootstrap_ci": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 3,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "LiveMath": {
+              "passed": 2,
+              "total": 2,
+              "accuracy": 1.0
+            },
+            "SealQA": {
+              "passed": 1,
+              "total": 1,
+              "accuracy": 1.0
+            }
+          }
+        },
+        "recall-judge": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        },
+        "recall-agentic": {
+          "passed": 3,
+          "total": 3,
+          "accuracy": 1.0,
+          "mean_tokens": 214,
+          "bootstrap_ci": {
+            "mean": 1.0,
+            "low": 1.0,
+            "high": 1.0,
+            "n": 3,
+            "iterations": 1000
+          },
+          "by_benchmark": {
+            "LiveMath": {
+              "passed": 2,
+              "total": 2,
+              "accuracy": 1.0
+            },
+            "SealQA": {
+              "passed": 1,
+              "total": 1,
+              "accuracy": 1.0
+            }
+          }
+        },
+        "trace2skill": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        },
+        "evoskill": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        },
+        "skillopt": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        },
+        "keyword-rag": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        },
+        "oracle-skill": {
+          "passed": 0,
+          "total": 0,
+          "accuracy": 0.0,
+          "mean_tokens": 0,
+          "bootstrap_ci": null,
+          "by_benchmark": {}
+        }
+      },
+      "cases": [
+        {
+          "case_id": "livemath-extremal",
+          "benchmark": "LiveMath",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 194,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "livemath-extremal",
+          "benchmark": "LiveMath",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 214,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "livemath-probability",
+          "benchmark": "LiveMath",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 194,
+          "reason": "matched 2/2 key terms (100%)"
+        },
+        {
+          "case_id": "livemath-probability",
+          "benchmark": "LiveMath",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 214,
+          "reason": "matched 2/2 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-paper-year",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 194,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "case_id": "sealqa-paper-year",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 1,
+          "samples_total": 1,
+          "tokens": 214,
+          "reason": "matched 1/1 key terms (100%)"
+        }
+      ],
+      "render": "WikiSkill-comparable bench \u2014 6 arm scores, agent=mock\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/0  (\u2014)  mean_tokens=0\n  full-inject      3/3  (100%)  mean_tokens=194\n  recall-judge     0/0  (\u2014)  mean_tokens=0\n  recall-agentic   3/3  (100%)  mean_tokens=214\n  trace2skill      0/0  (\u2014)  mean_tokens=0\n  evoskill         0/0  (\u2014)  mean_tokens=0\n  skillopt         0/0  (\u2014)  mean_tokens=0\n  keyword-rag      0/0  (\u2014)  mean_tokens=0\n  oracle-skill     0/0  (\u2014)  mean_tokens=0\n\nPer-benchmark (full-inject vs recall-judge):\n  LiveMath       full=2/2 (100%)  recall=0/0 (\u2014)\n  SealQA         full=1/1 (100%)  recall=0/0 (\u2014)",
+      "significance_vs_full_inject": {
+        "recall-agentic": {
+          "mean_a": 1.0,
+          "mean_b": 1.0,
+          "delta": 0.0,
+          "p_value": 1.0,
+          "significant": false,
+          "iterations": 1000
+        }
+      },
+      "comparisons": {
+        "full_inject_vs_no_skill": {
+          "delta_accuracy": 1.0
+        },
+        "recall_judge_vs_full_inject": {
+          "delta_accuracy": -1.0,
+          "token_savings": 194
+        },
+        "recall_agentic_vs_full_inject": {
+          "delta_accuracy": 0.0,
+          "token_savings": -20
+        },
+        "recall_agentic_vs_recall_judge": {
+          "delta_accuracy": 1.0
+        }
+      }
+    }
+  },
+  "render": "Cross-model transfer (WikiSkill Table 2 style)\n\n  mock         recall-agentic avg=100%  (2 benchmarks)",
+  "generated_at": "20260829T043704Z",
+  "graders": [
+    "mock"
+  ],
+  "samples": 1
+}

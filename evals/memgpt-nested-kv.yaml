@@ -1,0 +1,79 @@
+# MemGPT-style nested key-value retrieval (multi-hop proxy).
+# Inspired by MemGPT §4 nested KV task; tests collating chained lookups.
+
+version: 1
+
+cases:
+  - id: kv-hop-0
+    hops: 1
+    catalog: |
+      key-alpha -> value-one
+      key-beta -> value-two
+      key-gamma -> value-three
+    task: "Lookup key-alpha and return its value."
+    expected: "value-one"
+
+  - id: kv-hop-1
+    hops: 2
+    catalog: |
+      key-root -> key-alpha
+      key-alpha -> value-nested
+      key-beta -> value-other
+    task: "Start at key-root, follow values that are keys, return the final value."
+    expected: "value-nested"
+
+  - id: kv-hop-2
+    hops: 3
+    catalog: |
+      key-a -> key-b
+      key-b -> key-c
+      key-c -> value-final
+      key-z -> value-distractor
+    task: "Follow the chain from key-a until you reach a non-key value."
+    expected: "value-final"
+
+  - id: kv-hop-3
+    hops: 2
+    catalog: |
+      session-user -> key-profile
+      key-profile -> value-alice
+      key-profile-alt -> value-bob
+    task: "Resolve session-user through intermediate keys."
+    expected: "value-alice"
+
+  - id: kv-hop-4
+    hops: 4
+    catalog: |
+      k1 -> k2
+      k2 -> k3
+      k3 -> k4
+      k4 -> value-deep
+    task: "Four-hop lookup starting at k1."
+    expected: "value-deep"
+
+  - id: kv-hop-5
+    hops: 2
+    catalog: |
+      invoice-id -> key-total
+      key-total -> value-42
+      invoice-id-copy -> value-99
+    task: "Find total for invoice-id via nested keys."
+    expected: "value-42"
+
+  - id: kv-hop-6
+    hops: 1
+    catalog: |
+      color-red -> value-crimson
+      color-blue -> value-azure
+    task: "What value is mapped from color-red?"
+    expected: "value-crimson"
+
+  - id: kv-hop-7
+    hops: 3
+    catalog: |
+      start -> mid1
+      mid1 -> mid2
+      mid2 -> end-value
+      start-alt -> wrong-value
+    task: "Traverse start -> mid1 -> mid2."
+    expected: "end-value"

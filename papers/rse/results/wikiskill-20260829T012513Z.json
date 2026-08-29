@@ -1,0 +1,475 @@
+{
+  "agent": "mock",
+  "bench_path": "/workspace/evals/wikiskill-bench.yaml",
+  "arms": {
+    "no-skill": {
+      "passed": 0,
+      "total": 10,
+      "accuracy": 0.0,
+      "mean_tokens": 0,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 0,
+          "total": 2,
+          "accuracy": 0.0
+        },
+        "LiveMath": {
+          "passed": 0,
+          "total": 2,
+          "accuracy": 0.0
+        },
+        "OfficeQA": {
+          "passed": 0,
+          "total": 2,
+          "accuracy": 0.0
+        },
+        "SealQA": {
+          "passed": 0,
+          "total": 2,
+          "accuracy": 0.0
+        },
+        "SpreadSheet": {
+          "passed": 0,
+          "total": 2,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "full-inject": {
+      "passed": 10,
+      "total": 10,
+      "accuracy": 1.0,
+      "mean_tokens": 534,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "LiveMath": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        }
+      }
+    },
+    "recall-judge": {
+      "passed": 10,
+      "total": 10,
+      "accuracy": 1.0,
+      "mean_tokens": 64,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "LiveMath": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        }
+      }
+    },
+    "recall-agentic": {
+      "passed": 10,
+      "total": 10,
+      "accuracy": 1.0,
+      "mean_tokens": 64,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "LiveMath": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 94,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 94,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/2 key terms (0%)"
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 2/2 key terms (100%)"
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 57,
+      "reason": "matched 2/2 key terms (100%)"
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 57,
+      "reason": "matched 2/2 key terms (100%)"
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 62,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 62,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 56,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 56,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 58,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 58,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 56,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 56,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 113,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 113,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/3 key terms (0%)"
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 3/3 key terms (100%)"
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 50,
+      "reason": "matched 3/3 key terms (100%)"
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 50,
+      "reason": "matched 3/3 key terms (100%)"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 60,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 60,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "matched 0/1 key terms (0%)"
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 42,
+      "reason": "matched 1/1 key terms (100%)"
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 42,
+      "reason": "matched 1/1 key terms (100%)"
+    }
+  ],
+  "render": "WikiSkill-comparable bench \u2014 40 arm scores, agent=mock\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/10  (0%)  mean_tokens=0\n  full-inject      10/10  (100%)  mean_tokens=534\n  recall-judge     10/10  (100%)  mean_tokens=64\n  recall-agentic   10/10  (100%)  mean_tokens=64\n\nPer-benchmark (full-inject vs recall-judge):\n  ALFWorld       full=2/2 (100%)  recall=2/2 (100%)\n  LiveMath       full=2/2 (100%)  recall=2/2 (100%)\n  OfficeQA       full=2/2 (100%)  recall=2/2 (100%)\n  SealQA         full=2/2 (100%)  recall=2/2 (100%)\n  SpreadSheet    full=2/2 (100%)  recall=2/2 (100%)",
+  "comparisons": {
+    "full_inject_vs_no_skill": {
+      "delta_accuracy": 1.0
+    },
+    "recall_judge_vs_full_inject": {
+      "delta_accuracy": 0.0,
+      "token_savings": 470
+    },
+    "recall_agentic_vs_recall_judge": {
+      "delta_accuracy": 0.0
+    }
+  },
+  "generated_at": "20260829T012513Z",
+  "samples": 1
+}

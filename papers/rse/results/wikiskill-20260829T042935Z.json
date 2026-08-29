@@ -1,0 +1,562 @@
+{
+  "agent": "codex",
+  "bench_path": "evals/upstream/sealqa-test.jsonl",
+  "arms": {
+    "no-skill": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 0,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "full-inject": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 40,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "recall-judge": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 44,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "recall-agentic": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 44,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "trace2skill": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 0,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "evoskill": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 0,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "skillopt": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 0,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "keyword-rag": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 0,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    },
+    "oracle-skill": {
+      "passed": 0,
+      "total": 3,
+      "accuracy": 0.0,
+      "mean_tokens": 40,
+      "bootstrap_ci": {
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n": 3,
+        "iterations": 1000
+      },
+      "by_benchmark": {
+        "SealQA": {
+          "passed": 0,
+          "total": 3,
+          "accuracy": 0.0
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate gives Taylor Swift, but the known-good outcome is Serban Ghenea. It changes the scope to primary artists, excluding credited contributors, so it does not answer the intended all-time rec"
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 40,
+      "reason": "The candidate does not provide the required answer, \u201cSerban Ghenea,\u201d and instead says the answer cannot be determined. It therefore fails to achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 44,
+      "reason": "The candidate does not provide the required record holder, Serban Ghenea. Instead, it declares the evidence insufficient and gives only a placeholder, so it fails to achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 44,
+      "reason": "The candidate does not answer the question or identify Serban Ghenea. It therefore fails to achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "trace2skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate answers a narrower performing-artist interpretation and names Taylor Swift, while the known-good outcome identifies the overall record holder as Serban Ghenea. It therefore would lead to"
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "evoskill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate does not answer the question. It only describes a verification process and never identifies Serban Ghenea as the record holder."
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "skillopt",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate does not answer the question. It only describes how it would verify the record and never identifies Serban Ghenea, which is the essential known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "keyword-rag",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate does not answer the question or identify Serban Ghenea. It only describes how the record could be verified, so it fails to achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0001",
+      "benchmark": "SealQA",
+      "arm": "oracle-skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 40,
+      "reason": "The candidate does not answer the question or identify Serban Ghenea. It only describes a proposed evidence-review process, so it fails to achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate describes a verification method but never gives the required result: 12 distinct players. A reader does not receive the answer achieved by the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 40,
+      "reason": "The candidate provides only a methodology and never gives the required result, \u201c12 players.\u201d A reader cannot obtain the known-good answer from it."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 44,
+      "reason": "The candidate never gives the required result, \u201c12 players.\u201d It only describes a method and leaves the answer as a placeholder, so it does not achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 44,
+      "reason": "The candidate does not provide the required result. The known-good outcome is 12 players, while the candidate declines to calculate or state any number."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "trace2skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate does not provide the required result, 12 players. It only describes a method for determining the count, so a reader would not reach the known-good answer from the response itself."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "evoskill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate only proposes a method and never gives the required result: 12 distinct players."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "skillopt",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate gives only a proposed methodology and never provides the required result: 12 distinct NBA players."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "keyword-rag",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate only describes a methodology and never provides the required result. It therefore does not achieve the known-good outcome of 12 players."
+    },
+    {
+      "case_id": "sealqa-test-0002",
+      "benchmark": "SealQA",
+      "arm": "oracle-skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 40,
+      "reason": "The candidate does not provide the required result, 12 players. It instead says the evidence is insufficient and gives only a placeholder, so it would not lead to the same answer as the known-good out"
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate provides only a proposed research method and never gives the required answer, \u201cSpider-Man: Brand New Day.\u201d A reader would not reach the same decision as the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 40,
+      "reason": "The candidate does not provide the required film title. The known-good outcome identifies \u201cSpider-Man: Brand New Day,\u201d while the candidate only describes a method and requests evidence, so it would no"
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 44,
+      "reason": "The candidate does not provide the known-good answer, \u201cSpider-Man: Brand New Day.\u201d It only describes a method and requests evidence, so it fails to answer the task or enable the same conclusion."
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 44,
+      "reason": "The candidate does not provide the required film title. It only describes a method and leaves the answer as a placeholder, so it does not achieve the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "trace2skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate does not provide the required film, \u201cSpider-Man: Brand New Day.\u201d It only describes a research process, so it does not achieve the known-good outcome or give the reader the requested answ"
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "evoskill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate does not provide the required answer, \u201cSpider-Man: Brand New Day.\u201d It only describes a verification process, so the reader cannot reach the known-good outcome from the response itself."
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "skillopt",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate provides only a proposed verification method and never gives the required answer, \u201cSpider-Man: Brand New Day.\u201d A reader would not reach the same conclusion from it."
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "keyword-rag",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 0,
+      "reason": "The candidate provides only a proposed verification method and never gives the required answer, \u201cSpider-Man: Brand New Day.\u201d A reader therefore cannot reach the known-good outcome from it."
+    },
+    {
+      "case_id": "sealqa-test-0003",
+      "benchmark": "SealQA",
+      "arm": "oracle-skill",
+      "passed": false,
+      "pass_rate": 0.0,
+      "samples_passed": 0,
+      "samples_total": 1,
+      "tokens": 40,
+      "reason": "The candidate does not provide the required film title. The known-good outcome identifies \u201cSpider-Man: Brand New Day,\u201d while the candidate only describes a method and declines to answer."
+    }
+  ],
+  "render": "WikiSkill-comparable bench \u2014 27 arm scores, agent=codex\nbench: evals/upstream/sealqa-test.jsonl\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/3  (0%)  mean_tokens=0\n  full-inject      0/3  (0%)  mean_tokens=40\n  recall-judge     0/3  (0%)  mean_tokens=44\n  recall-agentic   0/3  (0%)  mean_tokens=44\n  trace2skill      0/3  (0%)  mean_tokens=0\n  evoskill         0/3  (0%)  mean_tokens=0\n  skillopt         0/3  (0%)  mean_tokens=0\n  keyword-rag      0/3  (0%)  mean_tokens=0\n  oracle-skill     0/3  (0%)  mean_tokens=40\n\nPer-benchmark (full-inject vs recall-judge):\n  SealQA         full=0/3 (0%)  recall=0/3 (0%)",
+  "significance_vs_full_inject": {
+    "recall-judge": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    },
+    "recall-agentic": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    },
+    "trace2skill": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    },
+    "evoskill": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    },
+    "skillopt": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    },
+    "keyword-rag": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    },
+    "oracle-skill": {
+      "mean_a": 0.0,
+      "mean_b": 0.0,
+      "delta": 0.0,
+      "p_value": 1.0,
+      "significant": false,
+      "iterations": 1000
+    }
+  },
+  "comparisons": {
+    "full_inject_vs_no_skill": {
+      "delta_accuracy": 0.0
+    },
+    "recall_judge_vs_full_inject": {
+      "delta_accuracy": 0.0,
+      "token_savings": -4
+    },
+    "recall_agentic_vs_full_inject": {
+      "delta_accuracy": 0.0,
+      "token_savings": -4
+    },
+    "recall_agentic_vs_recall_judge": {
+      "delta_accuracy": 0.0
+    }
+  },
+  "generated_at": "20260829T042935Z",
+  "samples": 1
+}

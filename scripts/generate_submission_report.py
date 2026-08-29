@@ -40,17 +40,43 @@ def _load(name: str) -> dict:
 
 def build_report() -> dict:
     summary = _load("summary-latest.json")
-    wikiskill = _load("wikiskill-latest.json")
+    wikiskill_raw = _load("wikiskill-latest.json")
     session_study = _load("session-study-latest.json")
     full = _load("experiments-full-latest.json")
 
-    agent = summary.get("agent") or wikiskill.get("agent") or full.get("agent") or "unknown"
-    samples = summary.get("samples") or wikiskill.get("samples") or full.get("samples")
+    competitive = _load("competitive-latest.json")
+    cross_transfer = _load("cross-transfer-latest.json")
+    multimodel = _load("multimodel-latest.json")
+
+    agent = summary.get("agent") or wikiskill_raw.get("agent") or full.get("agent") or "unknown"
+    samples = summary.get("samples") or wikiskill_raw.get("samples") or full.get("samples")
 
     bench = summary.get("bench") or full.get("bench") or {}
     recall = summary.get("recall") or full.get("recall") or {}
-    wikiskill = wikiskill or full.get("wikiskill") or {}
+    wikiskill_path = wikiskill_raw.get("bench_path", "")
+    is_upstream_sealqa = "sealqa" in str(wikiskill_path)
+    wikiskill_arms = wikiskill_raw.get("arms", {}) if wikiskill_raw else {}
+    wikiskill_probe_arms = {} if is_upstream_sealqa else wikiskill_arms
+    upstream_sealqa_arms = wikiskill_arms if is_upstream_sealqa else {}
+
+    comp_upstream = (competitive.get("upstream") or {}).get("sealqa-test") if competitive else None
+    if comp_upstream and (comp_upstream.get("arms") or {}).get("full-inject", {}).get("total", 0):
+        upstream_sealqa_arms = comp_upstream.get("arms") or {}
+        if competitive.get("agent") == "codex":
+            agent = "codex"
+        wikiskill_probe_arms = (competitive.get("wikiskill_probe") or {}).get("arms") or wikiskill_probe_arms
+
+    comp_hotpot = (competitive.get("upstream") or {}).get("hotpotqa-dev") if competitive else None
+    upstream_hotpotqa_arms = {}
+    if comp_hotpot and (comp_hotpot.get("arms") or {}).get("full-inject", {}).get("total", 0):
+        upstream_hotpotqa_arms = comp_hotpot.get("arms") or {}
+
     session_study = session_study or full.get("session_study") or {}
+
+    # Prefer competitive suite RMC-Bench when available (expanded bench)
+    comp_bench = (competitive.get("rmc_bench") or {}) if competitive else {}
+    if comp_bench and (competitive.get("agent") == "codex" or not bench.get("cases")):
+        bench = comp_bench
 
     report = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
@@ -64,17 +90,29 @@ def build_report() -> dict:
             "mean_l0_tokens": _mean_l0_tokens(bench),
         },
         "recall_ablations": recall.get("arms", {}),
-        "wikiskill": wikiskill.get("arms", {}),
-        "wikiskill_comparisons": wikiskill.get("comparisons", {}),
+        "wikiskill": wikiskill_probe_arms or (full.get("wikiskill") or {}).get("arms", {}),
+        "upstream_sealqa": upstream_sealqa_arms,
+        "upstream_hotpotqa": upstream_hotpotqa_arms,
+        "upstream_sealqa_meta": {
+            "bench_path": wikiskill_path or (comp_upstream or {}).get("bench_path", ""),
+            "checkpoint": wikiskill_raw.get("checkpoint", False),
+            "significance": (comp_upstream or wikiskill_raw).get("significance_vs_full_inject", {}),
+        } if upstream_sealqa_arms else {},
+        "wikiskill_comparisons": wikiskill_raw.get("comparisons", {}),
         "session_study": session_study.get("arms", {}),
         "session_study_lift": session_study.get("lift"),
         "scaling": (summary.get("scaling") or full.get("scaling") or {}).get("rows", []),
         "compaction": summary.get("compaction") or full.get("compaction"),
         "retention_curve": summary.get("retention_curve") or full.get("retention_curve"),
         "walkthrough": summary.get("walkthrough") or full.get("walkthrough"),
+        "competitive": competitive,
+        "cross_transfer": cross_transfer,
+        "multimodel": multimodel,
         "submission_status": {
             "codex_rmc_bench": bool(bench),
-            "wikiskill_comparable": bool(wikiskill.get("arms")),
+            "wikiskill_comparable": bool(wikiskill_probe_arms or upstream_sealqa_arms),
+            "upstream_sealqa_eval": bool(upstream_sealqa_arms),
+            "upstream_hotpotqa_eval": bool(upstream_hotpotqa_arms),
             "recall_ablations": bool(recall.get("arms")),
             "scaling_study": bool((summary.get("scaling") or full.get("scaling", {})).get("rows")),
             "claude_cross_check": _claude_authenticated(),
@@ -85,6 +123,9 @@ def build_report() -> dict:
             "latex_manuscript": (ROOT / "papers" / "rse" / "paper.tex").exists(),
             "paper_pdf": (ROOT / "papers" / "rse" / "paper.pdf").exists(),
             "figures_generated": (ROOT / "papers" / "rse" / "figures" / "fig_wikiskill.pdf").exists(),
+            "competitive_baselines": bool(competitive.get("upstream") or competitive.get("wikiskill_probe")),
+            "cross_model_transfer": bool(cross_transfer.get("table")),
+            "multimodel_eval": bool(multimodel.get("models")),
             "reproducibility_appendix": (ROOT / "papers" / "rse" / "appendix.tex").exists(),
         },
         "headline_findings": [],
@@ -105,8 +146,8 @@ def build_report() -> dict:
             f"{judge.get('recall', 0):.0%} rec vs {serve.get('precision', 0):.0%} prec, "
             f"noise {serve.get('noise_tokens', 0)} → {judge.get('noise_tokens', 0)} tok"
         )
-    ws = wikiskill.get("arms") or {}
-    if ws:
+    ws = report.get("wikiskill") or {}
+    if ws and not report.get("upstream_sealqa"):
         fi = ws.get("full-inject", {})
         ra = ws.get("recall-agentic", {})
         findings.append(
@@ -114,6 +155,34 @@ def build_report() -> dict:
             f"{fi.get('mean_tokens', 0)} tok; recall-agentic {ra.get('accuracy', 0):.0%} @ "
             f"{ra.get('mean_tokens', 0)} tok"
         )
+    us = report.get("upstream_sealqa") or {}
+    if us:
+        fi = us.get("full-inject", {})
+        ra = us.get("recall-agentic", {})
+        n = fi.get("total", 0)
+        findings.append(
+            f"Upstream SealQA ({n} tasks): full-inject {fi.get('accuracy', 0):.0%}; "
+            f"recall-agentic {ra.get('accuracy', 0):.0%} @ {ra.get('mean_tokens', 0)} tok"
+        )
+    hp = report.get("upstream_hotpotqa") or {}
+    if hp:
+        fi = hp.get("full-inject", {})
+        ra = hp.get("recall-agentic", {})
+        n = fi.get("total", 0)
+        findings.append(
+            f"Upstream HotPotQA ({n} tasks): full-inject {fi.get('accuracy', 0):.0%}; "
+            f"recall-agentic {ra.get('accuracy', 0):.0%} @ {ra.get('mean_tokens', 0)} tok"
+        )
+    ct = report.get("cross_transfer") or {}
+    if ct.get("table"):
+        for model, benches in ct["table"].items():
+            accs = [b.get("recall-agentic", 0) for b in benches.values()]
+            if accs:
+                findings.append(
+                    f"Cross-transfer ({model}): recall-agentic avg {sum(accs)/len(accs):.0%} "
+                    f"across {len(accs)} benchmarks"
+                )
+                break
     ss = session_study.get("arms") or {}
     if ss:
         findings.append(
@@ -179,6 +248,18 @@ def _render(report: dict) -> str:
             )
         if ra:
             lines.append(f"    recall-agentic vs recall-judge: {ra.get('delta_accuracy', 0):+.0%}")
+
+    us = report.get("upstream_sealqa") or {}
+    if us:
+        lines += ["", "=== Upstream SealQA ==="]
+        for arm, data in us.items():
+            acc = data.get("accuracy", 0)
+            ci = data.get("bootstrap_ci") or {}
+            ci_str = f" CI [{ci.get('low', 0):.0%},{ci.get('high', 0):.0%}]" if ci else ""
+            lines.append(
+                f"  {arm:<16} {data.get('passed', 0)}/{data.get('total', 0)} ({acc:.0%}){ci_str}  "
+                f"mean_tokens={data.get('mean_tokens', 0)}"
+            )
 
     ss = report.get("session_study") or {}
     if ss:

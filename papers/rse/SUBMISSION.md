@@ -15,7 +15,45 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 | Eval results | `results/submission-latest.json` | Complete (Codex) |
 | Figure generator | `../../scripts/generate_paper_figures.py` | Ready |
 
-## Pre-submission steps
+## Competitive bar progress (WikiSkill / Reflexion / MemGPT)
+
+| Requirement | Status |
+|---|---|
+| Bootstrap CIs + paired significance | **Done** — `rmc/stats.py`, in `wikiskill` reports |
+| External baseline arms (Trace2Skill/EvoSkill/SkillOpt/RAG proxies) | **Done** — `rmc/skill_baselines.py` |
+| Upstream benchmark import | **Done** — SealQA 111 tasks + HotPotQA dev-100 (`evals/upstream/`) |
+| Full-scale upstream eval | **In progress** — SealQA Codex run (full 111 + HotPotQA 100) |
+| Cross-model transfer table | **Done** — `scripts/run_cross_transfer.py`, `fig_cross_transfer.pdf` |
+| Case-study figure | **Done** — `figures/fig_case_study.pdf` |
+| Expanded RMC-Bench (25 cases) | **Done** — `evals/rmc-bench.yaml` |
+| Competitive baseline figure | **Done** — `figures/fig_competitive_baselines.pdf` |
+| Manuscript updated (upstream/cross-transfer) | **Done** — `paper.tex` §upstream, §cross_transfer |
+| MemGPT nested-KV proxy | **Done** — `evals/memgpt-nested-kv.yaml` (8 cases) |
+| Multi-model runner | **Done** — `scripts/run_multimodel_evals.py` + `rmc/grader_specs.py` (≥3 Codex variants when Claude unauth) |
+| Multi-model eval (≥3 backends) | **In progress** — parallel Codex run (`multimodel-parallel` tmux) |
+| Architecture figure | **Done** — `figures/fig_architecture.pdf` |
+| HotPotQA 100 (Reflexion) | **Imported** — `hotpotqa-dev.jsonl` (100 validation Qs); Codex eval queued |
+| 5 models × 5 benchmarks (WikiSkill Table 1) | **Not run** — needs Codex + Claude + open-weight |
+| Real EvoSkill/Trace2Skill/SkillOpt evolution loops | **Not implemented** — inference proxies only |
+| ALFWorld 134 envs (Reflexion) | **Not wired** — text proxy tasks only |
+
+```bash
+# Import upstream splits
+python3 scripts/import_upstream_bench.py --all
+
+# Competitive suite (probe + SealQA subset + MemGPT + session study)
+python3 scripts/run_competitive_evals.py --agent codex --samples 3
+
+# Multi-model Table-1 style probe
+python3 scripts/run_multimodel_evals.py --samples 3 --resume
+
+# Pipeline status (while Codex evals run)
+python3 scripts/pipeline_status.py
+
+# Verify competitive bar when pipeline completes
+python3 scripts/audit_competitive_bar.py
+```
+
 
 ### Done in-repo
 

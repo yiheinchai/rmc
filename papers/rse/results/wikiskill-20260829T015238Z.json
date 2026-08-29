@@ -1,0 +1,475 @@
+{
+  "agent": "codex",
+  "bench_path": "/workspace/evals/wikiskill-bench.yaml",
+  "arms": {
+    "no-skill": {
+      "passed": 6,
+      "total": 10,
+      "accuracy": 0.6,
+      "mean_tokens": 0,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    },
+    "full-inject": {
+      "passed": 7,
+      "total": 10,
+      "accuracy": 0.7,
+      "mean_tokens": 534,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    },
+    "recall-judge": {
+      "passed": 7,
+      "total": 10,
+      "accuracy": 0.7,
+      "mean_tokens": 64,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    },
+    "recall-agentic": {
+      "passed": 8,
+      "total": 10,
+      "accuracy": 0.8,
+      "mean_tokens": 64,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate contradicts the known-good outcome: it concludes that the minimum is 3 and rejects all offered choices, whereas the expected decision is (B) 6."
+    },
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "full-inject",
+      "passed": false,
+      "tokens": 534,
+      "reason": "The candidate contradicts the known-good outcome by concluding n=3 and rejecting all supplied choices, whereas the required conclusion is (B) 6 using the extremal pairing bound."
+    },
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "recall-judge",
+      "passed": false,
+      "tokens": 94,
+      "reason": "The candidate contradicts the known-good outcome: it concludes n=3 and says none of the choices is correct, whereas the required conclusion is (B) 6 using the extremal pairing bound."
+    },
+    {
+      "case_id": "livemath-extremal",
+      "benchmark": "LiveMath",
+      "arm": "recall-agentic",
+      "passed": false,
+      "tokens": 94,
+      "reason": "The candidate contradicts the known-good outcome by answering n=3 and claiming none of the choices is correct, rather than selecting (B) 6. It therefore would lead to a different decision and action."
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "no-skill",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate gives the correct calculation and selects (A) 3/10, matching the known-good outcome. Its note that 6/20 is equivalent is accurate and does not change the decision."
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate correctly computes P(both red) = (3/5)(2/4) = 3/10 and identifies choice (A), matching the known-good outcome. Its additional observation that (C) 6/20 is numerically equivalent is accur"
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 57,
+      "reason": "The candidate correctly computes P(both red) as (3/5)(2/4) = 6/20 = 3/10 and selects (A), matching the known-good outcome. Noting that (C) is numerically equivalent does not change the answer."
+    },
+    {
+      "case_id": "livemath-probability",
+      "benchmark": "LiveMath",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 57,
+      "reason": "The candidate correctly computes the without-replacement probability as (3/5)(2/4) = 6/20 = 3/10 and selects (A), matching the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate gives the essential answer, 2017, and correctly grounds it in the supplied NeurIPS 2017 snippet, matching the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate gives the correct publication year, 2017, and includes the same source attribution as the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 62,
+      "reason": "The candidate gives the correct year, 2017, identifies the relevant source, and matches the known-good answer\u2019s substance and actionable conclusion."
+    },
+    {
+      "case_id": "sealqa-paper-year",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 62,
+      "reason": "The candidate gives the correct publication year, 2017, attributes it to \u201cAttention Is All You Need,\u201d and matches the known-good outcome in substance."
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "no-skill",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate correctly counts the four explicitly named authors and identifies Devlin, Chang, Lee, and Toutanova, matching the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate correctly counts the four explicitly named authors and identifies Devlin, Chang, Lee, and Toutanova, matching the known-good outcome."
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 56,
+      "reason": "The candidate correctly identifies and counts the four explicitly named authors: Devlin, Chang, Lee, and Toutanova."
+    },
+    {
+      "case_id": "sealqa-author-count",
+      "benchmark": "SealQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 56,
+      "reason": "The candidate identifies the same four explicitly named authors and gives the correct count of 4."
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate describes the operation but does not provide the requested pandas one-liner. It also implies sorting a region index, whereas the known-good result keeps `region` as a column using `as_in"
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "full-inject",
+      "passed": false,
+      "tokens": 534,
+      "reason": "The candidate gives the correct approach and expected result, but it does not actually provide the requested pandas one-liner."
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-judge",
+      "passed": false,
+      "tokens": 58,
+      "reason": "The candidate explains the approach and gives correct totals, but it does not provide the requested pandas one-liner. A reader would still need to construct the code themselves."
+    },
+    {
+      "case_id": "spreadsheet-pivot-sum",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-agentic",
+      "passed": false,
+      "tokens": 58,
+      "reason": "The candidate explains the correct procedure and result but does not actually provide the requested pandas one-liner. Saying to use operations \u201cequivalent to\u201d groupby, sum, reset_index, and sort_value"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "no-skill",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate describes the same safe operation: group by `group_id`, forward-fill only `status`, and assign the index-aligned result back. It also correctly prevents filling across group boundaries a"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate gives the exact safe pattern: group by `group_id`, select `status`, call `ffill()`, and assign it back. It also correctly warns against global forward-fill and appropriately notes orderi"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 56,
+      "reason": "The candidate gives the essential safe pattern, `groupby(\"group_id\")[\"status\"].ffill()`, explains that it prevents cross-group leakage, and adds valid ordering/alignment cautions without contradicting"
+    },
+    {
+      "case_id": "spreadsheet-fillna",
+      "benchmark": "SpreadSheet",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 56,
+      "reason": "The candidate describes the same safe operation: forward-fill `status` independently within each `group_id`, assign only that result back, and prevent values from leaking across groups. Its ordering a"
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate correctly identifies total receipts as 1,550 but fails to give the required units and contradicts the known-good outcome by saying the units are unspecified. The expected answer is 1,550"
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate gives the same value and units as the known-good outcome: total receipts were 1,550 million dollars."
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 113,
+      "reason": "The candidate gives the correct total receipts value, 1,550, and explicitly states the units as millions of dollars, matching the known-good outcome."
+    },
+    {
+      "case_id": "officeqa-receipts-total",
+      "benchmark": "OfficeQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 113,
+      "reason": "The candidate gives the same result and units as the known-good outcome: total receipts were 1,550 million dollars, taken from the Total receipts row."
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "no-skill",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate correctly computes 1,700 \u2212 1,550 = 150 and states that the result uses the table\u2019s units, matching the known-good outcome."
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate correctly computes the deficit as 1,700 \u2212 1,550 = 150 and says to preserve the table\u2019s units. The speculative mention of millions is unnecessary but does not undermine the essential resu"
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 50,
+      "reason": "The candidate correctly computes 1,700 \u2212 1,550 = 150 and preserves the table\u2019s units, matching the known-good outcome."
+    },
+    {
+      "case_id": "officeqa-outlays-vs-receipts",
+      "benchmark": "OfficeQA",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 50,
+      "reason": "The candidate correctly computes the deficit as 1,700 \u2212 1,550 = 150 and preserves the table\u2019s units, matching the known-good outcome."
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "no-skill",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate omits both essential actions: taking the apple from the fridge and putting it on the countertop. Cleaning does not imply acquiring the apple, and going to the countertop does not imply p"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "full-inject",
+      "passed": false,
+      "tokens": 534,
+      "reason": "The candidate rejects the required minimal two-action sequence and instead gives three actions. The known-good outcome treats cleaning as conditional, so the actionable answer should be to take the ap"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "recall-judge",
+      "passed": false,
+      "tokens": 60,
+      "reason": "The candidate contradicts the known-good outcome by asserting that cleaning is mandatory and that no valid two-action sequence exists. The requested minimal sequence is to take the apple from the frid"
+    },
+    {
+      "case_id": "alfworld-put-apple",
+      "benchmark": "ALFWorld",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 60,
+      "reason": "The candidate contradicts the known-good outcome by claiming three actions are required. The requested minimal two-action sequence is to take the apple from the fridge and put it on the countertop; cl"
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "no-skill",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate gives the same required action sequence: heat the mug with the microwave first, then place it on the coffeemachine."
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "full-inject",
+      "passed": true,
+      "tokens": 534,
+      "reason": "The candidate gives the same required action sequence as the known-good outcome: heat the mug with the microwave, then put it on the coffeemachine."
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "recall-judge",
+      "passed": true,
+      "tokens": 42,
+      "reason": "The candidate gives the same required action sequence: heat the held mug with the microwave, then place it on the coffeemachine."
+    },
+    {
+      "case_id": "alfworld-heat-mug",
+      "benchmark": "ALFWorld",
+      "arm": "recall-agentic",
+      "passed": true,
+      "tokens": 42,
+      "reason": "The candidate gives the same required action sequence as the known-good outcome: heat the held mug with the microwave, then place it on the coffeemachine."
+    }
+  ],
+  "render": "WikiSkill-comparable bench \u2014 40 arm scores, agent=codex\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         6/10  (60%)  mean_tokens=0\n  full-inject      7/10  (70%)  mean_tokens=534\n  recall-judge     7/10  (70%)  mean_tokens=64\n  recall-agentic   8/10  (80%)  mean_tokens=64\n\nPer-benchmark (full-inject vs recall-judge):\n  ALFWorld       full=1/2 (50%)  recall=1/2 (50%)\n  LiveMath       full=1/2 (50%)  recall=1/2 (50%)\n  OfficeQA       full=2/2 (100%)  recall=2/2 (100%)\n  SealQA         full=2/2 (100%)  recall=2/2 (100%)\n  SpreadSheet    full=1/2 (50%)  recall=1/2 (50%)",
+  "comparisons": {
+    "full_inject_vs_no_skill": {
+      "delta_accuracy": 0.09999999999999998
+    },
+    "recall_judge_vs_full_inject": {
+      "delta_accuracy": 0.0,
+      "token_savings": 470
+    },
+    "recall_agentic_vs_recall_judge": {
+      "delta_accuracy": 0.10000000000000009
+    }
+  },
+  "generated_at": "20260829T015238Z",
+  "samples": 3
+}

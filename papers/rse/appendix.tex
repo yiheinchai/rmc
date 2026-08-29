@@ -22,8 +22,10 @@ Design specification: \texttt{DESIGN.md}.
 \subsection{Dataset and benchmarks}
 
 \begin{itemize}
-  \item \textbf{RMC-Bench:} \texttt{evals/rmc-bench.yaml} (10 hand-written cases).
+  \item \textbf{RMC-Bench:} \texttt{evals/rmc-bench.yaml} (25 hand-written cases).
   \item \textbf{WikiSkill-comparable:} \texttt{evals/wikiskill-bench.yaml} (10 tasks, 5 domains).
+  \item \textbf{Upstream SealQA:} \texttt{evals/upstream/sealqa-test.jsonl} (111 tasks, HF import).
+  \item \textbf{MemGPT proxy:} \texttt{evals/memgpt-nested-kv.yaml} (8 nested-KV cases).
   \item \textbf{Session pairs:} \texttt{evals/session-pairs.yaml} (5 follow-up pairs).
   \item \textbf{Recall ablations:} fixture store under \texttt{evals/fixtures/recall-store/}.
 \end{itemize}
@@ -63,8 +65,8 @@ cd papers/rse && make
 
 \subsection{Statistical significance}
 
-Current runs use 3 samples without confidence intervals.
-For submission to a main-track venue, we recommend expanding to $\geq$5 samples with bootstrap CIs; the harness supports arbitrary \texttt{--samples N}.
+WikiSkill and upstream runs report bootstrap 95\% confidence intervals and paired bootstrap tests vs.\ full-inject (\texttt{rmc/stats.py}).
+Default runs use 3 samples; increase with \texttt{--samples N} for tighter CIs.
 
 \subsection{Known limitations of reproduction}
 
