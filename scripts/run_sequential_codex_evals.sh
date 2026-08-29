@@ -26,9 +26,12 @@ python3 scripts/run_competitive_evals.py \
 cp papers/rse/results/competitive-latest.json "papers/rse/results/competitive-codex-${STAMP}.json" 2>/dev/null || true
 python3 scripts/inject_paper_results.py || true
 
-python3 scripts/inject_paper_results.py || true
-
 echo "=== [3/6] Full upstream SealQA (111 tasks, checkpoint; exclusive Codex) ==="
+HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"
+bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
+HOTPOT_PID=$!
+echo "HotPotQA parallel pid=$HOTPOT_PID log=$HOTPOT_LOG (runs alongside SealQA)"
+
 python3 scripts/run_wikiskill_evals.py \
   --agent codex \
   --bench evals/upstream/sealqa-test.jsonl \
@@ -40,19 +43,21 @@ echo "=== Merge SealQA into competitive + inject manuscript ==="
 python3 scripts/merge_competitive_upstream.py || true
 python3 scripts/inject_paper_results.py || true
 
-echo "=== [4/6] HotPotQA + multi-model (parallel after SealQA) ==="
-HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"
-bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
-HOTPOT_PID=$!
-echo "HotPotQA background pid=$HOTPOT_PID log=$HOTPOT_LOG"
+echo "=== [4/6] HotPotQA join + multi-model (parallel after SealQA) ==="
+if kill -0 "$HOTPOT_PID" 2>/dev/null; then
+  echo "waiting for HotPotQA parallel (pid=$HOTPOT_PID)..."
+  wait "$HOTPOT_PID" || true
+elif [[ ! -f papers/rse/results/competitive-latest.json ]] || \
+     ! python3 -c "import json; d=json.load(open('papers/rse/results/competitive-latest.json')); u=(d.get('upstream') or {}).get('hotpotqa-dev',{}); t=((u.get('arms') or {}).get('full-inject') or {}).get('total',0); import sys; sys.exit(0 if t>=100 else 1)"; then
+  bash ./scripts/run_hotpot_parallel.sh
+fi
 
 MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
 bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
 MULTI_PID=$!
 echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
 
-echo "=== waiting for HotPotQA (pid=$HOTPOT_PID) and multi-model (pid=$MULTI_PID) ==="
-wait "$HOTPOT_PID" || true
+echo "=== waiting for multi-model (pid=$MULTI_PID) ==="
 if kill -0 "$MULTI_PID" 2>/dev/null; then
   wait "$MULTI_PID" || true
 elif [[ ! -f papers/rse/results/multimodel-latest.json ]] || \

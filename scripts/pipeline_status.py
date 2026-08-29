@@ -99,6 +99,17 @@ def main() -> int:
     print(f"multimodel-latest.json   models={len(mm.get('models') or {})}  updated={_mtime(RESULTS / 'multimodel-latest.json')}")
     print(f"cross-transfer-latest    models={list((ct.get('table') or {}).keys())}")
 
+    hotpot_path = RESULTS / "hotpot-workspace" / "competitive-latest.json"
+    if hotpot_path.exists():
+        hotpot_ws = json.loads(hotpot_path.read_text(encoding="utf-8"))
+        hp_blob = (hotpot_ws.get("upstream") or {}).get("hotpotqa-dev") or {}
+        hp_total = ((hp_blob.get("arms") or {}).get("full-inject") or {}).get("total", 0)
+        hp_scores = len(hp_blob.get("cases") or [])
+        print(
+            f"hotpot-workspace         tasks={hp_total}/100  scores={hp_scores}  "
+            f"updated={_mtime(hotpot_path)}"
+        )
+
     jobs = [
         ("sequential pipeline", "run_sequential_codex_evals.sh", "script"),
         ("competitive step 2", "scripts/run_competitive_evals.py --agent codex --samples 1 --skip-upstream", "py"),
@@ -129,6 +140,20 @@ def main() -> int:
                 f"\nStep 3 SealQA upstream: {n_cases}/111 cases "
                 f"({pct:.0f}%, {n_scores} arm-scores, target 999)"
             )
+        if _running_script("run_hotpot_parallel.sh"):
+            hp_logs = sorted(Path("/tmp").glob("hotpot-parallel-*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
+            if hp_logs:
+                hp_text = hp_logs[0].read_text(encoding="utf-8")
+                hp_prog = re.findall(r"upstream progress: (\d+) scores \((\d+) cases\)", hp_text)
+                if hp_prog:
+                    scores, cases = hp_prog[-1]
+                    pct = 100 * int(cases) / EXPECTED["hotpotqa-dev"]
+                    print(
+                        f"HotPotQA parallel: {cases}/100 cases "
+                        f"({pct:.0f}%, {scores} arm-scores)"
+                    )
+                else:
+                    print("HotPotQA parallel: starting (first task in flight)")
         elif "=== WikiSkill probe" in text:
             print("\nStep 2 phase: WikiSkill probe (10-task)")
         elif "=== MemGPT" in text or "memgpt" in text.lower() and "=== [2/6]" not in text:
