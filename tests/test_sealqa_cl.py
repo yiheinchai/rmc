@@ -7,11 +7,11 @@ from pathlib import Path
 
 from rose.adapters.mock import MockAdapter
 from rose.bench import bench_adapter
-from rose.sealqa_cl import CLBench, TEST_ARMS, run
+from rose.sealqa_cl import CLBench, DEFAULT_BENCH, TEST_ARMS, UPSTREAM_BENCH, run
 
 
 class TestSealQAContinualLearning(unittest.TestCase):
-    def test_bench_splits_train_and_test(self) -> None:
+    def test_probe_dev_bench_splits_train_and_test(self) -> None:
         bench = CLBench.load()
         self.assertEqual(len(bench.train), 6)
         self.assertEqual(len(bench.test), 6)
@@ -19,8 +19,13 @@ class TestSealQAContinualLearning(unittest.TestCase):
         test_axes = {c.axis for c in bench.test}
         self.assertEqual(train_axes, test_axes)
 
+    def test_upstream_bench_has_111_tasks(self) -> None:
+        bench = CLBench.load(UPSTREAM_BENCH)
+        self.assertEqual(len(bench.train), 56)
+        self.assertEqual(len(bench.test), 55)
+
     def test_mock_run_produces_all_arms(self) -> None:
-        report = run(bench_adapter(MockAdapter()), compact=True)
+        report = run(bench_adapter(MockAdapter()), path=DEFAULT_BENCH, compact=True)
         self.assertEqual(len(report.train_steps), 6)
         for arm in TEST_ARMS:
             passed, total, _ = report.accuracy(arm)
@@ -28,8 +33,17 @@ class TestSealQAContinualLearning(unittest.TestCase):
             self.assertGreaterEqual(passed, 0, msg=arm)
         self.assertTrue(report.render())
 
+    def test_upstream_mock_with_limit(self) -> None:
+        report = run(
+            bench_adapter(MockAdapter()),
+            path=UPSTREAM_BENCH,
+            train_limit=4,
+            compact=False,
+        )
+        self.assertEqual(len(report.train_steps), 4)
+
     def test_to_dict_has_lift(self) -> None:
-        report = run(bench_adapter(MockAdapter()))
+        report = run(bench_adapter(MockAdapter()), path=DEFAULT_BENCH)
         data = report.to_dict()
         self.assertIn("lift_vs_no_memory", data)
         self.assertIn("arms", data)

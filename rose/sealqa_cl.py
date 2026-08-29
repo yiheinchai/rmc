@@ -14,10 +14,10 @@ The bench defaults to ``evals/sealqa-ablation/probe-dev.yaml`` with split
 
 from __future__ import annotations
 
-import tempfile
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from . import index as index_mod
 from . import probes as probes_mod
@@ -34,6 +34,9 @@ from .wikiskill import WikiSkillCase, compact_probe_store, wikiskill_adapter
 
 DEFAULT_BENCH = (
     Path(__file__).resolve().parents[1] / "evals" / "sealqa-ablation" / "probe-dev.yaml"
+)
+UPSTREAM_BENCH = (
+    Path(__file__).resolve().parents[1] / "evals" / "sealqa-ablation" / "upstream-cl.yaml"
 )
 
 TEST_ARMS = ("no-memory", "static-composite", "continual-recall", "oracle")
@@ -168,16 +171,23 @@ class CLReport:
         return out
 
     def render(self) -> str:
+        train_passed = sum(1 for s in self.train_steps if s.passed_before_learn)
+        test_cases = len({s.case_id for s in self.test_scores})
         lines = [
             f"SealQA continual learning — {self.bench_path}",
-            f"agent={self.agent}  train={len(self.train_steps)}  test={len({s.case_id for s in self.test_scores})}",
+            f"agent={self.agent}  train={len(self.train_steps)}  test_cases={test_cases}",
             "",
-            "Train stream (recall before ingest):",
         ]
-        for step in self.train_steps:
-            mark = "ok" if step.passed_before_learn else "miss"
+        if len(self.train_steps) <= 12:
+            lines.append("Train stream (recall before ingest):")
+            for step in self.train_steps:
+                mark = "ok" if step.passed_before_learn else "miss"
+                lines.append(
+                    f"  {step.case_id:<28} {step.axis:<16} before={mark}  probes={step.probe_count}"
+                )
+        else:
             lines.append(
-                f"  {step.case_id:<28} {step.axis:<16} before={mark}  probes={step.probe_count}"
+                f"Train stream: {train_passed}/{len(self.train_steps)} passed recall before ingest"
             )
         lines += [
             "",
@@ -341,27 +351,82 @@ def _probe_replay_rate(store: Store, adapter: Adapter) -> tuple[float, int, int]
     return passed / total if total else 0.0, passed, total
 
 
+def scored_test_keys(report: CLReport) -> set[tuple[str, str]]:
+    return {(s.case_id, s.arm) for s in report.test_scores}
+
+
+def from_checkpoint_dict(data: dict[str, Any]) -> CLReport:
+    report = CLReport(
+        bench_path=str(data.get("bench_path") or ""),
+        agent=str(data.get("agent") or "?"),
+        probe_pass_rate=float(data.get("probe_pass_rate") or 0.0),
+        probe_passed=int(data.get("probe_passed") or 0),
+        probe_total=int(data.get("probe_total") or 0),
+        compaction_accepted=bool(data.get("compaction_accepted")),
+        compaction_reason=str(data.get("compaction_reason") or ""),
+        tokens_before_compact=int(data.get("tokens_before_compact") or 0),
+        tokens_after_compact=int(data.get("tokens_after_compact") or 0),
+    )
+    for raw in data.get("train_steps") or []:
+        report.train_steps.append(
+            TrainStep(
+                case_id=str(raw.get("case_id") or ""),
+                axis=str(raw.get("axis") or ""),
+                passed_before_learn=bool(raw.get("passed_before_learn")),
+                recall_tokens=int(raw.get("recall_tokens") or 0),
+                probe_count=int(raw.get("probe_count") or 0),
+                compacted=bool(raw.get("compacted")),
+            )
+        )
+    for raw in data.get("test_scores") or []:
+        report.test_scores.append(
+            AttemptScore(
+                case_id=str(raw.get("case_id") or ""),
+                axis=str(raw.get("axis") or ""),
+                arm=str(raw.get("arm") or ""),
+                passed=bool(raw.get("passed")),
+                tokens=int(raw.get("tokens") or 0),
+                reason=str(raw.get("reason") or ""),
+                answer=str(raw.get("answer") or ""),
+            )
+        )
+    return report
+
+
+def _replay_train_ingest(store: Store, bench: CLBench, steps: list[TrainStep]) -> None:
+    done = {s.case_id for s in steps}
+    for case in bench.train:
+        if case.id in done:
+            _ingest_lesson(store, case)
+
+
 def train_stream(
     store: Store,
     adapter: Adapter,
     cases: list[CLCase],
     *,
     timeout: int = 180,
+    skip_ids: set[str] | None = None,
+    on_step: Callable[[TrainStep], None] | None = None,
 ) -> list[TrainStep]:
     steps: list[TrainStep] = []
+    skip = skip_ids or set()
     for case in cases:
+        if case.id in skip:
+            continue
         pack = recall_pack(store, case.task, adapter)
         attempt = _attempt(adapter, case, pack.text, timeout=timeout)
         probe_count = _ingest_lesson(store, case)
-        steps.append(
-            TrainStep(
-                case_id=case.id,
-                axis=case.axis,
-                passed_before_learn=attempt.passed,
-                recall_tokens=pack.tokens,
-                probe_count=probe_count,
-            )
+        step = TrainStep(
+            case_id=case.id,
+            axis=case.axis,
+            passed_before_learn=attempt.passed,
+            recall_tokens=pack.tokens,
+            probe_count=probe_count,
         )
+        steps.append(step)
+        if on_step is not None:
+            on_step(step)
     return steps
 
 
@@ -372,10 +437,15 @@ def score_test_arm(
     arm: str,
     *,
     timeout: int = 180,
+    skip: set[tuple[str, str]] | None = None,
+    on_score: Callable[[AttemptScore], None] | None = None,
 ) -> list[AttemptScore]:
     scores: list[AttemptScore] = []
     static_pack = bench.lesson if arm == "static-composite" else ""
+    done = skip or set()
     for case in bench.test:
+        if (case.id, arm) in done:
+            continue
         if arm == "no-memory":
             pack = ""
         elif arm == "static-composite":
@@ -391,6 +461,8 @@ def score_test_arm(
         attempt = _attempt(adapter, case, pack, timeout=timeout)
         attempt.arm = arm
         scores.append(attempt)
+        if on_score is not None:
+            on_score(attempt)
     return scores
 
 
@@ -406,42 +478,84 @@ def run(
     path: Path | None = None,
     timeout: int = 180,
     compact: bool = True,
+    store_base: Path | None = None,
+    existing: CLReport | None = None,
+    train_limit: int | None = None,
+    on_progress: Callable[[CLReport], None] | None = None,
 ) -> CLReport:
-    bench = CLBench.load(path)
+    bench_path = path or UPSTREAM_BENCH
+    bench = CLBench.load(bench_path)
+    train_cases = bench.train[:train_limit] if train_limit else bench.train
     adapter = _wrap_adapter(adapter, bench)
-    report = CLReport(
-        bench_path=str(path or DEFAULT_BENCH),
-        agent=getattr(adapter, "name", "?"),
+
+    if existing is not None and existing.bench_path == str(bench_path):
+        report = existing
+        report.agent = getattr(adapter, "name", report.agent)
+    else:
+        report = CLReport(
+            bench_path=str(bench_path),
+            agent=getattr(adapter, "name", "?"),
+        )
+
+    base = store_base or Path("/tmp/rose-sealqa-cl-store")
+    if existing is None and base.exists():
+        shutil.rmtree(base)
+    base.mkdir(parents=True, exist_ok=True)
+    repo = base / "repo"
+    store = Store.init(repo) if repo.exists() else _empty_store(repo)
+
+    done_train = {s.case_id for s in report.train_steps}
+    if done_train and not list(store.nodes()):
+        _replay_train_ingest(store, bench, report.train_steps)
+
+    def _notify() -> None:
+        if on_progress is not None:
+            on_progress(report)
+
+    train_stream(
+        store,
+        adapter,
+        train_cases,
+        timeout=timeout,
+        skip_ids=done_train,
+        on_step=lambda step: (report.train_steps.append(step), _notify())[1],
     )
 
-    with tempfile.TemporaryDirectory() as tmp:
-        store = _empty_store(Path(tmp) / "repo")
-        report.train_steps = train_stream(store, adapter, bench.train, timeout=timeout)
-
+    if len(report.train_steps) >= len(train_cases):
         report.tokens_before_compact = sum(n.tokens for n in store.nodes() if n.is_apex)
-        if compact and any(probes_mod.collect(store, n) for n in store.nodes() if n.is_apex):
+        if compact and not report.compaction_reason and any(
+            probes_mod.collect(store, n) for n in store.nodes() if n.is_apex
+        ):
             before = {n.id: n.tokens for n in store.nodes()}
             compressed = compact_probe_store(store, adapter)
             after = {nid: store.get(nid).tokens if store.get(nid) else 0 for nid in before}
             report.tokens_after_compact = sum(after.values())
             report.compaction_accepted = bool(compressed)
-            report.compaction_reason = "compacted " + ", ".join(compressed) if compressed else "no compaction accepted"
-        else:
+            report.compaction_reason = (
+                "compacted " + ", ".join(compressed) if compressed else "no compaction accepted"
+            )
+            _notify()
+        elif not report.compaction_reason:
             report.tokens_after_compact = report.tokens_before_compact
             report.compaction_reason = "compaction skipped"
 
-        rate, passed, total = _probe_replay_rate(store, adapter)
-        report.probe_pass_rate = rate
-        report.probe_passed = passed
-        report.probe_total = total
+        if not report.probe_total:
+            rate, passed, total = _probe_replay_rate(store, adapter)
+            report.probe_pass_rate = rate
+            report.probe_passed = passed
+            report.probe_total = total
+            _notify()
 
-        for arm in TEST_ARMS:
-            if arm == "continual-recall":
-                scores = score_test_arm(store, adapter, bench, arm, timeout=timeout)
-            elif arm == "static-composite":
-                scores = score_test_arm(None, adapter, bench, arm, timeout=timeout)
-            else:
-                scores = score_test_arm(None, adapter, bench, arm, timeout=timeout)
-            report.test_scores.extend(scores)
+    skip_test = scored_test_keys(report)
+    for arm in TEST_ARMS:
+        score_test_arm(
+            store if arm == "continual-recall" else None,
+            adapter,
+            bench,
+            arm,
+            timeout=timeout,
+            skip=skip_test,
+            on_score=lambda s: (report.test_scores.append(s), _notify())[1],
+        )
 
     return report
