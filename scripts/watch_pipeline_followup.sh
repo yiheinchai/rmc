@@ -24,7 +24,10 @@ wait_for() {
 wait_for "run_competitive_evals.py --agent codex" "competitive suite"
 wait_for "run_sequential_codex_evals.sh" "sequential pipeline"
 
-echo "=== Running upstream follow-up (HotPotQA) ==="
+echo "=== Merge full SealQA from wikiskill-latest into competitive ==="
+python3 scripts/merge_competitive_upstream.py || true
+
+echo "=== Running upstream follow-up (HotPotQA + incomplete splits) ==="
 bash ./scripts/run_upstream_followup.sh || true
 
 echo "=== Final regeneration ==="

@@ -1,0 +1,72 @@
+"""Tests for merge_competitive_upstream.py."""
+
+from __future__ import annotations
+
+import importlib.util
+import json
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _load():
+    spec = importlib.util.spec_from_file_location(
+        "merge_competitive_upstream",
+        ROOT / "scripts" / "merge_competitive_upstream.py",
+    )
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["merge_competitive_upstream"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_merge_upgrades_sealqa_count() -> None:
+    mod = _load()
+    with tempfile.TemporaryDirectory() as tmp:
+        comp = Path(tmp) / "competitive.json"
+        ws = Path(tmp) / "wikiskill.json"
+        comp.write_text(
+            json.dumps(
+                {
+                    "agent": "codex",
+                    "upstream": {
+                        "sealqa-test": {
+                            "arms": {"full-inject": {"total": 50, "passed": 30}},
+                        }
+                    },
+                }
+            )
+        )
+        ws.write_text(
+            json.dumps(
+                {
+                    "agent": "codex",
+                    "bench_path": "/workspace/evals/upstream/sealqa-test.jsonl",
+                    "arms": {"full-inject": {"total": 111, "passed": 80, "accuracy": 0.72}},
+                    "cases": [],
+                }
+            )
+        )
+        assert mod.merge_wikiskill_into_competitive(comp, ws)
+        data = json.loads(comp.read_text())
+        assert data["upstream"]["sealqa-test"]["arms"]["full-inject"]["total"] == 111
+
+
+def test_upstream_needs_run() -> None:
+    mod = _load()
+    with tempfile.TemporaryDirectory() as tmp:
+        comp = Path(tmp) / "competitive.json"
+        comp.write_text(
+            json.dumps(
+                {
+                    "upstream": {
+                        "sealqa-test": {"arms": {"full-inject": {"total": 50}}},
+                    }
+                }
+            )
+        )
+        assert mod.upstream_needs_run(comp, "sealqa-test")
+        assert mod.upstream_needs_run(comp, "hotpotqa-dev")

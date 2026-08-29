@@ -5,32 +5,21 @@ cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
 
 COMPETITIVE="papers/rse/results/competitive-latest.json"
-MISSING=()
+WIKISKILL="papers/rse/results/wikiskill-latest.json"
 
-for stem in hotpotqa-dev; do
-  if ! python3 -c "
-import json, sys
-from pathlib import Path
-p = Path('$COMPETITIVE')
-if not p.exists():
-    sys.exit(1)
-d = json.loads(p.read_text())
-arms = (d.get('upstream') or {}).get('$stem', {}).get('arms') or {}
-fi = arms.get('full-inject') or {}
-sys.exit(0 if fi.get('total', 0) else 1)
-"; then
-    MISSING+=("$stem")
-  else
-    echo "skip $stem: already in competitive-latest.json"
-  fi
-done
+echo "=== Merge full SealQA from wikiskill-latest (if step 3 completed) ==="
+python3 scripts/merge_competitive_upstream.py \
+  --competitive "$COMPETITIVE" \
+  --wikiskill "$WIKISKILL" || true
+
+mapfile -t MISSING < <(python3 scripts/merge_competitive_upstream.py --check --competitive "$COMPETITIVE")
 
 if [[ ${#MISSING[@]} -eq 0 ]]; then
-  echo "no upstream follow-up needed"
+  echo "no upstream follow-up needed (all full splits present)"
   exit 0
 fi
 
-echo "=== Upstream follow-up: ${MISSING[*]} ==="
+echo "=== Upstream follow-up needed: ${MISSING[*]} ==="
 python3 scripts/run_competitive_evals.py \
   --agent codex \
   --samples 1 \

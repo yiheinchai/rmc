@@ -22,7 +22,7 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 | Bootstrap CIs + paired significance | **Done** — `rmc/stats.py`, in `wikiskill` reports |
 | External baseline arms (Trace2Skill/EvoSkill/SkillOpt/RAG proxies) | **Done** — `rmc/skill_baselines.py` |
 | Upstream benchmark import | **Done** — SealQA 111 tasks + HotPotQA dev-100 (`evals/upstream/`) |
-| Full-scale upstream eval | **In progress** — SealQA Codex run (`--limit 50` then full 111) |
+| Full-scale upstream eval | **In progress** — SealQA Codex run (full 111 + HotPotQA 100) |
 | Cross-model transfer table | **Done** — `scripts/run_cross_transfer.py`, `fig_cross_transfer.pdf` |
 | Case-study figure | **Done** — `figures/fig_case_study.pdf` |
 | Expanded RMC-Bench (25 cases) | **Done** — `evals/rmc-bench.yaml` |
@@ -41,7 +41,7 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 python3 scripts/import_upstream_bench.py --all
 
 # Competitive suite (probe + SealQA subset + MemGPT + session study)
-python3 scripts/run_competitive_evals.py --agent codex --samples 3 --limit 50
+python3 scripts/run_competitive_evals.py --agent codex --samples 3
 
 # Multi-model Table-1 style probe
 python3 scripts/run_multimodel_evals.py --samples 3
