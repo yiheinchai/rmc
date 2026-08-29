@@ -61,6 +61,20 @@ if pgrep -f "run_competitive_evals.py.*hotpotqa-dev" >/dev/null 2>&1; then
   sleep 3
 fi
 
+SHARD2_OFFSET="$SPLIT"
+if [[ -f "$WORK/competitive-latest.json" ]]; then
+  SHARD2_OFFSET=$(python3 -c "
+import json, re
+d = json.load(open('$WORK/competitive-latest.json'))
+cases = (d.get('upstream') or {}).get('hotpotqa-dev') or {}
+ids = [c.get('case_id','') for c in cases.get('cases') or [] if c.get('case_id')]
+nums = [int(re.search(r'(\d+)$', i).group(1)) for i in ids if re.search(r'(\d+)$', i)]
+start = ($SPLIT if not nums else max(max(nums) + 1, $SPLIT))
+print(min(start, 99))
+" 2>/dev/null || echo "$SPLIT")
+fi
+echo "shard2 offset from checkpoint: $SHARD2_OFFSET"
+
 echo "$(date -u +%H:%M:%S) shard1: cases 0-$((SPLIT - 1)) (limit=$SPLIT, resume)"
 python3 scripts/run_competitive_evals.py \
   --agent codex \
@@ -76,7 +90,7 @@ python3 scripts/run_competitive_evals.py \
   --upstream hotpotqa-dev &
 PID1=$!
 
-echo "$(date -u +%H:%M:%S) shard2: cases $SPLIT-99 (offset=$SPLIT)"
+echo "$(date -u +%H:%M:%S) shard2: cases $SHARD2_OFFSET-99 (offset=$SHARD2_OFFSET)"
 python3 scripts/run_competitive_evals.py \
   --agent codex \
   --samples 1 \
@@ -86,7 +100,7 @@ python3 scripts/run_competitive_evals.py \
   --skip-session \
   --merge "$MAIN" \
   --out "$SHARD2" \
-  --offset "$SPLIT" \
+  --offset "$SHARD2_OFFSET" \
   --upstream hotpotqa-dev &
 PID2=$!
 
