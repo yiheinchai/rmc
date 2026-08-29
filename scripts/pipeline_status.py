@@ -115,7 +115,9 @@ def main() -> int:
         transfers = re.findall(r"rmc-bench transfer (\d+)/(\d+)", text)
         if transfers:
             cur, total = transfers[-1]
-            print(f"\nRMC-Bench transfer: {cur}/{total}")
+            pct = 100 * int(cur) / int(total)
+            remaining = int(total) - int(cur)
+            print(f"\nRMC-Bench transfer: {cur}/{total} ({pct:.0f}%, {remaining} cases left in transfer phase)")
         tail = text.strip().splitlines()[-1]
         print(f"Latest sequential log ({logs[0].name}):")
         print(f"  {tail}")
