@@ -26,18 +26,9 @@ python3 scripts/run_competitive_evals.py \
 cp papers/rse/results/competitive-latest.json "papers/rse/results/competitive-codex-${STAMP}.json" 2>/dev/null || true
 python3 scripts/inject_paper_results.py || true
 
-echo "=== [2b/6] HotPotQA + multi-model (parallel with SealQA) ==="
-HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"
-bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
-HOTPOT_PID=$!
-echo "HotPotQA background pid=$HOTPOT_PID log=$HOTPOT_LOG"
+python3 scripts/inject_paper_results.py || true
 
-MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
-bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
-MULTI_PID=$!
-echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
-
-echo "=== [3/6] Full upstream SealQA (111 tasks, checkpoint) ==="
+echo "=== [3/6] Full upstream SealQA (111 tasks, checkpoint; exclusive Codex) ==="
 python3 scripts/run_wikiskill_evals.py \
   --agent codex \
   --bench evals/upstream/sealqa-test.jsonl \
@@ -49,17 +40,23 @@ echo "=== Merge SealQA into competitive + inject manuscript ==="
 python3 scripts/merge_competitive_upstream.py || true
 python3 scripts/inject_paper_results.py || true
 
-echo "=== waiting for HotPotQA parallel job (pid=$HOTPOT_PID) ==="
-wait "$HOTPOT_PID" || true
+echo "=== [4/6] HotPotQA + multi-model (parallel after SealQA) ==="
+HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"
+bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
+HOTPOT_PID=$!
+echo "HotPotQA background pid=$HOTPOT_PID log=$HOTPOT_LOG"
 
-echo "=== [4/6] Multi-model WikiSkill probe ==="
-if [[ -f papers/rse/results/multimodel-latest.json ]] && \
-   python3 -c "import json; d=json.load(open('papers/rse/results/multimodel-latest.json')); exit(0 if len(d.get('models') or {})>=3 else 1)"; then
-  echo "skip: multimodel-latest.json already has >=3 models"
-elif kill -0 "$MULTI_PID" 2>/dev/null; then
-  echo "waiting for background multi-model job (pid=$MULTI_PID)..."
+MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
+bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
+MULTI_PID=$!
+echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
+
+echo "=== waiting for HotPotQA (pid=$HOTPOT_PID) and multi-model (pid=$MULTI_PID) ==="
+wait "$HOTPOT_PID" || true
+if kill -0 "$MULTI_PID" 2>/dev/null; then
   wait "$MULTI_PID" || true
-else
+elif [[ ! -f papers/rse/results/multimodel-latest.json ]] || \
+     ! python3 -c "import json; d=json.load(open('papers/rse/results/multimodel-latest.json')); exit(0 if len(d.get('models') or {})>=3 else 1)"; then
   bash ./scripts/run_multimodel_parallel.sh
 fi
 
