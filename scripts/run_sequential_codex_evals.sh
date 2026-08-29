@@ -32,6 +32,11 @@ bash ./scripts/run_hotpot_parallel.sh > >(tee -a "$HOTPOT_LOG") 2>&1 &
 HOTPOT_PID=$!
 echo "HotPotQA parallel pid=$HOTPOT_PID log=$HOTPOT_LOG (runs alongside SealQA)"
 
+MULTI_WATCH_LOG="/tmp/multimodel-watcher-${STAMP}.log"
+bash ./scripts/watch_start_multimodel.sh 60 > >(tee -a "$MULTI_WATCH_LOG") 2>&1 &
+MULTI_WATCH_PID=$!
+echo "Multimodel early-start watcher pid=$MULTI_WATCH_PID log=$MULTI_WATCH_LOG"
+
 python3 scripts/run_wikiskill_evals.py \
   --agent codex \
   --bench evals/upstream/sealqa-test.jsonl \
@@ -53,16 +58,18 @@ elif [[ ! -f papers/rse/results/competitive-latest.json ]] || \
 fi
 
 MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
-bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
-MULTI_PID=$!
-echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
-
-echo "=== waiting for multi-model (pid=$MULTI_PID) ==="
-if kill -0 "$MULTI_PID" 2>/dev/null; then
-  wait "$MULTI_PID" || true
+if kill -0 "$MULTI_WATCH_PID" 2>/dev/null; then
+  echo "waiting for multimodel early-start watcher (pid=$MULTI_WATCH_PID)..."
+  wait "$MULTI_WATCH_PID" || true
 elif [[ ! -f papers/rse/results/multimodel-latest.json ]] || \
      ! python3 -c "import json; d=json.load(open('papers/rse/results/multimodel-latest.json')); exit(0 if len(d.get('models') or {})>=3 else 1)"; then
-  bash ./scripts/run_multimodel_parallel.sh
+  bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
+  MULTI_PID=$!
+  echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
+  echo "=== waiting for multi-model (pid=$MULTI_PID) ==="
+  wait "$MULTI_PID" || true
+else
+  echo "skip: multimodel-latest.json already has >=3 models"
 fi
 
 echo "=== [5/6] Regenerate reports and figures ==="

@@ -148,6 +148,7 @@ def main() -> int:
         ("SealQA upstream", "scripts/run_wikiskill_evals.py --agent codex", "py"),
         ("multimodel", "scripts/run_multimodel_evals.py", "py"),
         ("HotPotQA parallel", "run_hotpot_parallel.sh", "script"),
+        ("multimodel watcher", "watch_start_multimodel.sh", "script"),
     ]
     print("\nRunning:")
     any_running = False
