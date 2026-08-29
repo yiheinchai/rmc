@@ -1,21 +1,33 @@
 {
   "bench_path": "/workspace/evals/wikiskill-bench.yaml",
   "table": {
-    "mock": {
+    "codex": {
+      "ALFWorld": {
+        "full-inject": 0.5,
+        "recall-agentic": 1.0
+      },
       "LiveMath": {
+        "full-inject": 0.5,
+        "recall-agentic": 0.5
+      },
+      "OfficeQA": {
         "full-inject": 1.0,
         "recall-agentic": 1.0
       },
       "SealQA": {
         "full-inject": 1.0,
         "recall-agentic": 1.0
+      },
+      "SpreadSheet": {
+        "full-inject": 0.5,
+        "recall-agentic": 0.5
       }
     }
   },
   "models": {
-    "mock": {
+    "codex": {
       "skill_source": "wikiskill-probe",
-      "agent": "mock",
+      "agent": "codex",
       "bench_path": "/workspace/evals/wikiskill-bench.yaml",
       "arms": {
         "no-skill": {
@@ -27,27 +39,42 @@
           "by_benchmark": {}
         },
         "full-inject": {
-          "passed": 3,
-          "total": 3,
-          "accuracy": 1.0,
-          "mean_tokens": 194,
+          "passed": 7,
+          "total": 10,
+          "accuracy": 0.7,
+          "mean_tokens": 534,
           "bootstrap_ci": {
-            "mean": 1.0,
-            "low": 1.0,
-            "high": 1.0,
-            "n": 3,
+            "mean": 0.7,
+            "low": 0.4,
+            "high": 0.9,
+            "n": 10,
             "iterations": 1000
           },
           "by_benchmark": {
+            "ALFWorld": {
+              "passed": 1,
+              "total": 2,
+              "accuracy": 0.5
+            },
             "LiveMath": {
+              "passed": 1,
+              "total": 2,
+              "accuracy": 0.5
+            },
+            "OfficeQA": {
               "passed": 2,
               "total": 2,
               "accuracy": 1.0
             },
             "SealQA": {
-              "passed": 1,
-              "total": 1,
+              "passed": 2,
+              "total": 2,
               "accuracy": 1.0
+            },
+            "SpreadSheet": {
+              "passed": 1,
+              "total": 2,
+              "accuracy": 0.5
             }
           }
         },
@@ -60,27 +87,42 @@
           "by_benchmark": {}
         },
         "recall-agentic": {
-          "passed": 3,
-          "total": 3,
-          "accuracy": 1.0,
-          "mean_tokens": 214,
+          "passed": 8,
+          "total": 10,
+          "accuracy": 0.8,
+          "mean_tokens": 59,
           "bootstrap_ci": {
-            "mean": 1.0,
-            "low": 1.0,
-            "high": 1.0,
-            "n": 3,
+            "mean": 0.7333333333333333,
+            "low": 0.4666666666666667,
+            "high": 0.9333333333333333,
+            "n": 10,
             "iterations": 1000
           },
           "by_benchmark": {
+            "ALFWorld": {
+              "passed": 2,
+              "total": 2,
+              "accuracy": 1.0
+            },
             "LiveMath": {
+              "passed": 1,
+              "total": 2,
+              "accuracy": 0.5
+            },
+            "OfficeQA": {
               "passed": 2,
               "total": 2,
               "accuracy": 1.0
             },
             "SealQA": {
-              "passed": 1,
-              "total": 1,
+              "passed": 2,
+              "total": 2,
               "accuracy": 1.0
+            },
+            "SpreadSheet": {
+              "passed": 1,
+              "total": 2,
+              "accuracy": 0.5
             }
           }
         },
@@ -130,23 +172,23 @@
           "case_id": "livemath-extremal",
           "benchmark": "LiveMath",
           "arm": "full-inject",
-          "passed": true,
-          "pass_rate": 1.0,
-          "samples_passed": 1,
-          "samples_total": 1,
-          "tokens": 194,
-          "reason": "matched 1/1 key terms (100%)"
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate contradicts the known-good outcome by answering n=3 and declaring the choices inconsistent, instead of selecting (B) 6. It therefore would lead to a different decision and does not use t"
         },
         {
           "case_id": "livemath-extremal",
           "benchmark": "LiveMath",
           "arm": "recall-agentic",
-          "passed": true,
-          "pass_rate": 1.0,
-          "samples_passed": 1,
-          "samples_total": 1,
-          "tokens": 214,
-          "reason": "matched 1/1 key terms (100%)"
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 3,
+          "tokens": 94,
+          "reason": "The candidate contradicts the known-good outcome: it concludes n=3 and rejects all listed choices, whereas the required answer is (B) 6. It therefore would lead to a different decision and action."
         },
         {
           "case_id": "livemath-probability",
@@ -154,10 +196,10 @@
           "arm": "full-inject",
           "passed": true,
           "pass_rate": 1.0,
-          "samples_passed": 1,
-          "samples_total": 1,
-          "tokens": 194,
-          "reason": "matched 2/2 key terms (100%)"
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate reaches the correct answer, (A) 3/10, using the same without-replacement calculation as the known-good outcome. It also correctly notes that 6/20 is equivalent but unsimplified."
         },
         {
           "case_id": "livemath-probability",
@@ -165,10 +207,10 @@
           "arm": "recall-agentic",
           "passed": true,
           "pass_rate": 1.0,
-          "samples_passed": 1,
-          "samples_total": 1,
-          "tokens": 214,
-          "reason": "matched 2/2 key terms (100%)"
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 57,
+          "reason": "The candidate gives the correct probability calculation, simplifies it to 3/10, and selects (A), matching the known-good outcome. The extra note about (C) being numerically equivalent is accurate and "
         },
         {
           "case_id": "sealqa-paper-year",
@@ -176,10 +218,10 @@
           "arm": "full-inject",
           "passed": true,
           "pass_rate": 1.0,
-          "samples_passed": 1,
-          "samples_total": 1,
-          "tokens": 194,
-          "reason": "matched 1/1 key terms (100%)"
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate gives the correct publication year, 2017, identifies the correct paper, and reproduces the required source attribution. The extra commentary does not contradict or obscure the answer."
         },
         {
           "case_id": "sealqa-paper-year",
@@ -187,45 +229,199 @@
           "arm": "recall-agentic",
           "passed": true,
           "pass_rate": 1.0,
-          "samples_passed": 1,
-          "samples_total": 1,
-          "tokens": 214,
-          "reason": "matched 1/1 key terms (100%)"
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 62,
+          "reason": "The candidate gives the correct publication year, 2017, and cites the same paper and year as the known-good outcome."
+        },
+        {
+          "case_id": "sealqa-author-count",
+          "benchmark": "SealQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate correctly counts the four explicitly named authors and identifies Devlin, Chang, Lee, and Toutanova, matching the known-good outcome."
+        },
+        {
+          "case_id": "sealqa-author-count",
+          "benchmark": "SealQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 56,
+          "reason": "The candidate correctly identifies all four explicitly named authors and gives the same count as the known-good outcome."
+        },
+        {
+          "case_id": "spreadsheet-pivot-sum",
+          "benchmark": "SpreadSheet",
+          "arm": "full-inject",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate describes the correct operations and result but does not provide the requested executable pandas one-liner."
+        },
+        {
+          "case_id": "spreadsheet-pivot-sum",
+          "benchmark": "SpreadSheet",
+          "arm": "recall-agentic",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 3,
+          "tokens": 58,
+          "reason": "The candidate describes the correct operations and result, but does not provide the requested executable pandas one-liner."
+        },
+        {
+          "case_id": "spreadsheet-fillna",
+          "benchmark": "SpreadSheet",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate identifies the essential safe pattern: group by `group_id` and forward-fill only `status`, preventing values from crossing group boundaries. Its added notes about ordering and leading Na"
+        },
+        {
+          "case_id": "spreadsheet-fillna",
+          "benchmark": "SpreadSheet",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 0.6666666666666666,
+          "samples_passed": 2,
+          "samples_total": 3,
+          "tokens": 56,
+          "reason": "The candidate gives the same substantive pattern: sort appropriately, forward-fill `status` separately within each `group_id`, and assign the aligned result back. It also correctly warns against dataf"
+        },
+        {
+          "case_id": "officeqa-receipts-total",
+          "benchmark": "OfficeQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate gives the same value and units as the known-good outcome: total receipts were 1,550 million dollars."
+        },
+        {
+          "case_id": "officeqa-receipts-total",
+          "benchmark": "OfficeQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 62,
+          "reason": "The candidate gives the correct total receipts value, 1,550, and correctly states the units as millions of dollars. Its added clarification is consistent with the known-good outcome."
+        },
+        {
+          "case_id": "officeqa-outlays-vs-receipts",
+          "benchmark": "OfficeQA",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate correctly computes the deficit as 1,700 minus 1,550 = 150 and reports it in the table\u2019s units, matching the known-good outcome."
+        },
+        {
+          "case_id": "officeqa-outlays-vs-receipts",
+          "benchmark": "OfficeQA",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 50,
+          "reason": "The candidate correctly computes the deficit as 1,700 \u2212 1,550 = 150 and preserves the table\u2019s units, matching the known-good outcome."
+        },
+        {
+          "case_id": "alfworld-put-apple",
+          "benchmark": "ALFWorld",
+          "arm": "full-inject",
+          "passed": false,
+          "pass_rate": 0.0,
+          "samples_passed": 0,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate contradicts the known-good outcome by declaring the requested two-action sequence impossible and supplying three actions. The known-good outcome treats taking the apple and putting it on"
+        },
+        {
+          "case_id": "alfworld-put-apple",
+          "benchmark": "ALFWorld",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 0.6666666666666666,
+          "samples_passed": 2,
+          "samples_total": 3,
+          "tokens": 60,
+          "reason": "The candidate gives the same minimal two-action sequence as the known-good outcome and correctly notes that cleaning would be required only if the apple is not already clean."
+        },
+        {
+          "case_id": "alfworld-heat-mug",
+          "benchmark": "ALFWorld",
+          "arm": "full-inject",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 534,
+          "reason": "The candidate gives the same required action sequence: heat the held mug with the microwave, then put it on the coffeemachine."
+        },
+        {
+          "case_id": "alfworld-heat-mug",
+          "benchmark": "ALFWorld",
+          "arm": "recall-agentic",
+          "passed": true,
+          "pass_rate": 1.0,
+          "samples_passed": 3,
+          "samples_total": 3,
+          "tokens": 42,
+          "reason": "The candidate gives the exact required action sequence in the correct order: heat the mug with the microwave, then put it on the coffeemachine."
         }
       ],
-      "render": "WikiSkill-comparable bench \u2014 6 arm scores, agent=mock\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/0  (\u2014)  mean_tokens=0\n  full-inject      3/3  (100%)  mean_tokens=194\n  recall-judge     0/0  (\u2014)  mean_tokens=0\n  recall-agentic   3/3  (100%)  mean_tokens=214\n  trace2skill      0/0  (\u2014)  mean_tokens=0\n  evoskill         0/0  (\u2014)  mean_tokens=0\n  skillopt         0/0  (\u2014)  mean_tokens=0\n  keyword-rag      0/0  (\u2014)  mean_tokens=0\n  oracle-skill     0/0  (\u2014)  mean_tokens=0\n\nPer-benchmark (full-inject vs recall-judge):\n  LiveMath       full=2/2 (100%)  recall=0/0 (\u2014)\n  SealQA         full=1/1 (100%)  recall=0/0 (\u2014)",
+      "render": "WikiSkill-comparable bench \u2014 20 arm scores, agent=codex\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         0/0  (\u2014)  mean_tokens=0\n  full-inject      7/10  (70%)  mean_tokens=534\n  recall-judge     0/0  (\u2014)  mean_tokens=0\n  recall-agentic   8/10  (80%)  mean_tokens=59\n  trace2skill      0/0  (\u2014)  mean_tokens=0\n  evoskill         0/0  (\u2014)  mean_tokens=0\n  skillopt         0/0  (\u2014)  mean_tokens=0\n  keyword-rag      0/0  (\u2014)  mean_tokens=0\n  oracle-skill     0/0  (\u2014)  mean_tokens=0\n\nPer-benchmark (full-inject vs recall-judge):\n  ALFWorld       full=1/2 (50%)  recall=0/0 (\u2014)\n  LiveMath       full=1/2 (50%)  recall=0/0 (\u2014)\n  OfficeQA       full=2/2 (100%)  recall=0/0 (\u2014)\n  SealQA         full=2/2 (100%)  recall=0/0 (\u2014)\n  SpreadSheet    full=1/2 (50%)  recall=0/0 (\u2014)",
       "significance_vs_full_inject": {
         "recall-agentic": {
-          "mean_a": 1.0,
-          "mean_b": 1.0,
-          "delta": 0.0,
-          "p_value": 1.0,
+          "mean_a": 0.7333333333333333,
+          "mean_b": 0.7,
+          "delta": 0.033333333333333326,
+          "p_value": 0.445,
           "significant": false,
           "iterations": 1000
         }
       },
       "comparisons": {
         "full_inject_vs_no_skill": {
-          "delta_accuracy": 1.0
+          "delta_accuracy": 0.7
         },
         "recall_judge_vs_full_inject": {
-          "delta_accuracy": -1.0,
-          "token_savings": 194
+          "delta_accuracy": -0.7,
+          "token_savings": 534
         },
         "recall_agentic_vs_full_inject": {
-          "delta_accuracy": 0.0,
-          "token_savings": -20
+          "delta_accuracy": 0.10000000000000009,
+          "token_savings": 475
         },
         "recall_agentic_vs_recall_judge": {
-          "delta_accuracy": 1.0
+          "delta_accuracy": 0.8
         }
       }
     }
   },
-  "render": "Cross-model transfer (WikiSkill Table 2 style)\n\n  mock         recall-agentic avg=100%  (2 benchmarks)",
-  "generated_at": "20260829T043704Z",
+  "render": "Cross-model transfer (WikiSkill Table 2 style)\n\n  codex        recall-agentic avg=80%  (5 benchmarks)",
+  "generated_at": "20260829T045341Z",
   "graders": [
-    "mock"
+    "codex"
   ],
-  "samples": 1
+  "samples": 3
 }
