@@ -44,6 +44,11 @@ def main() -> int:
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    latest = out / "competitive-latest.json"
+
+    def _flush() -> None:
+        latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        print(f"  (checkpoint → {latest})", flush=True)
 
     payload: dict = {
         "generated_at": stamp,
@@ -52,21 +57,23 @@ def main() -> int:
         "available_backends": available_backends(),
     }
 
-    print("=== RMC-Bench ===")
+    print("=== RMC-Bench ===", flush=True)
     bench_report = run_bench(adapter, samples=args.samples)
     payload["rmc_bench"] = bench_to_dict(bench_report)
-    print(bench_report.render())
+    print(bench_report.render(), flush=True)
+    _flush()
 
-    print("\n=== WikiSkill probe (core arms) ===")
+    print("\n=== WikiSkill probe (core arms) ===", flush=True)
     ws_probe = run_wikiskill(adapter, samples=args.samples, arms=CORE_ARMS)
     payload["wikiskill_probe"] = wikiskill_to_dict(ws_probe)
-    print(ws_probe.render())
+    print(ws_probe.render(), flush=True)
+    _flush()
 
     if not args.skip_upstream:
         upstream_files = sorted(UPSTREAM_DIR.glob("*.jsonl"))
         payload["upstream"] = {}
         for path in upstream_files:
-            print(f"\n=== Upstream: {path.name} ===")
+            print(f"\n=== Upstream: {path.name} ===", flush=True)
             report = run_wikiskill(
                 adapter,
                 path=path,
@@ -75,18 +82,21 @@ def main() -> int:
                 arms=CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag"),
             )
             payload["upstream"][path.stem] = wikiskill_to_dict(report)
-            print(report.render())
+            print(report.render(), flush=True)
+            _flush()
 
     if not args.skip_memgpt:
-        print("\n=== MemGPT nested KV proxy ===")
+        print("\n=== MemGPT nested KV proxy ===", flush=True)
         memgpt_report = run_memgpt(adapter, samples=args.samples)
         payload["memgpt_nested_kv"] = memgpt_to_dict(memgpt_report)
-        print(memgpt_report.render())
+        print(memgpt_report.render(), flush=True)
+        _flush()
 
-    print("\n=== Session paired study (Reflexion-style continuity) ===")
+    print("\n=== Session paired study (Reflexion-style continuity) ===", flush=True)
     session_report = run_session(adapter, samples=args.samples)
     payload["session_study"] = session_to_dict(session_report)
-    print(session_report.render())
+    print(session_report.render(), flush=True)
+    _flush()
 
     latest = out / "competitive-latest.json"
     latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
