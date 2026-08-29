@@ -1,5 +1,5 @@
 {
-  "generated_at": "20260829T015845Z",
+  "generated_at": "20260829T021554Z",
   "agent": "codex",
   "samples": 3,
   "rmc_bench": {
@@ -207,6 +207,21 @@
       "delta_accuracy": 0.10000000000000009
     }
   },
+  "session_study": {
+    "memory-off": {
+      "passed": 2,
+      "total": 5,
+      "accuracy": 0.4,
+      "mean_tokens": 0
+    },
+    "memory-on": {
+      "passed": 5,
+      "total": 5,
+      "accuracy": 1.0,
+      "mean_tokens": 168
+    }
+  },
+  "session_study_lift": 0.6,
   "scaling": [
     {
       "lessons": 25,
@@ -305,13 +320,14 @@
     "recall_ablations": true,
     "scaling_study": true,
     "claude_cross_check": false,
-    "session_length_paired_study": false
+    "session_length_paired_study": true
   },
   "headline_findings": [
     "RMC-Bench lift (L0 \u2212 control): +20%",
     "RMC-Bench transfer@L0: 90%",
     "Recall judge vs serve-all: 100% prec / 100% rec vs 47% prec, noise 2054 \u2192 0 tok",
-    "WikiSkill subset: full-inject 70% @ 534 tok; recall-agentic 80% @ 64 tok"
+    "WikiSkill subset: full-inject 70% @ 534 tok; recall-agentic 80% @ 64 tok",
+    "Session pairs: memory-on 100% vs memory-off 40% (lift +60%)"
   ],
-  "render": "RSE Submission Report \u2014 agent=codex, samples=3\ngenerated 20260829T015845Z\n\n=== Headline findings ===\n  \u2022 RMC-Bench lift (L0 \u2212 control): +20%\n  \u2022 RMC-Bench transfer@L0: 90%\n  \u2022 Recall judge vs serve-all: 100% prec / 100% rec vs 47% prec, noise 2054 \u2192 0 tok\n  \u2022 WikiSkill subset: full-inject 70% @ 534 tok; recall-agentic 80% @ 64 tok\n\n=== RMC-Bench (procedural memory) ===\n  lift: +20%\n  transfer@L0: 9/10\n  retrieval: 7/7\n  mean L0 tokens: 139\n\n=== Recall ablations ===\n  serve-all    prec=47%  rec=100%  noise=2054 tok\n  judge        prec=100%  rec=100%  noise=0 tok\n  agentic      prec=93%  rec=93%  noise=54 tok\n\n=== WikiSkill-comparable (5 domains, 10 tasks) ===\n  no-skill         6/10 (60%)  mean_tokens=0\n  full-inject      7/10 (70%)  mean_tokens=534\n  recall-judge     7/10 (70%)  mean_tokens=64\n  recall-agentic   8/10 (80%)  mean_tokens=64\n\n  Comparisons:\n    full-inject vs no-skill: +10%\n    recall-judge vs full-inject: +0% accuracy, 470 tok saved\n    recall-agentic vs recall-judge: +10%\n\n=== Submission checklist ===\n  \u2713 codex rmc bench\n  \u2713 wikiskill comparable\n  \u2713 recall ablations\n  \u2713 scaling study\n  \u2717 claude cross check\n  \u2717 session length paired study\n\n=== RSE vs baselines (summary) ===\n  vs no memory:     RMC-Bench +20% lift; WikiSkill +10pp with full-inject\n  vs full-inject:   recall-judge matches accuracy at ~88% fewer tokens\n  vs serve-all:     judge filter 100% prec, 0 noise vs 47% prec, 2054 noise\n  vs WikiSkill:     agentic recall beats full-inject (+10pp) at 64 vs 534 tok"
+  "render": "RSE Submission Report \u2014 agent=codex, samples=3\ngenerated 20260829T021554Z\n\n=== Headline findings ===\n  \u2022 RMC-Bench lift (L0 \u2212 control): +20%\n  \u2022 RMC-Bench transfer@L0: 90%\n  \u2022 Recall judge vs serve-all: 100% prec / 100% rec vs 47% prec, noise 2054 \u2192 0 tok\n  \u2022 WikiSkill subset: full-inject 70% @ 534 tok; recall-agentic 80% @ 64 tok\n  \u2022 Session pairs: memory-on 100% vs memory-off 40% (lift +60%)\n\n=== RMC-Bench (procedural memory) ===\n  lift: +20%\n  transfer@L0: 9/10\n  retrieval: 7/7\n  mean L0 tokens: 139\n\n=== Recall ablations ===\n  serve-all    prec=47%  rec=100%  noise=2054 tok\n  judge        prec=100%  rec=100%  noise=0 tok\n  agentic      prec=93%  rec=93%  noise=54 tok\n\n=== WikiSkill-comparable (5 domains, 10 tasks) ===\n  no-skill         6/10 (60%)  mean_tokens=0\n  full-inject      7/10 (70%)  mean_tokens=534\n  recall-judge     7/10 (70%)  mean_tokens=64\n  recall-agentic   8/10 (80%)  mean_tokens=64\n\n  Comparisons:\n    full-inject vs no-skill: +10%\n    recall-judge vs full-inject: +0% accuracy, 470 tok saved\n    recall-agentic vs recall-judge: +10%\n\n=== Session paired study (EXPERIMENTS \u00a77 proxy) ===\n  memory-off   2/5 (40%)  mean_tokens=0\n  memory-on    5/5 (100%)  mean_tokens=168\n  lift (memory-on \u2212 off): +60%\n\n=== Submission checklist ===\n  \u2713 codex rmc bench\n  \u2713 wikiskill comparable\n  \u2713 recall ablations\n  \u2713 scaling study\n  \u2717 claude cross check\n  \u2713 session length paired study\n\n=== RSE vs baselines (summary) ===\n  vs no memory:     RMC-Bench +20% lift; WikiSkill +10pp with full-inject\n  vs full-inject:   recall-judge matches accuracy at ~88% fewer tokens\n  vs serve-all:     judge filter 100% prec, 0 noise vs 47% prec, 2054 noise\n  vs WikiSkill:     agentic recall beats full-inject (+10pp) at 64 vs 534 tok"
 }

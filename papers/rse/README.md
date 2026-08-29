@@ -18,6 +18,7 @@ python3 scripts/run_paper_evals.py
 # With a real agent when available
 python3 scripts/run_all_experiments.py --agent codex --samples 3
 python3 scripts/run_wikiskill_evals.py --agent codex --samples 3
+python3 scripts/run_session_study.py --agent codex --samples 3
 python3 scripts/generate_submission_report.py
 ```
 
@@ -30,6 +31,7 @@ Results land in `papers/rse/results/`:
 | `compaction-ablation-latest.json` | meta-testing on/off |
 | `rmc-bench-latest.json` | Per-case transfer/retrieval scores |
 | `wikiskill-latest.json` | WikiSkill-comparable: no-skill vs full-inject vs recall arms |
+| `session-study-latest.json` | Session paired study: memory-off vs memory-on |
 | `submission-latest.json` | Unified report: all evals + comparative baselines |
 
 ## What is measured
@@ -62,10 +64,10 @@ tuning, negative results. Cite alongside benchmark numbers.
 | RMC-Bench + full suite | **Run** — `experiments-full-latest.json` |
 | Recall ablations | **Run** — judge 100% prec vs serve-all 47% |
 | Retention curve | **Run** — L0 100% → L1 0% on held-out S3 |
-| WikiSkill-comparable benchmarks | **Run** — `wikiskill-latest.json` |
+| Session paired study | **Run** — `session-study-latest.json` (+60pp lift) |
 
 ## Next steps for submission-quality numbers
 
-1. `python3 scripts/run_all_experiments.py --agent claude --samples 3`
-2. ~~Wire WikiSkill benchmark harness with RSE recall~~ **Done** — `scripts/run_wikiskill_evals.py`
-3. End-to-end session-length paired study (EXPERIMENTS.md §7)
+1. `python3 scripts/run_all_experiments.py --agent claude --samples 3` (needs `claude` on PATH)
+2. ~~Wire WikiSkill benchmark harness with RSE recall~~ **Done**
+3. ~~Session-length paired study~~ **Done** (proxy) — `scripts/run_session_study.py`

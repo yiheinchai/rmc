@@ -22,6 +22,7 @@ def _load(name: str) -> dict:
 def build_report() -> dict:
     summary = _load("summary-latest.json")
     wikiskill = _load("wikiskill-latest.json")
+    session_study = _load("session-study-latest.json")
     full = _load("experiments-full-latest.json")
 
     agent = summary.get("agent") or wikiskill.get("agent") or full.get("agent") or "unknown"
@@ -30,6 +31,7 @@ def build_report() -> dict:
     bench = summary.get("bench") or full.get("bench") or {}
     recall = summary.get("recall") or full.get("recall") or {}
     wikiskill = wikiskill or full.get("wikiskill") or {}
+    session_study = session_study or full.get("session_study") or {}
 
     report = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
@@ -45,6 +47,8 @@ def build_report() -> dict:
         "recall_ablations": recall.get("arms", {}),
         "wikiskill": wikiskill.get("arms", {}),
         "wikiskill_comparisons": wikiskill.get("comparisons", {}),
+        "session_study": session_study.get("arms", {}),
+        "session_study_lift": session_study.get("lift"),
         "scaling": (summary.get("scaling") or full.get("scaling") or {}).get("rows", []),
         "compaction": summary.get("compaction") or full.get("compaction"),
         "retention_curve": summary.get("retention_curve") or full.get("retention_curve"),
@@ -55,7 +59,7 @@ def build_report() -> dict:
             "recall_ablations": bool(recall.get("arms")),
             "scaling_study": bool((summary.get("scaling") or full.get("scaling", {})).get("rows")),
             "claude_cross_check": False,
-            "session_length_paired_study": False,
+            "session_length_paired_study": bool(session_study.get("arms")),
         },
         "headline_findings": [],
     }
@@ -83,6 +87,13 @@ def build_report() -> dict:
             f"WikiSkill subset: full-inject {fi.get('accuracy', 0):.0%} @ "
             f"{fi.get('mean_tokens', 0)} tok; recall-agentic {ra.get('accuracy', 0):.0%} @ "
             f"{ra.get('mean_tokens', 0)} tok"
+        )
+    ss = session_study.get("arms") or {}
+    if ss:
+        findings.append(
+            f"Session pairs: memory-on {ss.get('memory-on', {}).get('accuracy', 0):.0%} vs "
+            f"memory-off {ss.get('memory-off', {}).get('accuracy', 0):.0%} "
+            f"(lift {session_study.get('lift', 0):+.0%})"
         )
     report["headline_findings"] = findings
     report["render"] = _render(report)
@@ -142,6 +153,19 @@ def _render(report: dict) -> str:
             )
         if ra:
             lines.append(f"    recall-agentic vs recall-judge: {ra.get('delta_accuracy', 0):+.0%}")
+
+    ss = report.get("session_study") or {}
+    if ss:
+        lines += ["", "=== Session paired study (EXPERIMENTS §7 proxy) ==="]
+        for arm in ("memory-off", "memory-on"):
+            data = ss.get(arm, {})
+            lines.append(
+                f"  {arm:<12} {data.get('passed', 0)}/{data.get('total', 0)} "
+                f"({data.get('accuracy', 0):.0%})  mean_tokens={data.get('mean_tokens', 0)}"
+            )
+        lift = report.get("session_study_lift")
+        if lift is not None:
+            lines.append(f"  lift (memory-on − off): {lift:+.0%}")
 
     lines += ["", "=== Submission checklist ==="]
     for k, v in report.get("submission_status", {}).items():

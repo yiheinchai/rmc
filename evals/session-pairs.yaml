@@ -1,0 +1,73 @@
+# Paired session follow-up tasks for session-length study (EXPERIMENTS §7).
+#
+# Each pair simulates: session 1 captured lessons; session 2 is a related task.
+# Arms compare memory-off (no recall) vs memory-on (RSE recall_pack).
+
+version: 1
+
+pairs:
+
+  - id: charge-followup
+    lesson_ids: [charges-not-idempotent, retry-backoff-constants]
+    warmup: |
+      Last session we fixed flaky payment charges: one Idempotency-Key per logical
+      charge, reused across retries, with 100ms/400ms/1.6s jitter bounded by the
+      caller's deadline.
+    task: |
+      The checkout service now needs the same retry handling for its call to the
+      payments API. Include the retry schedule and anything else needed for
+      correctness.
+    expected: |
+      Both: an Idempotency-Key generated once and reused across attempts, AND
+      the 100ms/400ms/1.6s ±25% jitter schedule bounded by the caller's deadline.
+
+  - id: schema-purge-followup
+    lesson_ids: [migrations-forward-only, delete-is-soft]
+    warmup: |
+      Last session we established that migrations here are forward-only and that
+      DELETE without ?purge=true only soft-deletes records.
+    task: |
+      We are dropping the `legacy_email` column and need to purge rows that were
+      soft-deleted more than 30 days ago. Plan the change.
+    expected: |
+      Forward-only migration, safe against the currently deployed code, AND uses
+      ?purge=true for the actual removal because soft-deleted rows persist.
+
+  - id: s3-upload-followup
+    lesson_ids: [s3-two-hundred-error]
+    warmup: |
+      Last session we learned that S3 multipart completion can return HTTP 200 with
+      an error body, so status alone is insufficient.
+    task: |
+      Review this upload helper and say whether the error handling is correct:
+      it calls `complete_multipart_upload`, checks `if resp.status == 200`, and
+      returns success.
+    expected: |
+      Identifies that a 200 can carry an error document for multipart completion,
+      so the body must be parsed, and a parsed error retried like a 5xx.
+
+  - id: gdpr-erasure-followup
+    lesson_ids: [delete-is-soft]
+    warmup: |
+      Last session we documented that the records API soft-deletes by default and
+      requires ?purge=true for real erasure.
+    task: |
+      A user has asked us to erase their account under GDPR. Write the steps to
+      remove their record from the records API, and say how you would verify the
+      erasure worked.
+    expected: |
+      Uses DELETE ...?purge=true, noting that a plain DELETE only soft-deletes
+      and would not satisfy an erasure request. Verification checks the row is
+      gone rather than merely having deleted_at set.
+
+  - id: pg-port-followup
+    lesson_ids: [integration-pg-port]
+    warmup: |
+      Last session we found integration tests need PAYMENTS_PG_PORT=5433 because
+      port 5432 is taken locally.
+    task: |
+      The payments integration tests are failing to connect. Diagnose and say how
+      to run them successfully in this environment.
+    expected: |
+      Run with PAYMENTS_PG_PORT=5433, avoid starting PostgreSQL on 5432, and do
+      not use an unsupported CLI port flag.

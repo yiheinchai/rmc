@@ -179,7 +179,7 @@ From `EXPERIMENTS.md` (Aug 2026):
 | Codex-graded RMC-Bench | **Done** (`--agent codex`) |
 | Claude-graded RMC-Bench | Needs `--agent claude` |
 | WikiSkill-comparable bench (Codex) | **Done** — see §4.8 |
-| End-to-end session-length paired study | Not measured |
+| End-to-end session-length paired study | **Done** (proxy) — see §4.9 |
 
 ### 4.8 Comparison to WikiSkill
 
@@ -200,6 +200,19 @@ This is a curated 10-task probe subset, not the full WikiSkill test splits (124�
 
 Reproduce: `python3 scripts/run_wikiskill_evals.py --agent codex --samples 3` → `papers/rse/results/wikiskill-latest.json`.
 
+### 4.9 Session-length paired study (proxy)
+
+EXPERIMENTS §7 asks whether recall shortens the next session. We approximate this with `evals/session-pairs.yaml`: five follow-up tasks where session 1 captured lessons into the store and session 2 is a related task.
+
+| Arm | Accuracy (Codex, 3 samples) | Mean tokens |
+|---|---|---|
+| memory-off (narrative only) | 40% (2/5) | 0 |
+| memory-on (RSE recall) | **100% (5/5)** | 168 |
+
+**Lift: +60pp** — structured recall on the follow-up task rescues cases where a warmup narrative alone is insufficient (`charge-followup`, `schema-purge-followup`, `s3-upload-followup`).
+
+This is a single-turn proxy, not live multi-turn agent sessions. Reproduce: `python3 scripts/run_session_study.py --agent codex --samples 3`.
+
 ---
 
 ## 5. Analysis
@@ -218,7 +231,7 @@ Plot transfer@level vs mean tokens across compression levels. Codex-graded bench
 - Codex grading (`gpt-5.6-sol`) covers bench transfer, retrieval, recall, and retention curve; Claude/Gemini cross-check still useful.
 - Walkthrough compression fails under Codex adapter (mock replay path still works in ablation).
 - Dogfood store is N=29; steady-state apex reduction unproven at scale.
-- End-to-end "does recall shorten the next session?" not yet measured (EXPERIMENTS §7).
+- Session-length proxy (`evals/session-pairs.yaml`) shows **+60pp** lift with recall vs narrative-only follow-up; live multi-turn sessions not yet measured.
 - Blocking recall latency ~34s with accurate judge vs ~5s CLI floor.
 
 ---

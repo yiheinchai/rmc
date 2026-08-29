@@ -1,0 +1,93 @@
+{
+  "agent": "codex",
+  "arms": {
+    "memory-off": {
+      "passed": 2,
+      "total": 5,
+      "accuracy": 0.4,
+      "mean_tokens": 0
+    },
+    "memory-on": {
+      "passed": 5,
+      "total": 5,
+      "accuracy": 1.0,
+      "mean_tokens": 168
+    }
+  },
+  "lift": 0.6,
+  "pairs": [
+    {
+      "pair_id": "charge-followup",
+      "arm": "memory-off",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate includes one Idempotency-Key per logical charge, reused across retries, and the 100ms/400ms/1.6s schedule bounded by the caller\u2019s deadline. However, it does not explicitly require the es"
+    },
+    {
+      "pair_id": "charge-followup",
+      "arm": "memory-on",
+      "passed": true,
+      "tokens": 223,
+      "reason": "The candidate includes both essential requirements: a single Idempotency-Key generated once and reused across all attempts, and retries at 100 ms, 400 ms, and 1.6 s with \u00b125% jitter, bounded by the ca"
+    },
+    {
+      "pair_id": "schema-purge-followup",
+      "arm": "memory-off",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate captures all essential requirements: a staged forward-only migration, application changes deployed before the column is dropped to remain safe against currently deployed code, and explic"
+    },
+    {
+      "pair_id": "schema-purge-followup",
+      "arm": "memory-on",
+      "passed": true,
+      "tokens": 264,
+      "reason": "The candidate includes every essential element: a forward-only migration, an expand/contract rollout that is safe against currently deployed code, and permanent deletion through `?purge=true` because "
+    },
+    {
+      "pair_id": "s3-upload-followup",
+      "arm": "memory-off",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate correctly identifies that HTTP 200 may contain an `<Error>` body and that the body/SDK result must be parsed. However, it does not state the essential retry behavior from the known-good "
+    },
+    {
+      "pair_id": "s3-upload-followup",
+      "arm": "memory-on",
+      "passed": true,
+      "tokens": 103,
+      "reason": "The candidate identifies the essential issue: multipart completion can return HTTP 200 with an error document in the body, so status alone is insufficient. It also correctly says to parse the body bef"
+    },
+    {
+      "pair_id": "gdpr-erasure-followup",
+      "arm": "memory-off",
+      "passed": true,
+      "tokens": 0,
+      "reason": "The candidate includes the essential actions: use an authenticated DELETE with `?purge=true`, explicitly warns that plain DELETE only soft-deletes, and verifies the record is absent rather than merely"
+    },
+    {
+      "pair_id": "gdpr-erasure-followup",
+      "arm": "memory-on",
+      "passed": true,
+      "tokens": 135,
+      "reason": "The candidate includes the essential actions: it uses `DELETE /records/<record-id>?purge=true`, explicitly distinguishes this from a plain DELETE that only sets `deleted_at`, and verifies that the row"
+    },
+    {
+      "pair_id": "pg-port-followup",
+      "arm": "memory-off",
+      "passed": false,
+      "tokens": 0,
+      "reason": "The candidate correctly says to use PAYMENTS_PG_PORT=5433 and avoid disturbing the service on 5432, but it omits the essential warning that the test command does not support a CLI port flag."
+    },
+    {
+      "pair_id": "pg-port-followup",
+      "arm": "memory-on",
+      "passed": true,
+      "tokens": 118,
+      "reason": "The candidate includes every essential action from the known-good outcome: set PAYMENTS_PG_PORT=5433, preserve/avoid PostgreSQL on occupied port 5432, and do not use the unsupported --pg-port CLI flag"
+    }
+  ],
+  "render": "Session-length paired study \u2014 agent=codex\n\n  memory-off  2/5 (40%)  mean_tokens=0\n  memory-on   5/5 (100%)  mean_tokens=168\n\n  lift (memory-on \u2212 off): +60%",
+  "generated_at": "20260829T021531Z",
+  "samples": 3
+}

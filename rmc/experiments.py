@@ -33,6 +33,8 @@ from .recall import recall_pack, solve_with_descent
 from .scaling import render_table, run_scaling
 from .store import Episode, Store
 from .util import count_tokens, new_id, utcnow
+from .session_study import run as run_session_study
+from .session_study import to_dict as session_study_to_dict
 from .wikiskill import run as run_wikiskill
 from .wikiskill import to_dict as wikiskill_to_dict
 
@@ -64,6 +66,7 @@ class ExperimentSuite:
     walkthrough: dict[str, Any] = field(default_factory=dict)
     retention_curve: dict[str, Any] = field(default_factory=dict)
     wikiskill: dict[str, Any] = field(default_factory=dict)
+    session_study: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -77,6 +80,7 @@ class ExperimentSuite:
             "walkthrough": self.walkthrough,
             "retention_curve": self.retention_curve,
             "wikiskill": self.wikiskill,
+            "session_study": self.session_study,
             "notes": self.notes,
         }
 
@@ -391,6 +395,8 @@ def run_all(*, agent: str = "mock", samples: int = 3) -> ExperimentSuite:
     suite.retention_curve = run_retention_curve(adapter, samples)
     ws_report = run_wikiskill(adapter, samples=samples)
     suite.wikiskill = wikiskill_to_dict(ws_report)
+    ss_report = run_session_study(adapter, samples=samples)
+    suite.session_study = session_study_to_dict(ss_report)
 
     return suite
 
@@ -424,6 +430,8 @@ def render_summary(suite: ExperimentSuite) -> str:
         lines.append(f"  {level:<8} transfer={data.get('pass_rate', 0):.0%}  tokens={data.get('tokens', 0)}")
     if suite.wikiskill.get("render"):
         lines += ["", "=== WikiSkill-comparable ===", suite.wikiskill["render"]]
+    if suite.session_study.get("render"):
+        lines += ["", "=== Session paired study ===", suite.session_study["render"]]
     if suite.notes:
         lines += ["", "Notes:", *[f"  - {n}" for n in suite.notes]]
     return "\n".join(lines)
