@@ -7,11 +7,13 @@ import json
 import re
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "papers" / "rse" / "results"
+ETA_SNAPSHOT = Path("/tmp/pipeline-eta-snapshot.json")
 
 EXPECTED = {"sealqa-test": 111, "hotpotqa-dev": 100}
 
@@ -69,6 +71,36 @@ def _mtime(path: Path) -> str:
         return "—"
     ts = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
     return ts.strftime("%Y-%m-%d %H:%M UTC")
+
+
+def _eta(name: str, done: int, total: int) -> str:
+    """Rough ETA from successive pipeline_status snapshots."""
+    now = time.time()
+    snap: dict = {}
+    if ETA_SNAPSHOT.exists():
+        try:
+            snap = json.loads(ETA_SNAPSHOT.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            snap = {}
+    prev = snap.get(name) or {}
+    snap[name] = {"done": done, "ts": now}
+    try:
+        ETA_SNAPSHOT.write_text(json.dumps(snap), encoding="utf-8")
+    except OSError:
+        pass
+    if done < 2 or not prev.get("ts"):
+        return ""
+    delta_done = done - int(prev.get("done", 0))
+    delta_t = now - float(prev["ts"])
+    if delta_done <= 0 or delta_t <= 0:
+        return ""
+    remaining = total - done
+    secs = remaining * delta_t / delta_done
+    if secs < 60:
+        return "ETA <1m"
+    if secs < 3600:
+        return f"ETA ~{int(secs // 60)}m"
+    return f"ETA ~{int(secs // 3600)}h{int((secs % 3600) // 60):02d}m"
 
 
 def main() -> int:
@@ -136,9 +168,11 @@ def main() -> int:
             n_cases = ws_cases if ws_cases else ws_total
             n_scores = ws_scores if ws_scores else (int(upstream_scores[-1]) if upstream_scores else 0)
             pct = 100 * n_cases / EXPECTED["sealqa-test"]
+            eta = _eta("sealqa", n_cases, EXPECTED["sealqa-test"])
+            eta_s = f"  {eta}" if eta else ""
             print(
                 f"\nStep 3 SealQA upstream: {n_cases}/111 cases "
-                f"({pct:.0f}%, {n_scores} arm-scores, target 999)"
+                f"({pct:.0f}%, {n_scores} arm-scores, target 999){eta_s}"
             )
         if _running_script("run_hotpot_parallel.sh"):
             hp_logs = sorted(Path("/tmp").glob("hotpot-parallel-*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
@@ -148,9 +182,11 @@ def main() -> int:
                 if hp_prog:
                     scores, cases = hp_prog[-1]
                     pct = 100 * int(cases) / EXPECTED["hotpotqa-dev"]
+                    eta = _eta("hotpot", int(cases), EXPECTED["hotpotqa-dev"])
+                    eta_s = f"  {eta}" if eta else ""
                     print(
                         f"HotPotQA parallel: {cases}/100 cases "
-                        f"({pct:.0f}%, {scores} arm-scores)"
+                        f"({pct:.0f}%, {scores} arm-scores){eta_s}"
                     )
                 else:
                     print("HotPotQA parallel: starting (first task in flight)")
