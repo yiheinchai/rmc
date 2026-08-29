@@ -14,7 +14,7 @@
       version triggered on failed tool calls, which sounds structural but is a
       mechanical proxy for a semantic question, and it biases hard toward the
       cheapest mistakes. Conceptual errors — believing a system works one way
-      when it does not — exit zero and pass their tests. During RMC's own
+      when it does not — exit zero and pass their tests. During ROSE's own
       development the worst mistake ran green the whole way.
     </div>
 
@@ -24,7 +24,7 @@
   to reach for, and it reliably answered <i>no</i> on sessions full of
   corrections. The question is <b>where did the user have to steer you</b>,
   which is evidence sitting in the transcript. It is the same split the rest of
-  RMC applies: count the observed outcome, judge only what needs judging.
+  ROSE applies: count the observed outcome, judge only what needs judging.
 </p>
 <p>
   A correction, a rejection, a "no, like this", a restated requirement, a
@@ -64,12 +64,12 @@
     known — it is a lesson that is not landing. The reflector names the node id
     and captures nothing.</li>
   <li><b>A capture it should have made.</b> If the conversation shows the agent
-    running <code>rmc add</code> itself, or the user asking why something was not
+    running <code>rose add</code> itself, or the user asking why something was not
     learned, an earlier pass missed it. The reflector works out what about these
     criteria let it through and captures <i>that</i>, in the
     <code>reflection</code> family.</li>
-  <li><b>A defect in RMC.</b> If what it found is a bug in the harness rather
-    than a lesson for the store, it runs <code>rmc report</code> and asks whether
+  <li><b>A defect in ROSE.</b> If what it found is a bug in the harness rather
+    than a lesson for the store, it runs <code>rose report</code> and asks whether
     you want it filed. It never files anything itself.</li>
 </ul>
 

@@ -1,7 +1,7 @@
-# RMC experiment log
+# ROSE experiment log
 
 Measurements, including the ones that came out negative. Every number here was
-produced by a command in this repo against the store RMC keeps on itself, so
+produced by a command in this repo against the store ROSE keeps on itself, so
 each is reproducible and each is small — this is one user's store over about a
 month, not a benchmark. Read the effect sizes as directional and the *signs* as
 the finding.
@@ -123,7 +123,7 @@ This is the unfixed constraint.
 
 ## 4. Retrieval: the main result
 
-Built `rmc eval-recall`. Each recorded episode is replayed against **exactly the
+Built `rose eval-recall`. Each recorded episode is replayed against **exactly the
 candidate set it was served**, and the judge's picks are scored against
 `episode.used` (which lessons a fork judged to have borne on the work).
 
@@ -168,7 +168,7 @@ decision-changing.
 
 *Track record* annotated each candidate with its own retrieval history
 ("shown 5x, never used") — the harness supplying a count, the model still
-judging. The idea is RMC's own philosophy applied to its selector, which had
+judging. The idea is ROSE's own philosophy applied to its selector, which had
 been the one stage with no feedback path at all.
 
 **Both made it worse, and the combination lost 3 useful lessons.** Every
@@ -376,15 +376,15 @@ this.*
 
 ---
 
-## 9. Closing the loop: RMC tuning its own retrieval
+## 9. Closing the loop: ROSE tuning its own retrieval
 
-Every stage of RMC is corrected by an outcome except the one that decides what
+Every stage of ROSE is corrected by an outcome except the one that decides what
 gets recalled. Its criteria — the relevance prompt and a handful of constants —
 could only change when a person had an idea, and §4.2 is the record of how well
 that goes: **five of six hand-written proposals were regressions**, each
 plausible, each argued for.
 
-`rmc tune` runs the same loop without a person in it. Measure; show the model
+`rose tune` runs the same loop without a person in it. Measure; show the model
 where retrieval was actually wrong, in cases rather than numbers, misses first;
 take one proposal; apply it in a sandbox; measure again; keep it only if
 **precision and recall are both at least as good**. A trade is a preference and
@@ -420,7 +420,7 @@ load-bearing in one mode and pure noise in the other.
 | precision | 47% | **51%** |
 | recall | 77% | **88%** |
 
-Kept, because both improved. This is the first change to RMC's retrieval that
+Kept, because both improved. This is the first change to ROSE's retrieval that
 no human proposed.
 
 *The honest caveat: n=1, on one store, scored against six episodes. What the
@@ -436,10 +436,10 @@ claims is falsifiable and not yet falsified either way.
 
 | Was | Is |
 |---|---|
-| the apex layer rendered into one judge call | a fork of the live session greps `.rmc/index.md` |
+| the apex layer rendered into one judge call | a fork of the live session greps `.rose/index.md` |
 | routing cost ~55 tok × apexes, per prompt | the index is searched, never sent — 0 tok/prompt |
 | candidates = apexes, reachable by descent | candidates = every lesson, reachable by grep |
-| retrieval learned nothing from outcomes | selection lessons in `.rmc/routing/`, capped at 800 tok |
+| retrieval learned nothing from outcomes | selection lessons in `.rose/routing/`, capped at 800 tok |
 | merging held apex width down | merging deleted (§3), width no longer a per-prompt cost |
 | compressor guessed what to cut | compressor is given spans observed doing work |
 
@@ -452,15 +452,15 @@ measured a 21,272-token prefix returning entirely from cache on
 **What is claimed, and how it fails.** Three things, each with a number that
 would show it wrong:
 
-1. *Routing cost stops tracking the store.* Falsified if `rmc status` shows
+1. *Routing cost stops tracking the store.* Falsified if `rose status` shows
    selection cost rising with lesson count. It cannot, by construction — the
    only per-prompt cost left is the rule layer, which is capped — so the real
    question is 2.
 2. *Selection lessons stay far fewer than lessons.* This is the load-bearing
-   bet and it is **unmeasured**. `rmc route` prints rules ÷ lessons; if that
+   bet and it is **unmeasured**. `rose route` prints rules ÷ lessons; if that
    ratio climbs rather than falls, the layer meant to be small is a second copy
    of the store and the approach to the long tail is wrong.
-3. *Precision improves.* Unmeasured. `rmc eval-recall --arm agentic` scores it,
+3. *Precision improves.* Unmeasured. `rose eval-recall --arm agentic` scores it,
    but see the caveat below.
 
 **The caveat on measuring it.** The two arms do not face the same test. `judge`
@@ -485,7 +485,7 @@ hold up in practice, this should be reverted rather than tuned.
 
 ## 12. Migration as a copy, and two redaction bugs it exposed
 
-**The change.** `rmc migrate` used to ask a model to split each skill into
+**The change.** `rose migrate` used to ask a model to split each skill into
 atomic lessons. It now copies: one skill, one lesson, body byte for byte, zero
 model calls.
 
@@ -547,14 +547,14 @@ was never the expensive part; reading one long candidate was.
 ## 13. Reproducing
 
 ```
-rmc status                                  # store shape, selection cost, precision
-rmc route                                   # selection rules, and rules ÷ lessons
-rmc index                                   # what the selector can actually find
-rmc eval-recall --arm judge --save base     # the 48% / 100% baseline
-rmc eval-recall --arm agentic --against base
-rmc tune --rounds N                         # propose, measure, keep only wins
-rmc tune --history                          # every attempt, including the rejected
-rmc migrate [--apply]                       # copy a skills library across, verbatim
+rose status                                  # store shape, selection cost, precision
+rose route                                   # selection rules, and rules ÷ lessons
+rose index                                   # what the selector can actually find
+rose eval-recall --arm judge --save base     # the 48% / 100% baseline
+rose eval-recall --arm agentic --against base
+rose tune --rounds N                         # propose, measure, keep only wins
+rose tune --history                          # every attempt, including the rejected
+rose migrate [--apply]                       # copy a skills library across, verbatim
 ```
 
-Saved runs live in `.rmc/evals/*.json`.
+Saved runs live in `.rose/evals/*.json`.

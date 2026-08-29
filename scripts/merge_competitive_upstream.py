@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "papers" / "rse" / "results"
+RESULTS = ROOT / "papers" / "rose" / "results"
 
 # Full split sizes (not curated subsets).
 EXPECTED_TASKS = {
@@ -89,7 +89,7 @@ def merge_upstream_shards_into_competitive(
     shard_paths: list[Path],
 ) -> bool:
     """Merge upstream.* blobs from parallel competitive workspace shards."""
-    from rmc.wikiskill import from_checkpoint_dict, merge_reports, to_dict
+    from rose.wikiskill import from_checkpoint_dict, merge_reports, to_dict
 
     reports = []
     for path in shard_paths:

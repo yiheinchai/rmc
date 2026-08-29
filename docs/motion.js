@@ -1,6 +1,6 @@
 /* Two animations that carry the argument, so the page does not have to.
  *
- * 1. A Claude Code window with two tabs — WITHOUT RMC and WITH RMC. The first
+ * 1. A Claude Code window with two tabs — WITHOUT ROSE and WITH ROSE. The first
  *    tab plays a session the hard way: you type a prompt, and the agent grinds
  *    through dozens of exchanges before it lands. The lesson is then lifted out
  *    of that transcript, the window switches tabs by itself, and the lesson
@@ -113,8 +113,8 @@
     { kind: "bullet", text: "Parsing the body, not the status. Fixed.", out: "42 passed" }
   ];
   var REFLECT = [
-    { kind: "recall", text: "RMC · reflecting off-thread…" },
-    { kind: "recall", text: "RMC · learned 1 lesson · n_7f2a · scope: global" }
+    { kind: "recall", text: "ROSE · reflecting off-thread…" },
+    { kind: "recall", text: "ROSE · learned 1 lesson · n_7f2a · scope: global" }
   ];
   var ACT_B = [
     { kind: "bullet", text: "Idempotency key set, and I'm parsing the response body." },
@@ -224,8 +224,8 @@
       var user = row({ kind: "user", text: prompt });
       var rows = acts.map(row);
       var comp = row({ kind: "recall", text: isPair
-        ? "RMC · both lessons used together, 3rd time · merging into a shared parent…"
-        : "RMC · lesson used, work succeeded · compacting off-thread…" });
+        ? "ROSE · both lessons used together, 3rd time · merging into a shared parent…"
+        : "ROSE · lesson used, work succeeded · compacting off-thread…" });
       return {
         recall: recall, txt: recall.querySelector(".txt"),
         top: top, end: end, user: user, rows: rows, comp: comp,
@@ -412,7 +412,7 @@
       at(t + 4150, function () { show(closeA[1], 0); });
       at(t + 4650, function () { foot.textContent = "4,200 tokens to get here"; });
       at(t + 5150, function () {
-        show(reflect[0], 0); title.textContent = "RMC · reflecting on session 14";
+        show(reflect[0], 0); title.textContent = "ROSE · reflecting on session 14";
       });
       at(t + 5900, function () { show(reflect[1], 0); });
       at(t + 6550, function () { work.level(0); travel(work, mountA, "inline", 0); });
@@ -440,8 +440,8 @@
         at(u + 750, function () {
           var total = pair ? TOK[level] + TOK_B[0] : TOK[level];
           S.txt.textContent = pair
-            ? "RMC · 2 lessons · " + total + " tok"
-            : "RMC · 1 lesson · L" + level + " · " + TOK[level] + " tok";
+            ? "ROSE · 2 lessons · " + total + " tok"
+            : "ROSE · 1 lesson · L" + level + " · " + TOK[level] + " tok";
           var nodes = tierFor(level).children;
           ctx.level(level);
           travel(ctx, S.top, "inline", idx, nodes[0]);

@@ -1,0 +1,1350 @@
+{
+  "generated_at": "20260829T055405Z",
+  "agent": "codex",
+  "samples": 1,
+  "available_backends": [
+    "claude",
+    "codex",
+    "mock"
+  ],
+  "rose_bench": {
+    "agent": "codex",
+    "bench_path": "/workspace/evals/rose-bench.yaml",
+    "lift": 0.29999999999999993,
+    "transfer": {
+      "passed": 19,
+      "total": 20,
+      "rate": 0.95
+    },
+    "retrieval": {
+      "passed": 5,
+      "total": 8,
+      "rate": 0.625
+    },
+    "retention": {
+      "L0": {
+        "passed": 2,
+        "total": 3
+      },
+      "L1": {
+        "passed": 0,
+        "total": 0
+      }
+    },
+    "cases": [
+      {
+        "case_id": "delete-is-soft",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate includes the essential hard-delete request using `DELETE /records/{record_id}?purge=true`, explicitly distinguishes it from a plain soft delete, and verifies that the row is absent rathe"
+      },
+      {
+        "case_id": "delete-is-soft",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 128,
+        "retrieval_ok": null,
+        "reason": "The candidate includes the essential actions: it uses `DELETE /internal/records/{record_id}?purge=true`, explicitly warns that plain DELETE only soft-deletes by setting `deleted_at`, and verifies true"
+      },
+      {
+        "case_id": "migrations-forward-only",
+        "kind": "trap",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly makes `verified_at` nullable with no default, preserving compatibility during rollout. However, it proposes a reversible migration or explicit `down` that drops the column, con"
+      },
+      {
+        "case_id": "migrations-forward-only",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 120,
+        "retrieval_ok": null,
+        "reason": "The candidate captures all essential requirements: a forward-only migration with no `down`, a nullable `verified_at` timestamp that is safe for currently deployed code, and reversal via a new forward "
+      },
+      {
+        "case_id": "charges-not-idempotent",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate includes the essential behavior: it generates an idempotency key before the first charge attempt, reuses that same key across all retries, and explains that a timed-out charge may alread"
+      },
+      {
+        "case_id": "charges-not-idempotent",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 102,
+        "retrieval_ok": null,
+        "reason": "The candidate includes the essential behavior: generate one Idempotency-Key before the first charge attempt and reuse it across every retry, explicitly recognizing that a timed-out request may already"
+      },
+      {
+        "case_id": "integration-pg-port",
+        "kind": "detail",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate misses the essential fix: run with `PAYMENTS_PG_PORT=5433`. It instead proposes starting PostgreSQL on the default port and explicitly configures host-run tests for `127.0.0.1:5432`, whi"
+      },
+      {
+        "case_id": "integration-pg-port",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 111,
+        "retrieval_ok": null,
+        "reason": "The candidate gives the essential supported action: run the integration tests with `PAYMENTS_PG_PORT=5433`. It also correctly avoids starting PostgreSQL on 5432 and avoids an unsupported CLI port flag"
+      },
+      {
+        "case_id": "retry-backoff-constants",
+        "kind": "detail",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate includes all essential policy details: 100 ms, 400 ms, and 1.6 s delays; \u00b125% jitter; and retries bounded by the caller\u2019s remaining deadline instead of a fixed attempt count. The added c"
+      },
+      {
+        "case_id": "retry-backoff-constants",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 103,
+        "retrieval_ok": null,
+        "reason": "The candidate includes all essential elements: 100 ms, 400 ms, and 1.6 s exponential backoff; \u00b125% jitter; and retries bounded by the caller\u2019s remaining deadline rather than a fixed attempt count. The"
+      },
+      {
+        "case_id": "s3-two-hundred-error",
+        "kind": "detail",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly identifies that HTTP 200 may contain an embedded `<Error>` and that the body or parsed response must be inspected. However, it does not state the essential required action: ret"
+      },
+      {
+        "case_id": "s3-two-hundred-error",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 95,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the essential issue: multipart completion may return HTTP 200 with an error in the body, so success requires parsing the body, and a parsed error must follow the same retry pa"
+      },
+      {
+        "case_id": "meaning-is-not-overlap",
+        "kind": "principle",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate makes relevance depend primarily on embeddings/BM25 and a weighted similarity score with a threshold. The known-good outcome requires relevance to be decided by a schema-constrained mode"
+      },
+      {
+        "case_id": "meaning-is-not-overlap",
+        "kind": "principle",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 178,
+        "retrieval_ok": null,
+        "reason": "The substance matches the known-good outcome: model/schema-based relevance and structure, budgets, and caching for efficiency. However, the candidate is about 129 words, exceeding the task\u2019s strict 12"
+      },
+      {
+        "case_id": "teardown-cancels-hooks",
+        "kind": "principle",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate captures the essential behavior: the SessionEnd hook starts a fully detached child process, returns immediately, and does not perform or await the LLM call inline because teardown can ca"
+      },
+      {
+        "case_id": "teardown-cancels-hooks",
+        "kind": "principle",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 101,
+        "retrieval_ok": null,
+        "reason": "The candidate captures the essential requirement: the SessionEnd hook launches fully detached background work and returns immediately, while the worker performs the LLM call and saves the summary. It "
+      },
+      {
+        "case_id": "retry-a-charge-properly",
+        "kind": "multi",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly requires one stable Idempotency-Key reused across all attempts and bounds retries by the overall caller deadline. However, its retry schedule is materially different: it specif"
+      },
+      {
+        "case_id": "retry-a-charge-properly",
+        "kind": "multi",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 207,
+        "retrieval_ok": null,
+        "reason": "The candidate includes both essential requirements: one Idempotency-Key generated per logical charge and reused across every attempt, plus retries at 100 ms, 400 ms, and 1.6 s with \u00b125% jitter, bounde"
+      },
+      {
+        "case_id": "ship-a-schema-change",
+        "kind": "multi",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate proposes direct SQL deletion and never specifies using `?purge=true`, which is essential because ordinary deletion leaves soft-deleted rows persisted. It also does not clearly require a "
+      },
+      {
+        "case_id": "ship-a-schema-change",
+        "kind": "multi",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 250,
+        "retrieval_ok": null,
+        "reason": "The candidate includes every essential element: a forward-only migration, staged deployment so the column is dropped only after currently deployed code no longer depends on it, and permanent removal t"
+      },
+      {
+        "case_id": "retry-a-ci-job",
+        "kind": "distractor",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate recommends a bounded CI/test retry with a clear one-retry limit, preserves diagnostics, flags retry-passes as flaky, and requires quarantine or root-cause remediation. It correctly avoid"
+      },
+      {
+        "case_id": "retry-a-ci-job",
+        "kind": "distractor",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 103,
+        "retrieval_ok": null,
+        "reason": "The candidate includes appropriate CI-level measures\u2014one bounded job rerun, preserving artifacts, quarantining with ownership/expiry, tracking outcomes, and fixing the root cause\u2014but it also prescribe"
+      },
+      {
+        "case_id": "cache-the-rendered-page",
+        "kind": "distractor",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate fully matches the known-good outcome: it specifies edge/CDN HTML caching with a TTL, stale-while-revalidate, deploy/CMS-triggered purging, appropriate cache-key dimensions and bypasses, "
+      },
+      {
+        "case_id": "cache-the-rendered-page",
+        "kind": "distractor",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate fully covers the essential edge-cache invalidation strategy: explicit purges on deploy and CMS changes, appropriate TTLs, stale-while-revalidate, robust cache-key handling, and rollback "
+      },
+      {
+        "case_id": "which-pg-port",
+        "kind": "conflict",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate silently asserts 5433 despite the known conflict between 5433 and 5434. It should identify the incompatible values and ask which is current or verify the port against the running contain"
+      },
+      {
+        "case_id": "which-pg-port",
+        "kind": "conflict",
+        "arm": "L0",
+        "passed": false,
+        "tokens": 174,
+        "retrieval_ok": null,
+        "reason": "The candidate silently resolves the conflict in favor of 5434. The known-good outcome requires explicitly recognizing that memory contains incompatible values (5433 and 5434) and either asking which i"
+      },
+      {
+        "case_id": "name-the-feature-flag",
+        "kind": "null",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate gives a sensible feature-flag name and places it in the central feature-flag registry/configuration layer. Its additional rollout and implementation guidance is consistent with the task "
+      },
+      {
+        "case_id": "name-the-feature-flag",
+        "kind": "null",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate gives a sensible, actionable flag name and location, matching the known-good outcome. The extra implementation guidance is compatible and does not invoke or cite any stored lesson."
+      },
+      {
+        "case_id": "explain-a-regex",
+        "kind": "null",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly explains the regex as matching a lowercase ASCII email-shaped string, accurately describes the local part, domain-label and TLD constraints, warns that it is not full email val"
+      },
+      {
+        "case_id": "explain-a-regex",
+        "kind": "null",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly identifies the regex as an anchored, email-shaped pattern; accurately explains the lowercase local part, domain-label rules, and alphabetic suffix; notes important limitations;"
+      },
+      {
+        "case_id": "webhook-retry-after",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate clearly treats `Retry-After: 120` as a minimum 120-second delay and explicitly prevents any fixed/exponential backoff, jitter, or cap from scheduling an earlier retry. This achieves the "
+      },
+      {
+        "case_id": "webhook-retry-after",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 51,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly schedules the retry no earlier than 120 seconds after receiving the 429 and gives Retry-After precedence over any shorter normal backoff. Its persistence and jitter guidance al"
+      },
+      {
+        "case_id": "jwt-exp-leeway",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the correct knob\u2014clock-skew/leeway tolerance\u2014recommends about 30 seconds, and explicitly keeps exp validation enabled. It fully matches the known-good outcome."
+      },
+      {
+        "case_id": "jwt-exp-leeway",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 36,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the essential fix: configure about 30 seconds of clock-skew/leeway for expiration validation while keeping expiry enforcement enabled. The additional JWT hardening advice does"
+      },
+      {
+        "case_id": "cache-stampede",
+        "kind": "detail",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the essential single-flight/request-coalescing pattern so only one worker recomputes each expired key. It also includes TTL jitter as an optional mitigation and gives compatib"
+      },
+      {
+        "case_id": "cache-stampede",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 46,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the essential single-flight/request-coalescing pattern per cache key, ensuring only one worker recomputes while others wait or use stale data. It also includes the optional TT"
+      },
+      {
+        "case_id": "idempotency-key-scope",
+        "kind": "principle",
+        "arm": "none",
+        "passed": false,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate makes the conclusion contract-dependent and suggests that a changed payload may need to be rejected. The known-good outcome requires the direct conclusion that returning the original cha"
+      },
+      {
+        "case_id": "idempotency-key-scope",
+        "kind": "principle",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 43,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly identifies the behavior as expected, explains that reuse of the same key for the same merchant/method/route returns the original cached result despite a changed amount, and sta"
+      },
+      {
+        "case_id": "grpc-deadline",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate includes the essential change: configure an explicit per-RPC client deadline shorter than the load balancer\u2019s 60-second timeout, causing the call to fail with DEADLINE_EXCEEDED instead o"
+      },
+      {
+        "case_id": "grpc-deadline",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 46,
+        "retrieval_ok": null,
+        "reason": "The candidate gives the essential change: set a finite client-side RPC deadline through the context, shorter than the load balancer\u2019s 60-second timeout, so the call fails first with DeadlineExceeded. "
+      },
+      {
+        "case_id": "feature-flag-percentage",
+        "kind": "detail",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the core defect\u2014random per-request sampling\u2014and the required fix: deterministic bucketing based on a stable logged-in user identifier. Its implementation and testing details a"
+      },
+      {
+        "case_id": "feature-flag-percentage",
+        "kind": "detail",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 35,
+        "retrieval_ok": null,
+        "reason": "The candidate identifies the core defect: unstable per-request bucketing causes the same user to be reassigned on refresh. It gives the required fix\u2014deterministically hash a stable user identifier suc"
+      },
+      {
+        "case_id": "oauth-state-csrf",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate includes every essential fix: generate a random state value, bind/store it in the initiating session, include it in the authorization request, and validate it on callback before exchangi"
+      },
+      {
+        "case_id": "oauth-state-csrf",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 40,
+        "retrieval_ok": null,
+        "reason": "The candidate includes every essential fix: generate a random state value, bind/store it in the initiating session, send it with the authorization request, and validate it on the callback before excha"
+      },
+      {
+        "case_id": "batch-export-pagination",
+        "kind": "multi",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate correctly switches from OFFSET to keyset/cursor pagination, uses a deterministic monotonic key, advances the cursor after each batch, and terminates when export is complete. Its composit"
+      },
+      {
+        "case_id": "batch-export-pagination",
+        "kind": "multi",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate gives the required keyset/cursor pagination pattern using a monotonic unique key or a `(created_at, id)` tie-breaker, explicitly avoids OFFSET, advances the cursor from the last row, and"
+      },
+      {
+        "case_id": "semver-breaking-api",
+        "kind": "principle",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate reaches the same actionable conclusion: removing a guaranteed public response field is breaking and requires a major version bump. It also correctly distinguishes deprecation from remova"
+      },
+      {
+        "case_id": "semver-breaking-api",
+        "kind": "principle",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 39,
+        "retrieval_ok": null,
+        "reason": "The candidate matches the known-good outcome: it identifies response-field removal as a breaking, non-semver-compliant change and recommends restoring/deprecating the field until removal in a major ve"
+      },
+      {
+        "case_id": "k8s-probe-liveness",
+        "kind": "trap",
+        "arm": "none",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": null,
+        "reason": "The candidate makes the essential design change: liveness checks only process health and never the database, while readiness checks database usability so failover removes pods from service without res"
+      },
+      {
+        "case_id": "k8s-probe-liveness",
+        "kind": "trap",
+        "arm": "L0",
+        "passed": true,
+        "tokens": 40,
+        "retrieval_ok": null,
+        "reason": "The candidate makes the essential design change: liveness checks only process-local health with no database dependency, while readiness performs the database check so failures remove pods from service"
+      },
+      {
+        "case_id": "retry-a-charge-properly",
+        "kind": "multi",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 294,
+        "retrieval_ok": true,
+        "reason": "kept ['charges-not-idempotent', 'grpc-deadline', 'idempotency-key-scope', 'retry-backoff-constants'] want ['charges-not-idempotent', 'retry-backoff-constants']"
+      },
+      {
+        "case_id": "ship-a-schema-change",
+        "kind": "multi",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 248,
+        "retrieval_ok": true,
+        "reason": "kept ['delete-is-soft', 'migrations-forward-only'] want ['delete-is-soft', 'migrations-forward-only']"
+      },
+      {
+        "case_id": "retry-a-ci-job",
+        "kind": "distractor",
+        "arm": "retrieval",
+        "passed": false,
+        "tokens": 266,
+        "retrieval_ok": false,
+        "reason": "kept ['integration-pg-port', 'integration-pg-port-moved', 'teardown-cancels-hooks'] want []"
+      },
+      {
+        "case_id": "cache-the-rendered-page",
+        "kind": "distractor",
+        "arm": "retrieval",
+        "passed": false,
+        "tokens": 46,
+        "retrieval_ok": false,
+        "reason": "kept ['cache-stampede'] want []"
+      },
+      {
+        "case_id": "which-pg-port",
+        "kind": "conflict",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 165,
+        "retrieval_ok": true,
+        "reason": "kept ['integration-pg-port', 'integration-pg-port-moved'] want ['integration-pg-port', 'integration-pg-port-moved']"
+      },
+      {
+        "case_id": "name-the-feature-flag",
+        "kind": "null",
+        "arm": "retrieval",
+        "passed": false,
+        "tokens": 35,
+        "retrieval_ok": false,
+        "reason": "kept ['feature-flag-percentage'] want []"
+      },
+      {
+        "case_id": "explain-a-regex",
+        "kind": "null",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 0,
+        "retrieval_ok": true,
+        "reason": "kept [] want []"
+      },
+      {
+        "case_id": "batch-export-pagination",
+        "kind": "multi",
+        "arm": "retrieval",
+        "passed": true,
+        "tokens": 169,
+        "retrieval_ok": true,
+        "reason": "kept ['batch-export-pagination', 'delete-is-soft'] want []"
+      }
+    ]
+  },
+  "wikiskill_probe": {
+    "agent": "codex",
+    "bench_path": "/workspace/evals/wikiskill-bench.yaml",
+    "arms": {
+      "no-skill": {
+        "passed": 6,
+        "total": 10,
+        "accuracy": 0.6,
+        "mean_tokens": 0,
+        "bootstrap_ci": {
+          "mean": 0.6,
+          "low": 0.3,
+          "high": 0.9,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "LiveMath": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "OfficeQA": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          }
+        }
+      },
+      "full-inject": {
+        "passed": 7,
+        "total": 10,
+        "accuracy": 0.7,
+        "mean_tokens": 534,
+        "bootstrap_ci": {
+          "mean": 0.7,
+          "low": 0.4,
+          "high": 0.9,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "LiveMath": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "OfficeQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          }
+        }
+      },
+      "recall-judge": {
+        "passed": 7,
+        "total": 10,
+        "accuracy": 0.7,
+        "mean_tokens": 64,
+        "bootstrap_ci": {
+          "mean": 0.7,
+          "low": 0.4,
+          "high": 0.9,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "LiveMath": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "OfficeQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 0,
+            "total": 2,
+            "accuracy": 0.0
+          }
+        }
+      },
+      "recall-agentic": {
+        "passed": 8,
+        "total": 10,
+        "accuracy": 0.8,
+        "mean_tokens": 64,
+        "bootstrap_ci": {
+          "mean": 0.8,
+          "low": 0.5,
+          "high": 1.0,
+          "n": 10,
+          "iterations": 1000
+        },
+        "by_benchmark": {
+          "ALFWorld": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "LiveMath": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          },
+          "OfficeQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SealQA": {
+            "passed": 2,
+            "total": 2,
+            "accuracy": 1.0
+          },
+          "SpreadSheet": {
+            "passed": 1,
+            "total": 2,
+            "accuracy": 0.5
+          }
+        }
+      },
+      "trace2skill": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "evoskill": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "skillopt": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "keyword-rag": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      },
+      "oracle-skill": {
+        "passed": 0,
+        "total": 0,
+        "accuracy": 0.0,
+        "mean_tokens": 0,
+        "bootstrap_ci": null,
+        "by_benchmark": {}
+      }
+    },
+    "cases": [
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate contradicts the known-good outcome: it concludes that the minimum is 3 and that none of the choices is correct, whereas the required answer is (B) 6 using the extremal pairing bound."
+      },
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "full-inject",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate gives n=3 and rejects all listed choices, contradicting the known-good outcome (B) 6. It therefore would lead to a different decision and action."
+      },
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "recall-judge",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 94,
+        "reason": "The candidate contradicts the known-good outcome by answering n=3 and rejecting all listed choices, whereas the required conclusion is (B) 6. It therefore would lead to a different decision and action"
+      },
+      {
+        "case_id": "livemath-extremal",
+        "benchmark": "LiveMath",
+        "arm": "recall-agentic",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 94,
+        "reason": "The candidate contradicts the known-good outcome by concluding n=3 and declaring the question malformed, instead of selecting (B) 6. It therefore would lead to a different decision."
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "no-skill",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate gives the correct answer, (A) 3/10, using the same without-replacement calculation as the known-good outcome. Its extra observation that (C) 6/20 is numerically equivalent is accurate an"
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate correctly computes the without-replacement probability as (3/5)(2/4) = 6/20 = 3/10 and selects (A), matching the known-good outcome."
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 57,
+        "reason": "The candidate correctly computes P(both red) as (3/5)(2/4) = 6/20 = 3/10 and selects (A), matching the known-good outcome. Its note that (C) is mathematically equivalent is accurate and does not under"
+      },
+      {
+        "case_id": "livemath-probability",
+        "benchmark": "LiveMath",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 57,
+        "reason": "The candidate correctly applies conditional probability without replacement, obtains 3/10, and selects (A), matching the known-good outcome. It also accurately notes that (C) is an equivalent unsimpli"
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "no-skill",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate correctly identifies 2017 from the provided NeurIPS 2017 metadata, matching the known-good outcome."
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate gives the correct publication year, 2017, identifies the correct paper, and includes the same supporting source as the known-good outcome."
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 62,
+        "reason": "The candidate gives the correct year, 2017, and includes the same source attribution as the known-good outcome. The additional explanation does not contradict or omit anything essential."
+      },
+      {
+        "case_id": "sealqa-paper-year",
+        "benchmark": "SealQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 62,
+        "reason": "The candidate gives the correct publication year, 2017, and attributes it to \u201cAttention Is All You Need,\u201d matching the known-good outcome."
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "no-skill",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate correctly counts the four explicitly named authors and identifies the same names as the known-good outcome."
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate correctly counts the four explicitly named authors and identifies the same names as the known-good outcome."
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "The candidate correctly identifies and counts the four explicitly named authors, matching the known-good outcome."
+      },
+      {
+        "case_id": "sealqa-author-count",
+        "benchmark": "SealQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "The candidate correctly identifies and counts the four explicitly named authors: Devlin, Chang, Lee, and Toutanova."
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate correctly describes the operation and expected result, but it does not provide the requested pandas one-liner. A reader would still need to translate the prose into code."
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "full-inject",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate describes the correct operations and expected result, but it does not provide the requested pandas one-liner, so the reader cannot directly use the required answer."
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-judge",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 58,
+        "reason": "The candidate describes the correct operations and result but does not provide the requested executable pandas one-liner."
+      },
+      {
+        "case_id": "spreadsheet-pivot-sum",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-agentic",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 58,
+        "reason": "The candidate accurately describes the required operations and result, but it does not provide the requested executable pandas one-liner."
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "no-skill",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate describes the same safe operation: forward-fill `status` within each `group_id` and assign the index-aligned result back. It also correctly warns against cross-group leakage and notes or"
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate gives the same safe approach: partition by `group_id` and forward-fill only `status` within each group, explicitly preventing values from crossing group boundaries. The ordering and lead"
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-judge",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "The candidate explains the correct behavior but does not provide the actionable pandas pattern requested."
+      },
+      {
+        "case_id": "spreadsheet-fillna",
+        "benchmark": "SpreadSheet",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 56,
+        "reason": "The candidate gives the correct safe pattern: forward-fill `status` via `groupby(\"group_id\")[\"status\"].ffill()` and assign the aligned result back. It also correctly warns against table-wide forward-f"
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate correctly identifies total receipts as 1,550, but fails to provide the essential unit and explicitly rejects the known-good unit. The required answer is 1,550 millions of dollars."
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate gives the correct total receipts value, 1,550, and the correct units, millions of dollars, matching the known-good outcome."
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 113,
+        "reason": "The candidate gives the same reported total receipts and units: 1,550 million dollars, correctly using the Total receipts row."
+      },
+      {
+        "case_id": "officeqa-receipts-total",
+        "benchmark": "OfficeQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 113,
+        "reason": "The candidate gives the correct Total receipts value, 1,550, and correctly identifies the units as millions of dollars, matching the known-good outcome."
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "no-skill",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate correctly calculates 1,700 \u2212 1,550 = 150, identifies it as a deficit, and preserves the table\u2019s units."
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate correctly computes 1,700 \u2212 1,550 = 150 and reports the result in the table\u2019s stated units, matching the known-good outcome."
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 50,
+        "reason": "The candidate correctly computes the deficit as 1,700 \u2212 1,550 = 150 and says to preserve the table\u2019s units, matching the known-good outcome."
+      },
+      {
+        "case_id": "officeqa-outlays-vs-receipts",
+        "benchmark": "OfficeQA",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 50,
+        "reason": "The candidate correctly computes the deficit as 1,700 \u2212 1,550 = 150 and preserves the table\u2019s units, matching the known-good outcome."
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "no-skill",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate never performs `put apple on countertop` and instead assumes, without support, that cleaning places it there. It therefore does not achieve the required goal or match the known-good two-"
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "full-inject",
+        "passed": false,
+        "pass_rate": 0.0,
+        "samples_passed": 0,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate rejects the required two-action solution and gives three actions instead. The known-good outcome calls for taking the apple and putting it on the countertop, with cleaning only if requir"
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 60,
+        "reason": "The candidate gives the same minimal two-action sequence as the known-good outcome and correctly notes that cleaning is only needed if the apple is dirty."
+      },
+      {
+        "case_id": "alfworld-put-apple",
+        "benchmark": "ALFWorld",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 60,
+        "reason": "The candidate gives the same minimal two-action sequence as the known-good outcome: take the apple from the fridge, then put it on the countertop. Its explanation reasonably interprets the two-action "
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "no-skill",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 0,
+        "reason": "The candidate gives the same required action sequence: heat the mug with the microwave, then place the hot mug on the coffeemachine."
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "full-inject",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 534,
+        "reason": "The candidate gives the exact required sequence: heat the held mug with the microwave, then put it on the coffeemachine. It adds no contradictory or inadmissible actions."
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "recall-judge",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 42,
+        "reason": "The candidate gives the exact required sequence: heat the held mug with the microwave, then place it on the coffeemachine. It adds no inadmissible action."
+      },
+      {
+        "case_id": "alfworld-heat-mug",
+        "benchmark": "ALFWorld",
+        "arm": "recall-agentic",
+        "passed": true,
+        "pass_rate": 1.0,
+        "samples_passed": 1,
+        "samples_total": 1,
+        "tokens": 42,
+        "reason": "The candidate gives the exact required sequence: heat the held mug with the microwave, then put it on the coffeemachine. The added explanation is consistent with the task."
+      }
+    ],
+    "render": "WikiSkill-comparable bench \u2014 40 arm scores, agent=codex\nbench: /workspace/evals/wikiskill-bench.yaml\n\nAccuracy by arm (WikiSkill Table 1 style):\n  no-skill         6/10  (60%)  mean_tokens=0\n  full-inject      7/10  (70%)  mean_tokens=534\n  recall-judge     7/10  (70%)  mean_tokens=64\n  recall-agentic   8/10  (80%)  mean_tokens=64\n  trace2skill      0/0  (\u2014)  mean_tokens=0\n  evoskill         0/0  (\u2014)  mean_tokens=0\n  skillopt         0/0  (\u2014)  mean_tokens=0\n  keyword-rag      0/0  (\u2014)  mean_tokens=0\n  oracle-skill     0/0  (\u2014)  mean_tokens=0\n\nPer-benchmark (full-inject vs recall-judge):\n  ALFWorld       full=1/2 (50%)  recall=2/2 (100%)\n  LiveMath       full=1/2 (50%)  recall=1/2 (50%)\n  OfficeQA       full=2/2 (100%)  recall=2/2 (100%)\n  SealQA         full=2/2 (100%)  recall=2/2 (100%)\n  SpreadSheet    full=1/2 (50%)  recall=0/2 (0%)",
+    "significance_vs_full_inject": {
+      "recall-judge": {
+        "mean_a": 0.7,
+        "mean_b": 0.7,
+        "delta": 0.0,
+        "p_value": 0.655,
+        "significant": false,
+        "iterations": 1000
+      },
+      "recall-agentic": {
+        "mean_a": 0.8,
+        "mean_b": 0.7,
+        "delta": 0.1,
+        "p_value": 0.35,
+        "significant": false,
+        "iterations": 1000
+      }
+    },
+    "comparisons": {
+      "full_inject_vs_no_skill": {
+        "delta_accuracy": 0.09999999999999998
+      },
+      "recall_judge_vs_full_inject": {
+        "delta_accuracy": 0.0,
+        "token_savings": 470
+      },
+      "recall_agentic_vs_full_inject": {
+        "delta_accuracy": 0.10000000000000009,
+        "token_savings": 470
+      },
+      "recall_agentic_vs_recall_judge": {
+        "delta_accuracy": 0.10000000000000009
+      }
+    }
+  },
+  "memgpt_nested_kv": {
+    "agent": "codex",
+    "bench_path": "/workspace/evals/memgpt-nested-kv.yaml",
+    "arms": {
+      "fixed-context": {
+        "passed": 7,
+        "total": 8,
+        "accuracy": 0.875
+      },
+      "recall-agentic": {
+        "passed": 2,
+        "total": 8,
+        "accuracy": 0.25
+      }
+    },
+    "render": "MemGPT nested KV \u2014 agent=codex\n\n  fixed-context    7/8 (88%)\n  recall-agentic   2/8 (25%)"
+  },
+  "session_study": {
+    "agent": "codex",
+    "arms": {
+      "memory-off": {
+        "passed": 1,
+        "total": 5,
+        "accuracy": 0.2,
+        "mean_tokens": 0
+      },
+      "memory-on": {
+        "passed": 5,
+        "total": 5,
+        "accuracy": 1.0,
+        "mean_tokens": 168
+      }
+    },
+    "lift": 0.8,
+    "pairs": [
+      {
+        "pair_id": "charge-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate includes one Idempotency-Key reused across attempts and the correct base delays, but it never specifies the required \u00b125% jitter range. Saying only \u201cjittered backoffs\u201d is too vague to en"
+      },
+      {
+        "pair_id": "charge-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 223,
+        "reason": "The candidate includes both essential requirements: one Idempotency-Key generated once and reused across all attempts, and the 100ms/400ms/1.6s retry schedule with \u00b125% jitter bounded by the caller\u2019s "
+      },
+      {
+        "pair_id": "schema-purge-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate correctly specifies a forward-only migration and permanent purging via `?purge=true` (or physical SQL DELETE), but it does not make the column drop safe against currently deployed code. "
+      },
+      {
+        "pair_id": "schema-purge-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 264,
+        "reason": "The candidate includes every essential element: a staged forward-only migration, compatibility with currently deployed/older code before dropping the column, and physical deletion through `?purge=true"
+      },
+      {
+        "pair_id": "s3-upload-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate correctly identifies the HTTP 200 embedded-error problem and requires parsing the body, but it does not state the required retry behavior. It only suggests retrying according to SDK beha"
+      },
+      {
+        "pair_id": "s3-upload-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 103,
+        "reason": "The candidate identifies the essential issue: multipart completion can return HTTP 200 with an embedded XML error, so the response body must be parsed before declaring success, and such errors must fo"
+      },
+      {
+        "pair_id": "gdpr-erasure-followup",
+        "arm": "memory-off",
+        "passed": true,
+        "tokens": 0,
+        "reason": "The candidate includes the essential permanent-erasure request (`DELETE /records/{record_id}?purge=true`), explicitly warns that plain DELETE only soft-deletes, and verifies actual absence via a direc"
+      },
+      {
+        "pair_id": "gdpr-erasure-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 135,
+        "reason": "The candidate includes the required hard-delete call (`DELETE /records/{record_id}?purge=true`), explicitly distinguishes it from a plain soft delete that only sets `deleted_at`, and verifies that no "
+      },
+      {
+        "pair_id": "pg-port-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate correctly recommends running the host-side integration tests with PAYMENTS_PG_PORT=5433 and leaving the service occupying 5432 alone. However, it omits the known-good outcome\u2019s essential"
+      },
+      {
+        "pair_id": "pg-port-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 118,
+        "reason": "The candidate gives the required successful procedure: use PAYMENTS_PG_PORT=5433, avoid starting PostgreSQL on 5432, and do not use the unsupported --pg-port CLI flag. It also provides an actionable t"
+      }
+    ],
+    "render": "Session-length paired study \u2014 agent=codex\n\n  memory-off  1/5 (20%)  mean_tokens=0\n  memory-on   5/5 (100%)  mean_tokens=168\n\n  lift (memory-on \u2212 off): +80%"
+  }
+}

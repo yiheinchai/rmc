@@ -13,7 +13,7 @@
     <div class="scroll">
     <table>
       <tr><th>Step</th><th>What happens</th></tr>
-      <tr><td>1</td><td><code>.rmc/index.md</code> is grepped — one line per lesson: id, family, level, title, tags, gist, path</td></tr>
+      <tr><td>1</td><td><code>.rose/index.md</code> is grepped — one line per lesson: id, family, level, title, tags, gist, path</td></tr>
       <tr><td>2</td><td><code>nodes/</code> is grepped too, for anything the summaries miss</td></tr>
       <tr><td>3</td><td>promising lessons are read, preferring <code>grep -C</code> over opening a long file</td></tr>
       <tr><td>4</td><td>the fork returns node ids, and the hook injects those bodies</td></tr>
@@ -52,7 +52,7 @@
       Two things it needs: a session to fork, and a backend that can fork one.
       Without either — the first turn of a session, a non-Claude backend,
       <code>recall.selector: judge</code> — the old apex walk runs instead. That
-      walk is also the baseline every arm of <code>rmc eval-recall</code> is
+      walk is also the baseline every arm of <code>rose eval-recall</code> is
       measured against, so it is kept deliberately rather than left behind.
     </p>
     <p>

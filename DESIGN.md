@@ -1,4 +1,4 @@
-# RMC Design
+# ROSE Design
 
 Version 0.1. This document defines the data model, the descent/selection policy,
 and the compression validation protocol.
@@ -31,7 +31,7 @@ Recall walks *down* `derived_from`. Learning grows *up* via `compressed_into`.
 
 ## 2. Node format
 
-Nodes are markdown files under `.rmc/nodes/<family>/<id>.md`. Frontmatter is
+Nodes are markdown files under `.rose/nodes/<family>/<id>.md`. Frontmatter is
 YAML; the body is the lesson text that actually gets injected into a prompt.
 
 ```markdown
@@ -111,7 +111,7 @@ changes that constant by an order of magnitude and does not change its shape.
 
 So selection is a **fork of the live session**, given tools:
 
-1. `.rmc/index.md` holds one line per lesson — id, family, level, title, tags,
+1. `.rose/index.md` holds one line per lesson — id, family, level, title, tags,
    gist, path. It is regenerated whenever it falls behind the nodes.
 2. The fork greps that index *and* `nodes/` itself, opens what it needs, and
    returns the ids worth loading.
@@ -168,16 +168,16 @@ either — the first turn of a session, a non-Claude backend,
 selector that fails outright also falls through to it.
 
 The apex walk is therefore kept deliberately, not left behind: it is the
-baseline every arm of `rmc eval-recall` is measured against.
+baseline every arm of `rose eval-recall` is measured against.
 
 What must never happen is an empty pack that looks like a decision when it was
 an outage. `Pack.degraded` carries the distinction to `recall_notice`, because a
 user who reads a broken selector as "nothing applied" concludes the whole system
 does not work — and that conclusion is not recoverable by any later fix.
 
-### 3.4 Selection lessons — RMC applied to its own retrieval
+### 3.4 Selection lessons — ROSE applied to its own retrieval
 
-Every other stage of RMC learns from outcomes. Selection learned from nothing,
+Every other stage of ROSE learns from outcomes. Selection learned from nothing,
 and it is the stage measured worst: filtering lifts precision from 28% to 48%,
 which means **over half of what recall serves is never used** (EXPERIMENTS §4.1).
 
@@ -188,7 +188,7 @@ not knowledge about the work, but knowledge about where the knowledge was:
 - When the task runs the integration tests: read nodes/testing/ before running pytest
 ```
 
-They live in `.rmc/routing/`, **not** under `nodes/`. If they were nodes they
+They live in `.rose/routing/`, **not** under `nodes/`. If they were nodes they
 would be retrieved by the mechanism they exist to fix, and would compete with
 real lessons for the same budget. They are always injected, under
 `routing.max_tokens`.
@@ -203,8 +203,8 @@ this layer a second copy of the store.
 
 That last point is the load-bearing one. The design bets that selection lessons
 track *kinds of work* rather than lessons, so the injected layer stays bounded
-while the store does not. **This is a bet, not a guarantee**, so `rmc status` and
-`rmc route` report the ratio of rules to lessons. If it climbs rather than
+while the store does not. **This is a bet, not a guarantee**, so `rose status` and
+`rose route` report the ratio of rules to lessons. If it climbs rather than
 falls, the approach to the long tail is wrong and needs revisiting — and that
 has to be visible as a number rather than inferred.
 
@@ -231,7 +231,7 @@ routing:
 
 The `judge` selector keeps its own budgets — `judge_calls`, `max_depth`,
 `fanout`, `filter_above`, `warm_prefix_above_tokens` — documented in
-`rmc/config.py`. They apply only when it runs.
+`rose/config.py`. They apply only when it runs.
 
 ## 4. Descent and selection
 
@@ -387,7 +387,7 @@ stopped being a cost the moment selection became a search (§3.1).
 
 Compression validation is exactly the claim *"this shorter text still produces
 correct behaviour"*, so it needs a definition of correct. In a scripted harness
-you write oracles by hand. RMC runs inside someone's real repo, where nobody is
+you write oracles by hand. ROSE runs inside someone's real repo, where nobody is
 going to author a YAML oracle per lesson — so the oracle has to be **harvested**.
 
 Every session that ends well becomes an **episode**: a replayable regression
@@ -455,7 +455,7 @@ An explicit correction is also exempt from the confidence floor. Corrected-then-
 fixed sessions score near zero because their signals cancel, so a naive floor
 discards exactly the sessions with the most to teach.
 
-Below the floor, and with no correction, RMC records nothing at all. A noisy
+Below the floor, and with no correction, ROSE records nothing at all. A noisy
 label is worse than no label: it poisons both the priors and the corpus that
 every future compression is judged against.
 
@@ -533,7 +533,7 @@ removes the occasion to ask about it. Surfacing at recall time means the questio
 arrives when the user is already thinking about that topic — the same reason a
 student raises a confusion during the relevant lesson rather than at random.
 
-`rmc conflicts` lists open questions; `rmc resolve <id> [--drop]` settles them.
+`rose conflicts` lists open questions; `rose resolve <id> [--drop]` settles them.
 
 ### 7.3 Keeping reconciliation cheap
 
@@ -563,7 +563,7 @@ descent surfaces it.
 
 ## 8. Backends
 
-`rmc/adapters/` exposes one interface:
+`rose/adapters/` exposes one interface:
 
 ```python
 class Adapter(Protocol):
@@ -581,7 +581,7 @@ Meta-calls (compress, diagnose, judge) are pure text transforms and run with
 tools denied (`--disallowedTools` / `-s read-only`); only replay, which has to
 actually do the work, gets write access, scoped to the directory it is handed.
 
-Every spawned process gets `RMC_CHILD=1`. RMC's hooks check it and no-op, which
+Every spawned process gets `ROSE_CHILD=1`. ROSE's hooks check it and no-op, which
 is the only thing stopping a compression run from triggering compression runs.
 
 The `mock` adapter exists so the entire control flow — descent, scoring,
@@ -598,7 +598,7 @@ Stated plainly, since a research harness that hides its weaknesses is useless:
   did not object" is genuinely weak. It is mitigated by a confidence floor, by
   preferring host metadata over text matching, and by requiring compressions to
   clear a replay gate rather than trusting the signal directly — but a user who
-  silently fixes things themselves will teach RMC the wrong lesson.
+  silently fixes things themselves will teach ROSE the wrong lesson.
 - **Oracle coverage bounds everything.** Lessons about taste, tone or judgement
   have no mechanical check, so they fall back to judge calls and compress more
   noisily than lessons about procedures.
@@ -624,4 +624,4 @@ Stated plainly, since a research harness that hides its weaknesses is useless:
   moves the ceiling up but also moves the failure mode: a model that
   misjudges relevance is harder to debug than a scoring function you can read.
   This is mitigated by every judgement being cached and logged with its stated
-  reason (`rmc recall` prints them), not by pretending it cannot happen.
+  reason (`rose recall` prints them), not by pretending it cannot happen.

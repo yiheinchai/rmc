@@ -5,9 +5,9 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-from rmc.adapters.mock import MockAdapter
-from rmc.bench import bench_adapter
-from rmc.wikiskill import (
+from rose.adapters.mock import MockAdapter
+from rose.bench import bench_adapter
+from rose.wikiskill import (
     ARMS,
     build_store,
     full_inject_pack,
@@ -36,7 +36,7 @@ class TestWikiSkillBench(unittest.TestCase):
                 self.assertIn(case.skill.split()[0], pack)
 
     def test_mock_run_produces_all_arms(self) -> None:
-        from rmc.wikiskill import CORE_ARMS
+        from rose.wikiskill import CORE_ARMS
 
         report = run(bench_adapter(MockAdapter()), samples=1, arms=CORE_ARMS)
         self.assertEqual(len(report.cases), 10 * len(CORE_ARMS))
@@ -51,7 +51,7 @@ class TestWikiSkillBench(unittest.TestCase):
         self.assertIn("no-skill", data["arms"])
 
     def test_resume_skips_scored_pairs(self) -> None:
-        from rmc.wikiskill import CORE_ARMS, from_checkpoint_dict, scored_keys
+        from rose.wikiskill import CORE_ARMS, from_checkpoint_dict, scored_keys
 
         first = run(bench_adapter(MockAdapter()), samples=1, arms=CORE_ARMS[:1])
         ckpt = to_dict(first)

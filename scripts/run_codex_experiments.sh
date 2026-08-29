@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Authenticate Codex CLI and run the full RSE experiment suite.
+# Authenticate Codex CLI and run the full ROSE experiment suite.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

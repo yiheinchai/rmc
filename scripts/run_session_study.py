@@ -12,16 +12,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import get_adapter
-from rmc.bench import bench_adapter
-from rmc.session_study import run, to_dict
+from rose.adapters import get_adapter
+from rose.bench import bench_adapter
+from rose.session_study import run, to_dict
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Session-length paired study")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=3)
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     args = parser.parse_args()
 
     raw = get_adapter(args.agent)

@@ -5,10 +5,10 @@
   skill that writes new skills as it learns &mdash; you have built a manual
   version of this. Migration copies it across.
 </p>
-<pre>rmc migrate                    <span class="c"># plan: scans ./.claude/skills, ~/.claude/skills, and the .codex equivalents</span>
-rmc migrate --apply            <span class="c"># write the lessons</span>
-rmc migrate --path ~/other/skills --limit 5
-rmc migrate --apply --all      <span class="c"># include the skill-writing skills too</span></pre>
+<pre>rose migrate                    <span class="c"># plan: scans ./.claude/skills, ~/.claude/skills, and the .codex equivalents</span>
+rose migrate --apply            <span class="c"># write the lessons</span>
+rose migrate --path ~/other/skills --limit 5
+rose migrate --apply --all      <span class="c"># include the skill-writing skills too</span></pre>
 
 <h3>It is a copy, and deliberately nothing else</h3>
 <p>
@@ -51,7 +51,7 @@ rmc migrate --apply --all      <span class="c"># include the skill-writing skill
     <td>Skill-writing machinery is skipped</td>
     <td>Skills whose subject is writing or syncing skills &mdash;
     <code>introspect</code>, <code>create-skill</code>, <code>sync-skills</code>
-    &mdash; are reported as superseded. RMC does that itself; importing them
+    &mdash; are reported as superseded. ROSE does that itself; importing them
     would fill the store with instructions for maintaining the system you are
     leaving. It is a short name list, not a judgement, so <code>--all</code>
     overrides it.</td>
@@ -59,7 +59,7 @@ rmc migrate --apply --all      <span class="c"># include the skill-writing skill
   <tr>
     <td>Nothing is deleted</td>
     <td>Migration only adds. Retiring a skill is your call, made after you have
-    seen <code>rmc recall</code> return the same knowledge.</td>
+    seen <code>rose recall</code> return the same knowledge.</td>
   </tr>
   <tr>
     <td>The same skill installed twice imports once</td>
@@ -80,7 +80,7 @@ rmc migrate --apply --all      <span class="c"># include the skill-writing skill
 <h3>Afterwards</h3>
 <p>
   Check a few things you know a skill covered:
-  <code>rmc recall -p "deploy the schema registry"</code>. When RMC returns the
+  <code>rose recall -p "deploy the schema registry"</code>. When ROSE returns the
   same knowledge, the superseded skills are the safest to delete first.
 </p>
 <p>

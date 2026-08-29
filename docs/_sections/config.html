@@ -1,16 +1,16 @@
 <h2 id="config">Configuration</h2>
     <p>
-      <code>rmc config</code> with no arguments dumps everything; one argument
+      <code>rose config</code> with no arguments dumps everything; one argument
       reads a dotted key; two set it. Any key can be overridden per-run by an
       environment variable: <code>recall.max_pack_tokens</code> →
-      <code>RMC_RECALL_MAX_PACK_TOKENS</code>.
+      <code>ROSE_RECALL_MAX_PACK_TOKENS</code>.
     </p>
     
 
     <h3>Ablations</h3>
     <p><code>recall.strategy</code> exists so the descent policy can be measured rather than asserted:</p>
-<pre>rmc config recall.strategy stepwise      <span class="c"># baseline: walk children, ignore deltas</span>
-rmc config recall.strategy delta-jump    <span class="c"># replace apex with the holder node</span>
-rmc config recall.strategy delta-patch   <span class="c"># default: apex + matched claims only</span></pre>
+<pre>rose config recall.strategy stepwise      <span class="c"># baseline: walk children, ignore deltas</span>
+rose config recall.strategy delta-jump    <span class="c"># replace apex with the holder node</span>
+rose config recall.strategy delta-patch   <span class="c"># default: apex + matched claims only</span></pre>
 
     <!-- ======================================================= eval -->

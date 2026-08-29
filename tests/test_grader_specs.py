@@ -23,7 +23,7 @@ def _load_import():
 
 class TestGraderSpecs(unittest.TestCase):
     def test_parse_grader_spec(self) -> None:
-        from rmc.grader_specs import parse_grader_spec
+        from rose.grader_specs import parse_grader_spec
 
         self.assertEqual(parse_grader_spec("codex"), ("codex", None, "codex"))
         self.assertEqual(
@@ -45,7 +45,7 @@ class TestGraderSpecs(unittest.TestCase):
         self.assertIn("chef", snippets[0])
 
     def test_default_multimodel_specs_count(self) -> None:
-        from rmc.grader_specs import default_multimodel_specs
+        from rose.grader_specs import default_multimodel_specs
 
         specs = default_multimodel_specs()
         self.assertGreaterEqual(len(specs), 3)

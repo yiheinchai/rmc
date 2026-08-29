@@ -6,9 +6,9 @@
   was checked against nothing, so every number anyone quoted about it was an
   assertion.
 </p>
-<pre>rmc eval-recall                      <span class="c"># score retrieval as it stands</span>
-rmc eval-recall --save baseline      <span class="c"># keep this run to compare against</span>
-rmc eval-recall --against baseline   <span class="c"># A/B a change</span></pre>
+<pre>rose eval-recall                      <span class="c"># score retrieval as it stands</span>
+rose eval-recall --save baseline      <span class="c"># keep this run to compare against</span>
+rose eval-recall --against baseline   <span class="c"># A/B a change</span></pre>
 
 <h3>How it scores</h3>
 <p>
@@ -64,18 +64,18 @@ rmc eval-recall --against baseline   <span class="c"># A/B a change</span></pre>
   chose to consider, so it is blind to lessons never considered at all — which
   is exactly how a truncation bug hid fourteen unreachable lessons behind
   healthy-looking precision. Check reachability separately with
-  <code>rmc tree</code> and <code>rmc recall</code>.
+  <code>rose tree</code> and <code>rose recall</code>.
 </p>
 
 <h2>Scoring compression</h2>
 <p>
-  <code>rmc eval</code> answers the other question: does a lesson still transfer
+  <code>rose eval</code> answers the other question: does a lesson still transfer
   what it knew after being shortened? It holds out episodes, replays them
   against each level of a lesson, and reports the pass rate per level — so
   "compressed to 56% and still solves everything it used to" is measured rather
   than claimed.
 </p>
-<pre>rmc eval --holdout 0.3 --samples 3</pre>
+<pre>rose eval --holdout 0.3 --samples 3</pre>
 <p>
   <code>recall.strategy</code> exists so the descent policy can be compared the
   same way rather than argued about. See

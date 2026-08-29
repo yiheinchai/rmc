@@ -1,0 +1,6 @@
+*.txt
+rose-bench-mock-*.json
+scaling-mock-*.json
+experiments-full-20*.json
+*.txt
+papers/rose/results/competitive-*.json

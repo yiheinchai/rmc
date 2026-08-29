@@ -8,9 +8,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "papers" / "rse" / "results"
-FIGURES = ROOT / "papers" / "rse" / "figures"
-PAPER = ROOT / "papers" / "rse" / "paper.tex"
+RESULTS = ROOT / "papers" / "rose" / "results"
+FIGURES = ROOT / "papers" / "rose" / "figures"
+PAPER = ROOT / "papers" / "rose" / "paper.tex"
 
 EXPECTED_UPSTREAM = {
     "sealqa-test": 111,
@@ -77,10 +77,10 @@ def audit() -> list[str]:
     if comp.get("agent") != "codex":
         failures.append("competitive-latest.json: agent must be codex")
 
-    rb = comp.get("rmc_bench") or {}
+    rb = comp.get("rose_bench") or {}
     transfer = (rb.get("transfer") or {}).get("total", 0)
     if transfer < 20:
-        failures.append(f"rmc_bench: expanded transfer cases expected (got {transfer})")
+        failures.append(f"rose_bench: expanded transfer cases expected (got {transfer})")
 
     for stem, expected in EXPECTED_UPSTREAM.items():
         total = _upstream_total(comp, stem)

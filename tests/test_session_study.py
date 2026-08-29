@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import unittest
 
-from rmc.adapters.mock import MockAdapter
-from rmc.bench import bench_adapter
-from rmc.session_study import load_pairs, run, to_dict
+from rose.adapters.mock import MockAdapter
+from rose.bench import bench_adapter
+from rose.session_study import load_pairs, run, to_dict
 
 
 class TestSessionStudy(unittest.TestCase):

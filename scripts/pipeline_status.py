@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "papers" / "rse" / "results"
+RESULTS = ROOT / "papers" / "rose" / "results"
 ETA_SNAPSHOT = Path("/tmp/pipeline-eta-snapshot.json")
 
 EXPECTED = {"sealqa-test": 111, "hotpotqa-dev": 100}
@@ -111,9 +111,9 @@ def main() -> int:
 
     print("=== Competitive bar pipeline status ===")
     print(f"competitive-latest.json  agent={comp.get('agent', '—')}  updated={_mtime(RESULTS / 'competitive-latest.json')}")
-    if comp.get("rmc_bench"):
-        lift = comp["rmc_bench"].get("lift")
-        print(f"  rmc_bench lift={lift}")
+    if comp.get("rose_bench"):
+        lift = comp["rose_bench"].get("lift")
+        print(f"  rose_bench lift={lift}")
     for stem, expected in EXPECTED.items():
         blob = (comp.get("upstream") or {}).get(stem) or {}
         total = ((blob.get("arms") or {}).get("full-inject") or {}).get("total", 0)
@@ -190,7 +190,7 @@ def main() -> int:
     logs = sorted(Path("/tmp").glob("codex-sequential-*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
     if logs:
         text = logs[0].read_text(encoding="utf-8")
-        transfers = re.findall(r"rmc-bench transfer (\d+)/(\d+)", text)
+        transfers = re.findall(r"rose-bench transfer (\d+)/(\d+)", text)
         upstream_scores = re.findall(r"upstream progress: (\d+) scores", text)
         if "=== [3/6]" in text or _running("scripts/run_wikiskill_evals.py --agent codex"):
             n_cases = combined_cases if combined_cases else (ws_cases if ws_cases else ws_total)
@@ -243,10 +243,10 @@ def main() -> int:
             pct = 100 * int(cur) / int(total)
             remaining = int(total) - int(cur)
             if int(cur) >= int(total):
-                print("\nStep 2 phase: RMC-Bench retrieval/retention (post-transfer)")
+                print("\nStep 2 phase: ROSE-Bench retrieval/retention (post-transfer)")
             else:
                 print(
-                    f"\nStep 2 phase: RMC-Bench transfer {cur}/{total} "
+                    f"\nStep 2 phase: ROSE-Bench transfer {cur}/{total} "
                     f"({pct:.0f}%, {remaining} cases left)"
                 )
         tail = text.strip().splitlines()[-1]

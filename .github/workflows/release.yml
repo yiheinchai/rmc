@@ -1,7 +1,7 @@
 # Publish to PyPI when a version tag is pushed.
 #
 # Uses Trusted Publishing (OIDC) rather than a stored API token: configure
-# rmc-memory on PyPI to trust this repository + workflow, and no secret ever
+# rose-memory on PyPI to trust this repository + workflow, and no secret ever
 # has to exist. https://docs.pypi.org/trusted-publishers/
 name: release
 

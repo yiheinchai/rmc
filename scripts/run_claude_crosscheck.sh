@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run Claude-graded RMC-Bench cross-check (paper §4.7).
+# Run Claude-graded ROSE-Bench cross-check (paper §4.7).
 # Requires: `claude` on PATH and authenticated (`claude` then /login).
 
 set -euo pipefail
@@ -19,10 +19,10 @@ fi
 echo "Running harness preflight..."
 python3 scripts/validate_agent_harness.py --agent claude
 
-echo "Running RMC-Bench (claude, 3 samples)..."
-python3 -m rmc.cli bench --agent claude --samples 3
+echo "Running ROSE-Bench (claude, 3 samples)..."
+python3 -m rose.cli bench --agent claude --samples 3
 
 echo "Updating submission report..."
 python3 scripts/generate_submission_report.py
 
-echo "Done. Compare papers/rse/results/rmc-bench-latest.json (codex) vs new claude output."
+echo "Done. Compare papers/rose/results/rose-bench-latest.json (codex) vs new claude output."

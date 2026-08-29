@@ -8,9 +8,9 @@ STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 LOG="/tmp/hotpot-parallel-${STAMP}.log"
 exec > >(tee -a "$LOG") 2>&1
 
-MAIN="papers/rse/results/competitive-latest.json"
-WORK="papers/rse/results/hotpot-workspace"
-SHARD2="papers/rse/results/hotpot-shard2"
+MAIN="papers/rose/results/competitive-latest.json"
+WORK="papers/rose/results/hotpot-workspace"
+SHARD2="papers/rose/results/hotpot-shard2"
 SPLIT=50
 STEP2_PATTERN='run_competitive_evals.py --agent codex --samples 1 --skip-upstream'
 LOCK="/tmp/hotpot-parallel.lock"
@@ -36,7 +36,7 @@ import json, sys
 d = json.load(open('$MAIN'))
 ok = (
     d.get('agent') == 'codex'
-    and d.get('rmc_bench')
+    and d.get('rose_bench')
     and d.get('wikiskill_probe')
     and d.get('memgpt_nested_kv')
     and d.get('session_study')

@@ -1,6 +1,6 @@
 # Integration
 
-How RMC attaches to Claude Code and Codex, and what it writes where.
+How ROSE attaches to Claude Code and Codex, and what it writes where.
 
 ---
 
@@ -9,39 +9,39 @@ How RMC attaches to Claude Code and Codex, and what it writes where.
 ### As a plugin (recommended)
 
 ```
-/plugin marketplace add yiheinchai/rmc
-/plugin install rmc@rmc
+/plugin marketplace add yiheinchai/rose
+/plugin install rose@rose
 ```
 
-The plugin ships the hooks, the `recursive-memory` skill and the `/rmc` command.
-Hook commands resolve through `${CLAUDE_PLUGIN_ROOT}/bin/rmc`, so nothing needs
+The plugin ships the hooks, the `rose` skill and the `/rose` command.
+Hook commands resolve through `${CLAUDE_PLUGIN_ROOT}/bin/rose`, so nothing needs
 to be on your `PATH` and no Python environment is required.
 
 ### By hand
 
 ```bash
-rmc install --target claude                 # this repo only
-rmc install --target claude --scope user    # every repo
-rmc install --target claude --dry-run       # show what it would write
+rose install --target claude                 # this repo only
+rose install --target claude --scope user    # every repo
+rose install --target claude --dry-run       # show what it would write
 ```
 
 This edits `.claude/settings.json` (or `~/.claude/settings.json`) additively.
-Each entry RMC adds is tagged `"_rmc": true`, and `rmc uninstall` removes only
+Each entry ROSE adds is tagged `"_rose": true`, and `rose uninstall` removes only
 tagged entries — hooks you configured yourself are left alone.
 
 ### Hooks used
 
 | Event | Command | Purpose | Budget |
 |---|---|---|---|
-| `UserPromptSubmit` | `rmc hook user-prompt-submit` | serve the lessons that bear on this prompt | 30s; instant while the store fits the budget |
-| `Stop` | `rmc hook stop` | after a substantial turn, reflect — off-thread by default | 15s, nothing inline |
-| `SessionEnd` | `rmc hook session-end` | parse the transcript, then detach the whole learner | 30s; returns in ~0.1s, always |
+| `UserPromptSubmit` | `rose hook user-prompt-submit` | serve the lessons that bear on this prompt | 30s; instant while the store fits the budget |
+| `Stop` | `rose hook stop` | after a substantial turn, reflect — off-thread by default | 15s, nothing inline |
+| `SessionEnd` | `rose hook session-end` | parse the transcript, then detach the whole learner | 30s; returns in ~0.1s, always |
 
 `UserPromptSubmit` returns:
 
 ```json
 {"hookSpecificOutput": {"hookEventName": "UserPromptSubmit",
-                        "additionalContext": "## Recalled lessons (RMC) …"}}
+                        "additionalContext": "## Recalled lessons (ROSE) …"}}
 ```
 
 Injected text is explicitly framed as prior knowledge rather than user
@@ -54,19 +54,19 @@ when it injects, the hook returns a `systemMessage` that Claude Code shows you:
 
 ```
 ⋯ Recalling lessons…
-⋯ RMC · recalled 2 lessons (312 tok): retry, k8s-deploys   +1 patch
+⋯ ROSE · recalled 2 lessons (312 tok): retry, k8s-deploys   +1 patch
 ```
 
 Unresolved contradictions are flagged there too. For the full picture — what was
 offered to the model, what it decided and why, and the exact text injected — run
-`rmc trace --prompt "..."`.
+`rose trace --prompt "..."`.
 
 Recall costs a model call on the hot path **only once the store outgrows
 `max_pack_tokens`**. Below that everything is served unfiltered, with no call at
 all, in milliseconds — there is nothing to choose between. That is deliberate — injecting the
 wrong lesson is worse than injecting none, and only a reader can tell the
 difference — but it is a real latency cost, so it is cached by prompt and can be
-switched off with `rmc config recall.enabled false`.
+switched off with `rose config recall.enabled false`.
 
 ### Where reflection runs
 
@@ -92,7 +92,7 @@ than only mechanical ones. Pick `fork` when fidelity matters more than tokens �
 the digest necessarily drops nuance, and a conceptual mistake can live in the
 nuance.
 
-Every spawned reflector runs with `RMC_CHILD=1`; without it the fork fires these
+Every spawned reflector runs with `ROSE_CHILD=1`; without it the fork fires these
 same hooks and forks itself, forever.
 
 ### Overlapping reflectors
@@ -109,12 +109,12 @@ the race, and two reflectors an hour apart can still reach the same conclusion.
 
 The one thing scheduling cannot fix is a *read-decide-write* race: if both
 reflectors read the store before either writes, both conclude "new". So
-`rmc add` holds a write lock across decide-and-write, and a writer **waits**
+`rose add` holds a write lock across decide-and-write, and a writer **waits**
 for it rather than skipping — losing the lock and giving up would silently drop
 a lesson. Stale locks (from a killed reflector) expire rather than wedging the
 store.
 
-`rmc absorb` additionally takes a lock of its own and *skips* if another absorb
+`rose absorb` additionally takes a lock of its own and *skips* if another absorb
 holds it, since two digest passes over the same transcript would only duplicate
 work.
 
@@ -129,7 +129,7 @@ someone's editor will be uninstalled, and correctly so.
 cancel a hook that is still running, so slow work there is not late — it never
 happens. Judging a session takes a model call, so the hook does none of it: it
 parses the transcript, decides whether the session is even worth learning from,
-and hands everything else to a detached `rmc absorb`. It returns in about 0.1s.
+and hands everything else to a detached `rose absorb`. It returns in about 0.1s.
 
 `absorb` runs judge → learn → compress in that order, in one process. They were
 briefly three parallel spawns, which raced: compaction is only eligible once the
@@ -143,10 +143,10 @@ Codex's hook schema is less settled than Claude Code's, so the reliable route is
 an instruction block appended to `AGENTS.md`:
 
 ```bash
-rmc install --target codex
+rose install --target codex
 ```
 
-which appends a marked block telling the agent to run `rmc recall --prompt "…"`
+which appends a marked block telling the agent to run `rose recall --prompt "…"`
 before non-trivial work. If `~/.codex/hooks.json` already exists, a
 `UserPromptSubmit` entry is added there as well.
 
@@ -155,8 +155,8 @@ it is often the better choice for background compaction, since `codex exec
 --ephemeral --output-schema` gives native structured output:
 
 ```bash
-rmc config agent codex
-rmc compact --due --agent codex
+rose config agent codex
+rose compact --due --agent codex
 ```
 
 ---
@@ -164,34 +164,34 @@ rmc compact --due --agent codex
 ## What gets written
 
 ```
-.rmc/
-  config.yaml        settings (see `rmc config`)
+.rose/
+  config.yaml        settings (see `rose config`)
   nodes/<family>/    lesson nodes — the tree. Worth committing.
   episodes/          the replay corpus. Worth committing.
   sessions/          per-session scratch. Machine-local.
   events.jsonl       telemetry. Machine-local.
   judge-cache.json   cached judgements. Machine-local.
-  background.log     output from detached learning runs (`rmc absorb`).
+  background.log     output from detached learning runs (`rose absorb`).
 ```
 
 ### Two scopes
 
-If `~/.rmc` exists it is layered underneath the project store. Lessons from both
+If `~/.rose` exists it is layered underneath the project store. Lessons from both
 are recalled; new ones are written to the project. This is how a cross-project
 principle ("prefer the model's judgement over a similarity score") and a
 repo-specific fact ("this suite needs `PAYMENTS_PG_PORT`") each live at the right
 scope instead of one being in the wrong place.
 
 ```bash
-rmc init ~                      # create the global store
-RMC_HOME=~/.rmc rmc add "..."   # teach it something that follows you everywhere
+rose init ~                      # create the global store
+ROSE_HOME=~/.rose rose add "..."   # teach it something that follows you everywhere
 ```
 
 Editing a global lesson from inside a repo writes back to the global store
 rather than forking a local copy that then drifts.
 
-`.rmc/.gitignore` excludes `sessions/` and `events.jsonl` by default, so
-committing `.rmc/` shares the lessons and their regression corpus with your team
+`.rose/.gitignore` excludes `sessions/` and `events.jsonl` by default, so
+committing `.rose/` shares the lessons and their regression corpus with your team
 without the machine-local noise.
 
 ### Privacy
@@ -201,7 +201,7 @@ private keys, card numbers and `secret=…` assignments are replaced with
 `[REDACTED]`, and emails are reduced to their domain. It is deliberately biased
 toward over-redaction — a mangled lesson is recoverable, a leaked key is not.
 
-RMC never sends anything anywhere. Model calls go to whichever CLI you already
+ROSE never sends anything anywhere. Model calls go to whichever CLI you already
 have configured, with your existing credentials.
 
 ---
@@ -209,11 +209,11 @@ have configured, with your existing credentials.
 ## Turning it off
 
 ```bash
-rmc config recall.enabled false       # stop injecting
-rmc config compaction.enabled false   # stop compressing
-rmc config learning.enabled false     # stop minting lessons
-rmc uninstall --target claude         # remove the hooks entirely
+rose config recall.enabled false       # stop injecting
+rose config compaction.enabled false   # stop compressing
+rose config learning.enabled false     # stop minting lessons
+rose uninstall --target claude         # remove the hooks entirely
 ```
 
-`RMC_DISABLE=1` in the environment disables everything for a single run, which
+`ROSE_DISABLE=1` in the environment disables everything for a single run, which
 is also how spawned child agents avoid recursing.

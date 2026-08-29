@@ -12,15 +12,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import available_backends, get_adapter
-from rmc.bench import bench_adapter, run as run_bench
-from rmc.bench import to_dict as bench_to_dict
-from rmc.memgpt_bench import run as run_memgpt
-from rmc.memgpt_bench import to_dict as memgpt_to_dict
-from rmc.session_study import run as run_session
-from rmc.session_study import to_dict as session_to_dict
-from rmc.wikiskill import CORE_ARMS, _bench_paths_match, from_checkpoint_dict, run as run_wikiskill
-from rmc.wikiskill import to_dict as wikiskill_to_dict
+from rose.adapters import available_backends, get_adapter
+from rose.bench import bench_adapter, run as run_bench
+from rose.bench import to_dict as bench_to_dict
+from rose.memgpt_bench import run as run_memgpt
+from rose.memgpt_bench import to_dict as memgpt_to_dict
+from rose.session_study import run as run_session
+from rose.session_study import to_dict as session_to_dict
+from rose.wikiskill import CORE_ARMS, _bench_paths_match, from_checkpoint_dict, run as run_wikiskill
+from rose.wikiskill import to_dict as wikiskill_to_dict
 
 UPSTREAM_DIR = ROOT / "evals" / "upstream"
 UPSTREAM_ARMS = CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill")
@@ -51,7 +51,7 @@ def _load_upstream_existing(
         except (json.JSONDecodeError, OSError):
             pass
     if stem == "sealqa-test":
-        wiki = ROOT / "papers" / "rse" / "results" / "wikiskill-latest.json"
+        wiki = ROOT / "papers" / "rose" / "results" / "wikiskill-latest.json"
         if wiki.exists():
             try:
                 ckpt = json.loads(wiki.read_text(encoding="utf-8"))
@@ -101,7 +101,7 @@ def main() -> int:
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--limit", type=int, default=None, help="cap upstream tasks per split")
     parser.add_argument("--offset", type=int, default=0, help="skip first N upstream tasks")
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     parser.add_argument("--skip-upstream", action="store_true")
     parser.add_argument("--skip-memgpt", action="store_true")
     parser.add_argument("--skip-bench", action="store_true")
@@ -168,18 +168,18 @@ def main() -> int:
         print(f"  (checkpoint → {latest})", flush=True)
 
     if not args.skip_bench:
-        print("=== RMC-Bench ===", flush=True)
+        print("=== ROSE-Bench ===", flush=True)
 
         def _bench_checkpoint(report) -> None:
-            payload["rmc_bench"] = bench_to_dict(report)
+            payload["rose_bench"] = bench_to_dict(report)
             _flush()
 
         bench_report = run_bench(adapter, samples=args.samples, on_progress=_bench_checkpoint)
-        payload["rmc_bench"] = bench_to_dict(bench_report)
+        payload["rose_bench"] = bench_to_dict(bench_report)
         print(bench_report.render(), flush=True)
         _flush()
-    elif payload.get("rmc_bench"):
-        print("=== RMC-Bench === (skipped, kept from merge)", flush=True)
+    elif payload.get("rose_bench"):
+        print("=== ROSE-Bench === (skipped, kept from merge)", flush=True)
 
     if not args.skip_probe:
         print("\n=== WikiSkill probe (core arms) ===", flush=True)

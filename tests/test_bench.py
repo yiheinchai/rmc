@@ -1,4 +1,4 @@
-"""Tests for RMC-Bench runner."""
+"""Tests for ROSE-Bench runner."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rmc.adapters.mock import MockAdapter
-from rmc.bench import DEFAULT_BENCH, load_bench, mock_grade, run
+from rose.adapters.mock import MockAdapter
+from rose.bench import DEFAULT_BENCH, load_bench, mock_grade, run
 
 
 class TestBench(unittest.TestCase):
@@ -30,7 +30,7 @@ class TestBench(unittest.TestCase):
         report = run(MockAdapter(), path=DEFAULT_BENCH, retention=False)
         self.assertGreater(len(report.cases), 0)
         text = report.render()
-        self.assertIn("RMC-Bench", text)
+        self.assertIn("ROSE-Bench", text)
         self.assertIn("Lift", text)
 
     def test_run_bench_on_progress_fires_per_transfer_case(self) -> None:

@@ -2,23 +2,23 @@
 
 All commands accept `--agent {claude,codex,mock}` and `--model` where they spawn
 an agent. The store is found by walking up from the working directory to the nearest
-`.rmc/`. If `~/.rmc` also exists it is layered underneath as a **global** store:
+`.rose/`. If `~/.rose` also exists it is layered underneath as a **global** store:
 lessons from both are recalled, and new lessons are written to the project one.
 Editing a global lesson writes back to it rather than forking a local copy.
-`RMC_HOME` overrides the lookup entirely — use it to target the global store
-directly, e.g. `RMC_HOME=~/.rmc rmc add ...` for something that should follow
+`ROSE_HOME` overrides the lookup entirely — use it to target the global store
+directly, e.g. `ROSE_HOME=~/.rose rose add ...` for something that should follow
 you across every repo.
 
 ---
 
 ## Setup
 
-### `rmc init [path]`
+### `rose init [path]`
 Create a store. `--force` re-creates missing subdirectories, `--agent` sets the
 default backend.
 
-### `rmc install`
-Wire RMC into the host agent(s).
+### `rose install`
+Wire ROSE into the host agent(s).
 
 | Flag | Meaning |
 |---|---|
@@ -26,22 +26,22 @@ Wire RMC into the host agent(s).
 | `--scope project\|user` | this repo (default) or globally |
 | `--dry-run` | print what would be written, write nothing |
 
-Also puts the `rmc` command on PATH, by symlinking `bin/rmc` into
+Also puts the `rose` command on PATH, by symlinking `bin/rose` into
 `~/.local/bin`. Hooks never need this — they invoke the package by absolute
-path — so without it RMC runs fine while `rmc status` reports command not found.
+path — so without it ROSE runs fine while `rose status` reports command not found.
 `--no-link` skips it.
 
-Bootstrap it from a clone with `./bin/rmc install`; every suggestion this
-command prints uses an absolute path, because advice that begins "run `rmc`" is
+Bootstrap it from a clone with `./bin/rose install`; every suggestion this
+command prints uses an absolute path, because advice that begins "run `rose`" is
 no use to someone who does not have it.
 
-### `rmc uninstall`
-Remove only RMC-tagged hooks. Lessons are left in place.
+### `rose uninstall`
+Remove only ROSE-tagged hooks. Lessons are left in place.
 
-### `rmc report [--about "..."] [--expected "..."] [--days N]`
+### `rose report [--about "..."] [--expected "..."] [--days N]`
 
-Writes a redacted defect report to `.rmc/reports/` and prints it, along with
-the `gh issue create` command that would file it. **It sends nothing.** RMC
+Writes a redacted defect report to `.rose/reports/` and prints it, along with
+the `gh issue create` command that would file it. **It sends nothing.** ROSE
 makes no network calls and that is a guarantee, so the transport is your own
 `gh`, run deliberately.
 
@@ -50,22 +50,22 @@ a defect to one stage — plus whatever you write in `--about`. It never contain
 lesson text, prompts, transcripts or paths from your machine, and everything
 passes through the redactor on the way out.
 
-Reflectors are told to run this when they find a defect in RMC itself, and then
+Reflectors are told to run this when they find a defect in ROSE itself, and then
 to *ask* whether you want it filed. They never file it themselves.
 
-### `rmc doctor`
+### `rose doctor`
 Which backends are on PATH, whether a store exists, whether hooks are wired.
-Start here when RMC seems inert.
+Start here when ROSE seems inert.
 
 ---
 
 ## Inspection
 
-### `rmc status`
+### `rose status`
 Families, node counts, episode counts, total vs apex-served tokens, and a table
 of each family's apex with its level, cost and success rate.
 
-### `rmc tree [--family F] [-v] [--recent] [--limit N]`
+### `rose tree [--family F] [-v] [--recent] [--limit N]`
 The tree, indented from apex down to L0. `△` lines are delta manifest entries —
 what a compression dropped and which node still holds it. `-v` includes the
 first lines of each lesson body.
@@ -76,14 +76,14 @@ cannot, since a new lesson sorts wherever its family happens to sit.
 
 Every line carries an age.
 
-### `rmc recall --prompt "..." [--json]`
+### `rose recall --prompt "..." [--json]`
 Exactly what would be injected for that prompt, and the model's stated reason for
 each. The tool for answering "why did it think that?" — the answer is a sentence,
 not a score.
 
 Reads stdin if `--prompt` is omitted.
 
-### `rmc trace --prompt "..." [--after TRANSCRIPT]`
+### `rose trace --prompt "..." [--after TRANSCRIPT]`
 The agent's-eye view. Walks every stage of a recall and prints the result of
 each: the apex lessons put in front of the model, its verdict and reason for
 every one (including the branches it judged irrelevant and therefore never
@@ -94,19 +94,19 @@ in Claude Code while it happens, and how the model's turn then begins.
 session, and what the model made of them — outcome, whether you had to steer,
 and what was worked out by trial.
 
-Use it when you want to know exactly what RMC is doing to your prompts. It edits
+Use it when you want to know exactly what ROSE is doing to your prompts. It edits
 what the model sees, and that should never be something you take on trust.
 
-### `rmc conflicts [--family F]`
+### `rose conflicts [--family F]`
 Lessons that contradict each other, with the question that would settle each.
 These are also raised inside the recall pack, so you normally meet them while
 working rather than by running this.
 
-### `rmc resolve <node-id> [--drop]`
+### `rose resolve <node-id> [--drop]`
 Settle a conflict: keep this lesson (default) or archive it. Clears the disputed
 state on that node.
 
-### `rmc events [--kind K] [--limit N]`
+### `rose events [--kind K] [--limit N]`
 Raw telemetry as JSONL. Useful kinds: `inject`, `observe`, `rescue`, `mint`,
 `placement`, `conflict`, `conflict-resolved`, `compaction`, `repair`, `select`,
 `select-fallback`, `error`.
@@ -115,8 +115,8 @@ Raw telemetry as JSONL. Useful kinds: `inject`, `observe`, `rescue`, `mint`,
 
 ## The loop
 
-### `rmc add [body] [--family F] [--title T] [--tags a,b]`
-Teach RMC something **now**, without waiting for the session to end. Reads stdin
+### `rose add [body] [--family F] [--title T] [--tags a,b]`
+Teach ROSE something **now**, without waiting for the session to end. Reads stdin
 if no body is given. The lesson is reconciled against what is already known
 before being stored, so it may be folded into an existing lesson, set alongside
 one, or reported as a contradiction with the question that would settle it.
@@ -131,18 +131,18 @@ Deciding and writing happen under a lock, so concurrent reflectors cannot both
 conclude "new" about the same lesson. A writer waits for the lock rather than
 skipping.
 
-### `rmc observe --transcript PATH [--served ids] [--session id]`
+### `rose observe --transcript PATH [--served ids] [--session id]`
 Judge a finished session and fold the result into the tree: update node stats,
 file the episode, and work out which dropped detail any correction was about.
 Costs one judgement, skipped entirely for sessions too small to teach anything.
 Normally invoked by the `SessionEnd` hook.
 
-### `rmc learn --transcript PATH [--session id]`
+### `rose learn --transcript PATH [--session id]`
 Ask a model whether the session contained a reusable lesson, and mint a level-0
 node if so. Deliberately conservative — "nothing captured" is the common and
 correct outcome.
 
-### `rmc migrate [--path DIR] [--apply] [--limit N] [--all]`
+### `rose migrate [--path DIR] [--apply] [--limit N] [--all]`
 Copy a Claude or Codex skills library into lessons, **verbatim**: one skill
 becomes one lesson, the body byte for byte, `description:` as the gist, `name:`
 as the title, the directory name as the family.
@@ -164,8 +164,8 @@ importing, and `--all` overrides it.
 
 Nothing is ever deleted, and the same skill installed in two places imports once.
 
-### `rmc index [--rebuild] [--gists]`
-Write `.rmc/index.md` — one line per lesson, and the only thing the selector
+### `rose index [--rebuild] [--gists]`
+Write `.rose/index.md` — one line per lesson, and the only thing the selector
 looks at before deciding what to open. It is **searched, never injected**, which
 is what keeps the per-prompt cost of retrieval independent of how many lessons
 you have.
@@ -187,8 +187,8 @@ The index covers the global store as well as this one, with the path on each
 line, since a selector that cannot see cross-project lessons cannot retrieve
 them.
 
-### `rmc route`
-Selection lessons: what RMC has learned about *where to look*, as opposed to
+### `rose route`
+Selection lessons: what ROSE has learned about *where to look*, as opposed to
 what it has learned about your work. Written by the reflection pass, always
 injected, capped by `routing.max_tokens`.
 
@@ -209,7 +209,7 @@ store.
 The listing ends with the number the whole approach rests on — rules against
 lessons. It should fall as the store grows.
 
-### `rmc compact`
+### `rose compact`
 Compress lessons and regression-test the result.
 
 | Flag | Meaning |
@@ -233,12 +233,12 @@ hints for the next attempt.
 
 ## Configuration
 
-### `rmc config [key] [value]`
+### `rose config [key] [value]`
 No arguments dumps everything. One argument reads a dotted key. Two arguments
 set it.
 
 Any key can be overridden per-run by an environment variable:
-`recall.max_pack_tokens` → `RMC_RECALL_MAX_PACK_TOKENS`.
+`recall.max_pack_tokens` → `ROSE_RECALL_MAX_PACK_TOKENS`.
 
 | Key | Default | Meaning |
 |---|---|---|
@@ -287,18 +287,18 @@ Any key can be overridden per-run by an environment variable:
 asserted:
 
 ```bash
-rmc config recall.strategy stepwise      # baseline: walk children, ignore deltas
-rmc config recall.strategy delta-jump    # replace apex with the holder node
-rmc config recall.strategy delta-patch   # default: apex + matched claims only
+rose config recall.strategy stepwise      # baseline: walk children, ignore deltas
+rose config recall.strategy delta-jump    # replace apex with the holder node
+rose config recall.strategy delta-patch   # default: apex + matched claims only
 ```
 
 ---
 
 ## Hooks
 
-### `rmc hook <event>`
+### `rose hook <event>`
 Reads a JSON payload on stdin. Events: `user-prompt-submit`, `stop` (per turn),
-`session-end` (at teardown). Always exits 0. No-ops when `RMC_CHILD` or
-`RMC_DISABLE` is set.
+`session-end` (at teardown). Always exits 0. No-ops when `ROSE_CHILD` or
+`ROSE_DISABLE` is set.
 
 You should not need to call this yourself.

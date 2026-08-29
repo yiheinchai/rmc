@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate publication figures from papers/rse/results/*.json."""
+"""Generate publication figures from papers/rose/results/*.json."""
 
 from __future__ import annotations
 
@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "papers" / "rse" / "results"
-FIGURES = ROOT / "papers" / "rse" / "figures"
+RESULTS = ROOT / "papers" / "rose" / "results"
+FIGURES = ROOT / "papers" / "rose" / "figures"
 
 
 def _load(name: str) -> dict:
@@ -74,7 +74,7 @@ def fig_case_study() -> Path:
 
 
 def fig_architecture() -> Path:
-    """RSE three-layer architecture (WikiSkill Figure 2 style)."""
+    """ROSE three-layer architecture (WikiSkill Figure 2 style)."""
     import matplotlib.patches as mpatches
 
     fig, ax = plt.subplots(figsize=(6.5, 3.5))
@@ -103,7 +103,7 @@ def fig_architecture() -> Path:
     ax.plot(loop_x, loop_y, "k--", lw=1, alpha=0.5)
     ax.text(9.5, 3, "co-evolve\nloop", rotation=90, va="center", fontsize=8)
 
-    ax.set_title("RSE three-layer architecture")
+    ax.set_title("ROSE three-layer architecture")
     fig.tight_layout()
     out = FIGURES / "fig_architecture.pdf"
     fig.savefig(out)
@@ -167,7 +167,7 @@ def fig_competitive_baselines(report: dict) -> Path:
     title = "Upstream SealQA" if "sealqa" in str(data.get("bench_path", "")) else (
         "HotPotQA dev-100" if "hotpot" in str(data.get("bench_path", "")).lower() else "WikiSkill probe"
     )
-    ax.set_title(f"External baselines + RSE arms ({title})")
+    ax.set_title(f"External baselines + ROSE arms ({title})")
     fig.tight_layout()
     out = FIGURES / "fig_competitive_baselines.pdf"
     fig.savefig(out)
@@ -363,7 +363,7 @@ def fig_session_study(report: dict) -> Path:
     for i, (a, t) in enumerate(zip(acc, tok)):
         ax.text(i, a + 2, f"{a:.0f}%\n({t} tok)", ha="center", fontsize=9)
     ax.set_xticks(x)
-    ax.set_xticklabels(["Narrative only", "RSE recall"])
+    ax.set_xticklabels(["Narrative only", "ROSE recall"])
     ax.set_ylabel("Follow-up accuracy (%)")
     ax.set_ylim(0, 115)
     ax.set_title("Session paired study (5 pairs)")
@@ -413,7 +413,7 @@ def main() -> int:
     FIGURES.mkdir(parents=True, exist_ok=True)
     _style()
     report = _load("submission-latest.json")
-    bench = _load("rmc-bench-latest.json") or _load("experiments-full-latest.json").get("bench", {})
+    bench = _load("rose-bench-latest.json") or _load("experiments-full-latest.json").get("bench", {})
     competitive = _load("competitive-latest.json")
     cross_transfer = _load("cross-transfer-latest.json")
     multimodel = _load("multimodel-latest.json")

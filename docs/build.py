@@ -29,7 +29,7 @@ HERE = Path(__file__).parent
 FRAGMENTS = HERE / "_sections"
 
 VERSION = "v0.1"
-REPO = "https://github.com/yiheinchai/rmc"
+REPO = "https://github.com/yiheinchai/rose"
 
 
 @dataclass
@@ -58,13 +58,13 @@ class Group:
 NAV: list[Group] = [
     Group("Get started", [
         Page("quickstart", "Quickstart",
-             "Install RMC, wire the hooks, and see the first lesson land.",
+             "Install ROSE, wire the hooks, and see the first lesson land.",
              ["start"]),
         Page("troubleshooting", "Troubleshooting",
              "Symptoms, likely causes, and the command that settles each one.",
              ["trouble"]),
         Page("tasks", "Everyday tasks",
-             "Reading what RMC knows, teaching it directly, and reading its own numbers.",
+             "Reading what ROSE knows, teaching it directly, and reading its own numbers.",
              ["tasks"]),
         Page("migrate", "Migrate from skills",
              "Copy an existing SKILL.md library across verbatim, for no model calls.",
@@ -78,7 +78,7 @@ NAV: list[Group] = [
              "Every setting, its default, and the reasoning behind that default.",
              ["config"]),
         Page("integration", "Integration",
-             "How RMC attaches to Claude Code and Codex, and what it writes where.",
+             "How ROSE attaches to Claude Code and Codex, and what it writes where.",
              []),
         Page("data-model", "Data model",
              "What a lesson is on disk, and how the graph is shaped.",
@@ -115,10 +115,10 @@ NAV: list[Group] = [
              "Scoring retrieval and compression against recorded outcomes.",
              ["eval"]),
         Page("tuning", "Self-tuning",
-             "Letting RMC propose and validate its own retrieval improvements.",
+             "Letting ROSE propose and validate its own retrieval improvements.",
              []),
         Page("limits", "Known limits",
-             "What RMC still gets wrong, stated plainly.",
+             "What ROSE still gets wrong, stated plainly.",
              ["gaps"]),
     ]),
 ]
@@ -144,9 +144,9 @@ def head(page: Page) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(page.title)} — RMC</title>
+<title>{html.escape(page.title)} — ROSE</title>
 <meta name="description" content="{html.escape(page.blurb)}">
-<meta property="og:title" content="{html.escape(page.title)} — RMC docs">
+<meta property="og:title" content="{html.escape(page.title)} — ROSE docs">
 <meta property="og:description" content="{html.escape(page.blurb)}">
 <link rel="icon" href="{FAVICON}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -158,7 +158,7 @@ def head(page: Page) -> str:
 // Applied before first paint: reading the stored theme in the body would show
 // a white flash on every navigation for anyone who chose dark.
 try {{
-  var t = localStorage.getItem('rmc-theme');
+  var t = localStorage.getItem('rose-theme');
   if (t) document.documentElement.dataset.theme = t;
   else if (matchMedia('(prefers-color-scheme: dark)').matches)
     document.documentElement.dataset.theme = 'dark';
@@ -180,7 +180,7 @@ def topbar() -> str:
         <rect x="9" y="14" width="14" height="3" fill="var(--plate)"/>
         <rect x="12" y="21" width="8" height="3" fill="var(--plate)"/>
       </svg>
-      RMC
+      ROSE
     </a>
     <button class="search-open" aria-label="Search documentation">
       <span>Search</span><kbd>/</kbd>
@@ -247,7 +247,7 @@ def on_this_page(body: str) -> str:
     for level, ident, label in items:
         text = re.sub(r"<[^>]+>", "", label).replace("&nbsp;", " ").strip()
         # A command signature is the right heading and the wrong nav entry:
-        # `rmc report [--about "..."] [--expected "..."] [--days N]` wraps to
+        # `rose report [--about "..."] [--expected "..."] [--days N]` wraps to
         # three lines in a 208px column and buries the name it exists to show.
         text = re.sub(r"\s*[\[<].*$", "", text).strip() or text
         out.append(f'<a class="l{level}" href="#{ident}">{html.escape(text)}</a>')
@@ -334,7 +334,7 @@ def search_index() -> str:
 
 
 def config_reference() -> str:
-    """The settings table, read out of rmc/config.py rather than retyped.
+    """The settings table, read out of rose/config.py rather than retyped.
 
     A hand-written config table is correct on the day it is written. This one
     was not: it advertised `dream.min_new_episodes: 3` for weeks after the
@@ -345,7 +345,7 @@ def config_reference() -> str:
     default is what it is — so they are the documentation, and the only way for
     the two to disagree now is for someone to delete the comment.
     """
-    source = (HERE.parent / "rmc" / "config.py").read_text(encoding="utf-8")
+    source = (HERE.parent / "rose" / "config.py").read_text(encoding="utf-8")
     body = source[source.index("DEFAULTS"):source.index("\ndef ")]
 
     rows: list[tuple[str, str, str, str]] = []
@@ -421,7 +421,7 @@ def load(page: Page) -> str:
     if page.slug == "configuration":
         chunks.append(
             "<h2>Every setting</h2>"
-            "<p>Generated from <code>rmc/config.py</code> when the docs are "
+            "<p>Generated from <code>rose/config.py</code> when the docs are "
             "built, so it cannot drift from the code the way a retyped table "
             "does — and did.</p>" + config_reference()
         )
@@ -450,7 +450,7 @@ def render(page: Page) -> str:
         on_this_page(body),
         "</div>",
         search_dialog(),
-        '<script id="rmc-search" type="application/json">' + search_index() + "</script>",
+        '<script id="rose-search" type="application/json">' + search_index() + "</script>",
         '<script src="docs.js"></script>',
         "</body>\n</html>",
     ])
@@ -476,7 +476,7 @@ REDIRECT = """<!doctype html>
      stays and forwards rather than 404s. -->
 <link rel="canonical" href="quickstart.html">
 <meta http-equiv="refresh" content="0; url=quickstart.html">
-<title>RMC — Documentation</title>
+<title>ROSE — Documentation</title>
 </head>
 <body>
 <p>The documentation is now split by topic.
@@ -545,7 +545,7 @@ def not_found() -> str:
         f'<div class="prose"><nav class="notfound">{links}</nav></div>',
         "</main><span></span></div>",
         search_dialog(),
-        '<script id="rmc-search" type="application/json">' + search_index() + "</script>",
+        '<script id="rose-search" type="application/json">' + search_index() + "</script>",
         '<script src="docs.js"></script>',
         "</body>\n</html>",
     ])

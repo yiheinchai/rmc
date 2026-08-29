@@ -4,8 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
 
-OUT="papers/rse/results/multimodel-latest.json"
-HOTPOT_WS="papers/rse/results/hotpot-workspace/competitive-latest.json"
+OUT="papers/rose/results/multimodel-latest.json"
+HOTPOT_WS="papers/rose/results/hotpot-workspace/competitive-latest.json"
 INTERVAL="${1:-60}"
 
 echo "=== Multimodel early-start watcher (poll every ${INTERVAL}s) ==="

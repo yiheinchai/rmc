@@ -9,8 +9,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "papers" / "rse" / "results"
-PAPER = ROOT / "papers" / "rse" / "paper.tex"
+RESULTS = ROOT / "papers" / "rose" / "results"
+PAPER = ROOT / "papers" / "rose" / "paper.tex"
 
 MIN_UPSTREAM_TASKS = {
     "sealqa-test": 111,
@@ -150,7 +150,7 @@ def build_cross_transfer_table(data: dict, *, model: str = "codex") -> str:
     return "\n".join(lines)
 
 
-def build_rmc_bench_rows(rb: dict) -> dict[str, str]:
+def build_rose_bench_rows(rb: dict) -> dict[str, str]:
     transfer = rb.get("transfer") or {}
     retrieval = rb.get("retrieval") or {}
     cases = rb.get("cases") or []
@@ -190,9 +190,9 @@ def build_rmc_bench_rows(rb: dict) -> dict[str, str]:
     }
 
 
-def inject_rmc_bench(paper_path: Path, rb: dict) -> bool:
-    rows = build_rmc_bench_rows(rb)
-    block = f"""% AUTO:RMC_BENCH_TABLE_BEGIN
+def inject_rose_bench(paper_path: Path, rb: dict) -> bool:
+    rows = build_rose_bench_rows(rb)
+    block = f"""% AUTO:ROSE_BENCH_TABLE_BEGIN
   \\begin{{tabular}}{{lc}}
     \\toprule
     Metric & Result \\\\
@@ -205,10 +205,10 @@ def inject_rmc_bench(paper_path: Path, rb: dict) -> bool:
     Bench retrieval axis & {rows['retrieval']} \\\\
     \\bottomrule
   \\end{{tabular}}
-% AUTO:RMC_BENCH_TABLE_END"""
+% AUTO:ROSE_BENCH_TABLE_END"""
     text = paper_path.read_text(encoding="utf-8")
-    marker_start = "% AUTO:RMC_BENCH_TABLE_BEGIN"
-    marker_end = "% AUTO:RMC_BENCH_TABLE_END"
+    marker_start = "% AUTO:ROSE_BENCH_TABLE_BEGIN"
+    marker_end = "% AUTO:ROSE_BENCH_TABLE_END"
     if marker_start in text:
         pattern = rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}"
 
@@ -312,9 +312,9 @@ def main() -> int:
     comp = RESULTS / "competitive-latest.json"
     if comp.exists():
         data = json.loads(comp.read_text(encoding="utf-8"))
-        if data.get("agent") == "codex" and data.get("rmc_bench"):
-            if inject_rmc_bench(PAPER, data["rmc_bench"]):
-                print(f"Updated RMC-Bench table in {PAPER}")
+        if data.get("agent") == "codex" and data.get("rose_bench"):
+            if inject_rose_bench(PAPER, data["rose_bench"]):
+                print(f"Updated ROSE-Bench table in {PAPER}")
                 updated = True
         sealqa = _sealqa_upstream_payload(data)
         if sealqa:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the RSE publication evaluation suite and write results to papers/rse/results/.
+"""Run the ROSE publication evaluation suite and write results to papers/rose/results/.
 
 Prefer scripts/run_all_experiments.py for the complete suite (recall ablations,
 compaction, walkthrough, retention curve). This script runs bench + scaling only.
@@ -16,17 +16,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from rmc.adapters import get_adapter
-from rmc.bench import run as run_bench, to_dict as bench_to_dict
-from rmc.scaling import render_table, run_scaling
+from rose.adapters import get_adapter
+from rose.bench import run as run_bench, to_dict as bench_to_dict
+from rose.scaling import render_table, run_scaling
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run RSE paper evaluation suite")
+    parser = argparse.ArgumentParser(description="Run ROSE paper evaluation suite")
     parser.add_argument("--full", action="store_true", help="run complete suite via run_all_experiments")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=1)
-    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     args = parser.parse_args()
 
     if args.full:
@@ -44,10 +44,10 @@ def main() -> int:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
     bench_report = run_bench(adapter, samples=args.samples)
-    bench_path = out / f"rmc-bench-{args.agent}-{stamp}.json"
+    bench_path = out / f"rose-bench-{args.agent}-{stamp}.json"
     bench_path.write_text(json.dumps(bench_to_dict(bench_report), indent=2), encoding="utf-8")
-    (out / "rmc-bench-latest.json").write_text(bench_path.read_text(encoding="utf-8"), encoding="utf-8")
-    bench_txt = out / f"rmc-bench-{args.agent}-{stamp}.txt"
+    (out / "rose-bench-latest.json").write_text(bench_path.read_text(encoding="utf-8"), encoding="utf-8")
+    bench_txt = out / f"rose-bench-{args.agent}-{stamp}.txt"
     bench_txt.write_text(bench_report.render(), encoding="utf-8")
 
     scaling_rows = run_scaling([25, 100, 500])

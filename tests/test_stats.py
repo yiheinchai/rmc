@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from rmc.stats import bootstrap_ci, paired_bootstrap_test
+from rose.stats import bootstrap_ci, paired_bootstrap_test
 
 
 def test_bootstrap_ci_contains_mean() -> None:

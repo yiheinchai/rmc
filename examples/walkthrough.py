@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A complete RMC cycle you can watch, in a throwaway store.
+"""A complete ROSE cycle you can watch, in a throwaway store.
 
     python3 examples/walkthrough.py                # mock backend: instant, free
     python3 examples/walkthrough.py --agent claude # real backend
@@ -28,12 +28,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rmc.adapters import get_adapter
-from rmc.adapters.mock import MockAdapter, MockWorld
-from rmc.compact import compress_node, repair
-from rmc.node import Node
-from rmc.recall import recall_pack, solve_with_descent
-from rmc.store import Episode, Store
+from rose.adapters import get_adapter
+from rose.adapters.mock import MockAdapter, MockWorld
+from rose.compact import compress_node, repair
+from rose.node import Node
+from rose.recall import recall_pack, solve_with_descent
+from rose.store import Episode, Store
 
 BOLD, DIM, GREEN, RED, YELLOW, OFF = "\033[1m", "\033[2m", "\033[32m", "\033[31m", "\033[33m", "\033[0m"
 
@@ -92,12 +92,12 @@ def main() -> int:
     parser.add_argument("--keep", action="store_true", help="keep the temp store")
     args = parser.parse_args()
 
-    tmp = Path(tempfile.mkdtemp(prefix="rmc-walkthrough-"))
+    tmp = Path(tempfile.mkdtemp(prefix="rose-walkthrough-"))
     store = Store.init(tmp)
     world = MockWorld({eid: facts for eid, _, facts, _s in EPISODES} | {S3_TASK[0]: S3_TASK[2]})
     adapter = MockAdapter(world=world) if args.agent == "mock" else get_adapter(args.agent)
 
-    print(f"{BOLD}RMC walkthrough{OFF}  {DIM}backend={args.agent}  store={tmp}{OFF}")
+    print(f"{BOLD}ROSE walkthrough{OFF}  {DIM}backend={args.agent}  store={tmp}{OFF}")
 
     # ---------------------------------------------------------------- 1
     head(1, "Mint the verbose L0 lesson")

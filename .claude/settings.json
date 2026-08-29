@@ -5,10 +5,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/yihein.chai/Documents/learn/rmc/bin/rmc hook user-prompt-submit",
+            "command": "/Users/yihein.chai/Documents/learn/rose/bin/rose hook user-prompt-submit",
             "timeout": 30,
             "statusMessage": "Recalling lessons\u2026",
-            "_rmc": true
+            "_rose": true
           }
         ]
       }
@@ -18,10 +18,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/yihein.chai/Documents/learn/rmc/bin/rmc hook stop",
+            "command": "/Users/yihein.chai/Documents/learn/rose/bin/rose hook stop",
             "timeout": 15,
             "statusMessage": "Learning check\u2026",
-            "_rmc": true
+            "_rose": true
           }
         ]
       }
@@ -31,10 +31,10 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/yihein.chai/Documents/learn/rmc/bin/rmc hook session-end",
+            "command": "/Users/yihein.chai/Documents/learn/rose/bin/rose hook session-end",
             "timeout": 30,
             "statusMessage": "Learning from this session\u2026",
-            "_rmc": true
+            "_rose": true
           }
         ]
       }

@@ -37,7 +37,7 @@
   var STATES = [
     {
       nodes: [], edges: [], load: [], used: [], kept: 0,
-      cap: "A fresh repo. RMC knows nothing yet, and costs nothing."
+      cap: "A fresh repo. ROSE knows nothing yet, and costs nothing."
     },
     {
       nodes: ["A0"], edges: [], load: ["A0"], used: [], kept: 1,

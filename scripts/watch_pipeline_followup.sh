@@ -28,8 +28,8 @@ wait_for "run_competitive_evals.py.*hotpotqa-dev" "HotPotQA upstream"
 wait_for "run_multimodel_evals.py" "multimodel eval"
 
 echo "=== Merge SealQA shards (if parallel) + competitive upstream ==="
-SHARD2="papers/rse/results/sealqa-shard2/wikiskill-latest.json"
-WIKI="papers/rse/results/wikiskill-latest.json"
+SHARD2="papers/rose/results/sealqa-shard2/wikiskill-latest.json"
+WIKI="papers/rose/results/wikiskill-latest.json"
 if [[ -f "$SHARD2" ]]; then
   python3 scripts/merge_wikiskill_shards.py --out "$WIKI" "$WIKI" "$SHARD2" || true
 fi
@@ -42,7 +42,7 @@ echo "=== Final regeneration ==="
 python3 scripts/generate_submission_report.py
 python3 scripts/generate_paper_figures.py
 python3 scripts/inject_paper_results.py || true
-cd papers/rse && make
+cd papers/rose && make
 
 echo "=== Competitive bar audit ==="
 python3 scripts/audit_competitive_bar.py || true

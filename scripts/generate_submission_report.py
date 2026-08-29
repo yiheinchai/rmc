@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "papers" / "rse" / "results"
+RESULTS = ROOT / "papers" / "rose" / "results"
 
 
 def _claude_authenticated() -> bool:
@@ -73,8 +73,8 @@ def build_report() -> dict:
 
     session_study = session_study or full.get("session_study") or {}
 
-    # Prefer competitive suite RMC-Bench when available (expanded bench)
-    comp_bench = (competitive.get("rmc_bench") or {}) if competitive else {}
+    # Prefer competitive suite ROSE-Bench when available (expanded bench)
+    comp_bench = (competitive.get("rose_bench") or {}) if competitive else {}
     if comp_bench and (competitive.get("agent") == "codex" or not bench.get("cases")):
         bench = comp_bench
 
@@ -82,7 +82,7 @@ def build_report() -> dict:
         "generated_at": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
         "agent": agent,
         "samples": samples,
-        "rmc_bench": {
+        "rose_bench": {
             "lift": bench.get("lift"),
             "transfer_rate": (bench.get("transfer") or {}).get("rate"),
             "transfer": bench.get("transfer"),
@@ -109,7 +109,7 @@ def build_report() -> dict:
         "cross_transfer": cross_transfer,
         "multimodel": multimodel,
         "submission_status": {
-            "codex_rmc_bench": bool(bench),
+            "codex_rose_bench": bool(bench),
             "wikiskill_comparable": bool(wikiskill_probe_arms or upstream_sealqa_arms),
             "upstream_sealqa_eval": bool(upstream_sealqa_arms),
             "upstream_hotpotqa_eval": bool(upstream_hotpotqa_arms),
@@ -120,13 +120,13 @@ def build_report() -> dict:
                 "authenticated" if _claude_authenticated() else "claude CLI installed but not authenticated"
             ),
             "session_length_paired_study": bool(session_study.get("arms")),
-            "latex_manuscript": (ROOT / "papers" / "rse" / "paper.tex").exists(),
-            "paper_pdf": (ROOT / "papers" / "rse" / "paper.pdf").exists(),
-            "figures_generated": (ROOT / "papers" / "rse" / "figures" / "fig_wikiskill.pdf").exists(),
+            "latex_manuscript": (ROOT / "papers" / "rose" / "paper.tex").exists(),
+            "paper_pdf": (ROOT / "papers" / "rose" / "paper.pdf").exists(),
+            "figures_generated": (ROOT / "papers" / "rose" / "figures" / "fig_wikiskill.pdf").exists(),
             "competitive_baselines": bool(competitive.get("upstream") or competitive.get("wikiskill_probe")),
             "cross_model_transfer": bool(cross_transfer.get("table")),
             "multimodel_eval": bool(multimodel.get("models")),
-            "reproducibility_appendix": (ROOT / "papers" / "rse" / "appendix.tex").exists(),
+            "reproducibility_appendix": (ROOT / "papers" / "rose" / "appendix.tex").exists(),
         },
         "headline_findings": [],
     }
@@ -134,10 +134,10 @@ def build_report() -> dict:
     findings: list[str] = []
     lift = bench.get("lift")
     if lift is not None:
-        findings.append(f"RMC-Bench lift (L0 − control): {lift:+.0%}")
+        findings.append(f"ROSE-Bench lift (L0 − control): {lift:+.0%}")
     tr = (bench.get("transfer") or {}).get("rate")
     if tr is not None:
-        findings.append(f"RMC-Bench transfer@L0: {tr:.0%}")
+        findings.append(f"ROSE-Bench transfer@L0: {tr:.0%}")
     judge = (recall.get("arms") or {}).get("judge", {})
     serve = (recall.get("arms") or {}).get("serve-all", {})
     if judge and serve:
@@ -203,7 +203,7 @@ def _mean_l0_tokens(bench: dict) -> int:
 
 def _render(report: dict) -> str:
     lines = [
-        f"RSE Submission Report — agent={report['agent']}, samples={report['samples']}",
+        f"ROSE Submission Report — agent={report['agent']}, samples={report['samples']}",
         f"generated {report['generated_at']}",
         "",
         "=== Headline findings ===",
@@ -211,8 +211,8 @@ def _render(report: dict) -> str:
     for f in report["headline_findings"]:
         lines.append(f"  • {f}")
 
-    lines += ["", "=== RMC-Bench (procedural memory) ==="]
-    rb = report["rmc_bench"]
+    lines += ["", "=== ROSE-Bench (procedural memory) ==="]
+    rb = report["rose_bench"]
     lines.append(f"  lift: {rb.get('lift', 0):+.0%}")
     lines.append(f"  transfer@L0: {(rb.get('transfer') or {}).get('passed', '?')}/{(rb.get('transfer') or {}).get('total', '?')}")
     lines.append(f"  retrieval: {(rb.get('retrieval') or {}).get('passed', '?')}/{(rb.get('retrieval') or {}).get('total', '?')}")
@@ -280,8 +280,8 @@ def _render(report: dict) -> str:
 
     lines += [
         "",
-        "=== RSE vs baselines (summary) ===",
-        "  vs no memory:     RMC-Bench +20% lift; WikiSkill +10pp with full-inject",
+        "=== ROSE vs baselines (summary) ===",
+        "  vs no memory:     ROSE-Bench +20% lift; WikiSkill +10pp with full-inject",
         "  vs full-inject:   recall-judge matches accuracy at ~88% fewer tokens",
         "  vs serve-all:     judge filter 100% prec, 0 noise vs 47% prec, 2054 noise",
         "  vs WikiSkill:     agentic recall beats full-inject (+10pp) at 64 vs 534 tok",

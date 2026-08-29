@@ -1,5 +1,5 @@
 <p>
-  Every stage of RMC is corrected by an outcome. A compression that fails replay
+  Every stage of ROSE is corrected by an outcome. A compression that fails replay
   is rejected; a dropped detail that keeps rescuing failures is folded back;
   consolidation follows what actually got used together. One stage was exempt:
   the <b>criteria</b> that decide what gets recalled — the relevance prompt and
@@ -11,10 +11,10 @@
   had an argument, and the common shape of the mistake was the same: buying a
   little less noise by dropping lessons that mattered.
 </p>
-<pre>rmc tune                       <span class="c"># one proposal, measured</span>
-rmc tune --rounds 3
-rmc tune --history             <span class="c"># every attempt, including the rejected</span>
-rmc tune --dry-run             <span class="c"># propose without applying</span></pre>
+<pre>rose tune                       <span class="c"># one proposal, measured</span>
+rose tune --rounds 3
+rose tune --history             <span class="c"># every attempt, including the rejected</span>
+rose tune --dry-run             <span class="c"># propose without applying</span></pre>
 
 <h2 id="tune-loop">The loop</h2>
 <ol>
@@ -59,19 +59,19 @@ rmc tune --dry-run             <span class="c"># propose without applying</span>
 
 <h2 id="tune-prompts">Overriding a prompt by hand</h2>
 <p>
-  Tuning writes to <code>.rmc/prompts/</code>. You can write there yourself —
+  Tuning writes to <code>.rose/prompts/</code>. You can write there yourself —
   a file replaces the shipped prompt of the same name, and anything malformed
   falls back to the original rather than failing the call, because recall runs
   in a hook and an experiment must never take memory offline.
 </p>
-<pre>.rmc/prompts/relevance.md        <span class="c"># which lessons apply to this work</span>
-.rmc/prompts/warm_relevance.md   <span class="c"># same, when the candidates are already in context</span>
-.rmc/prompts/related.md          <span class="c"># is this new lesson about the same thing as that one</span></pre>
+<pre>.rose/prompts/relevance.md        <span class="c"># which lessons apply to this work</span>
+.rose/prompts/warm_relevance.md   <span class="c"># same, when the candidates are already in context</span>
+.rose/prompts/related.md          <span class="c"># is this new lesson about the same thing as that one</span></pre>
 <div class="note">
   A prompt must keep every <code>{placeholder}</code> the original had, or the
-  call throws and recall reports itself as degraded. <code>rmc tune</code>
+  call throws and recall reports itself as degraded. <code>rose tune</code>
   checks this before applying; if you edit by hand, check it yourself with
-  <code>rmc recall -p "…"</code>.
+  <code>rose recall -p "…"</code>.
 </div>
 <p>
   Changing a prompt changes the fingerprint that keys the judgement cache, so

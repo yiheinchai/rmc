@@ -1,7 +1,7 @@
 # Paired session follow-up tasks for session-length study (EXPERIMENTS §7).
 #
 # Each pair simulates: session 1 captured lessons; session 2 is a related task.
-# Arms compare memory-off (no recall) vs memory-on (RSE recall_pack).
+# Arms compare memory-off (no recall) vs memory-on (ROSE recall_pack).
 
 version: 1
 

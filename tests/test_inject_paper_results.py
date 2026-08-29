@@ -25,7 +25,7 @@ class TestInjectPaperResults(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.inj = _load()
 
-    def test_build_rmc_bench_rows(self) -> None:
+    def test_build_rose_bench_rows(self) -> None:
         rb = {
             "lift": 0.25,
             "transfer": {"passed": 19, "total": 20},
@@ -35,7 +35,7 @@ class TestInjectPaperResults(unittest.TestCase):
                 {"kind": "detail", "arm": "L0", "passed": True, "tokens": 82},
             ],
         }
-        rows = self.inj.build_rmc_bench_rows(rb)
+        rows = self.inj.build_rose_bench_rows(rb)
         self.assertTrue("+25" in rows["lift"] or "25" in rows["lift"])
         self.assertIn("19/20", rows["transfer"])
 

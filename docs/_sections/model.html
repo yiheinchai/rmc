@@ -32,12 +32,12 @@ used:   [n_7f2a]           <span class="c"># what actually bore on the work</spa
 accepted_summary: <span class="g">"..."</span>    <span class="c"># what the agent ended up doing</span></pre>
     <p>
       This is the <b>ambient oracle</b>. Nobody writes YAML oracles for their own
-      repo, so instead RMC records what happened when work was accepted, and
+      repo, so instead ROSE records what happened when work was accepted, and
       later asks whether a compressed lesson still reproduces it.
     </p>
 
     <h3>Store layout</h3>
-<pre>.rmc/
+<pre>.rose/
   config.yaml          <span class="c">settings</span>
   nodes/&lt;family&gt;/*.md  <span class="c">the graph. Worth committing.</span>
   episodes/*.json      <span class="c">the replay corpus. Worth committing.</span>
@@ -45,7 +45,7 @@ accepted_summary: <span class="g">"..."</span>    <span class="c"># what the age
   events.jsonl         <span class="c">telemetry. Machine-local.</span>
   judge-cache.json     <span class="c">cached judgements. Machine-local.</span></pre>
     <p>
-      <b>Two scopes.</b> If <code>~/.rmc</code> exists it is layered under the
+      <b>Two scopes.</b> If <code>~/.rose</code> exists it is layered under the
       project store: both are recalled, new lessons are written to the project
       one, and editing a global lesson writes back to it rather than forking a
       local copy that drifts.

@@ -8,8 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from rmc.judge import RELEVANCE_SCHEMA
-from rmc.prompts import JUDGE_SCHEMA, SELECT_SCHEMA
+from rose.judge import RELEVANCE_SCHEMA
+from rose.prompts import JUDGE_SCHEMA, SELECT_SCHEMA
 
 
 def _all_props_required(schema: dict) -> list[str]:

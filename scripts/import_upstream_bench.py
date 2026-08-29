@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT))
 import re
 from urllib.parse import unquote
 
-from rmc import yamlish
+from rose import yamlish
 
 MANIFEST = ROOT / "evals" / "upstream" / "manifest.yaml"
 OUT_DIR = ROOT / "evals" / "upstream"
