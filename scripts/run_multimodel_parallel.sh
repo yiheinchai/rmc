@@ -9,9 +9,16 @@ LOG="/tmp/multimodel-parallel-${STAMP}.log"
 exec > >(tee -a "$LOG") 2>&1
 
 OUT="papers/rse/results/multimodel-latest.json"
+LOCK="/tmp/multimodel-parallel.lock"
 
 echo "=== Multi-model parallel runner ==="
 echo "log: $LOG"
+
+exec 9>"$LOCK"
+if ! flock -n 9; then
+  echo "another multi-model parallel runner is active — exiting"
+  exit 0
+fi
 
 if [[ -f "$OUT" ]]; then
   n=$(python3 -c "import json; d=json.load(open('$OUT')); print(len(d.get('models') or {}))")

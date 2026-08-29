@@ -11,9 +11,16 @@ exec > >(tee -a "$LOG") 2>&1
 MAIN="papers/rse/results/competitive-latest.json"
 WORK="papers/rse/results/hotpot-workspace"
 STEP2_PATTERN='run_competitive_evals.py --agent codex --samples 1 --skip-upstream'
+LOCK="/tmp/hotpot-parallel.lock"
 
 echo "=== HotPotQA parallel runner ==="
 echo "log: $LOG"
+
+exec 9>"$LOCK"
+if ! flock -n 9; then
+  echo "another HotPotQA parallel runner is active — exiting"
+  exit 0
+fi
 
 echo "waiting for competitive suite step 2 process to finish..."
 while pgrep -f "$STEP2_PATTERN" >/dev/null 2>&1; do
