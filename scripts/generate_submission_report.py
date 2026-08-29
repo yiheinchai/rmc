@@ -58,11 +58,19 @@ def build_report() -> dict:
     wikiskill_arms = wikiskill_raw.get("arms", {}) if wikiskill_raw else {}
     wikiskill_probe_arms = {} if is_upstream_sealqa else wikiskill_arms
     upstream_sealqa_arms = wikiskill_arms if is_upstream_sealqa else {}
+
+    comp_upstream = (competitive.get("upstream") or {}).get("sealqa-test") if competitive else None
+    if comp_upstream and (comp_upstream.get("arms") or {}).get("full-inject", {}).get("total", 0):
+        upstream_sealqa_arms = comp_upstream.get("arms") or {}
+        if competitive.get("agent") == "codex":
+            agent = "codex"
+        wikiskill_probe_arms = (competitive.get("wikiskill_probe") or {}).get("arms") or wikiskill_probe_arms
+
     session_study = session_study or full.get("session_study") or {}
 
     # Prefer competitive suite RMC-Bench when available (expanded bench)
     comp_bench = (competitive.get("rmc_bench") or {}) if competitive else {}
-    if comp_bench:
+    if comp_bench and (competitive.get("agent") == "codex" or not bench.get("cases")):
         bench = comp_bench
 
     report = {
@@ -80,10 +88,10 @@ def build_report() -> dict:
         "wikiskill": wikiskill_probe_arms or (full.get("wikiskill") or {}).get("arms", {}),
         "upstream_sealqa": upstream_sealqa_arms,
         "upstream_sealqa_meta": {
-            "bench_path": wikiskill_path,
+            "bench_path": wikiskill_path or (comp_upstream or {}).get("bench_path", ""),
             "checkpoint": wikiskill_raw.get("checkpoint", False),
-            "significance": wikiskill_raw.get("significance_vs_full_inject", {}),
-        } if is_upstream_sealqa else {},
+            "significance": (comp_upstream or wikiskill_raw).get("significance_vs_full_inject", {}),
+        } if upstream_sealqa_arms else {},
         "wikiskill_comparisons": wikiskill_raw.get("comparisons", {}),
         "session_study": session_study.get("arms", {}),
         "session_study_lift": session_study.get("lift"),

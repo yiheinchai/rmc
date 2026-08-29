@@ -41,6 +41,21 @@ def test_build_rmc_bench_rows(inj) -> None:
     assert "19/20" in rows["transfer"]
 
 
+def test_sealqa_upstream_payload_competitive(inj) -> None:
+    data = {
+        "upstream": {
+            "sealqa-test": {
+                "arms": {
+                    "full-inject": {"accuracy": 0.6, "total": 50, "mean_tokens": 90},
+                }
+            }
+        }
+    }
+    payload = inj._sealqa_upstream_payload(data)
+    assert payload is not None
+    assert payload["arms"]["full-inject"]["total"] == 50
+
+
 def test_build_sealqa_table(inj) -> None:
     data = {
         "arms": {

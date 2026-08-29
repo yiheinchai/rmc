@@ -87,6 +87,11 @@ def main() -> int:
 
             def _upstream_checkpoint(report, stem=path.stem) -> None:
                 payload["upstream"][stem] = wikiskill_to_dict(report)
+                n_cases = len({c.case_id for c in report.cases})
+                print(
+                    f"  upstream progress: {len(report.cases)} scores ({n_cases} cases)",
+                    flush=True,
+                )
                 _flush()
 
             report = run_wikiskill(

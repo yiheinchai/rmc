@@ -124,7 +124,7 @@ def inject_rmc_bench(paper_path: Path, rb: dict) -> bool:
     if marker_start in text:
         text = re.sub(
             rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}",
-            table,
+            block,
             text,
             count=1,
             flags=re.DOTALL,
@@ -157,6 +157,18 @@ def inject_sealqa(paper_path: Path, table: str) -> bool:
     return True
 
 
+def _sealqa_upstream_payload(data: dict) -> dict | None:
+    """Extract SealQA upstream arms from competitive or wikiskill result blobs."""
+    upstream = (data.get("upstream") or {}).get("sealqa-test")
+    if upstream and (upstream.get("arms") or {}).get("full-inject", {}).get("total", 0):
+        return upstream
+    if "sealqa" in str(data.get("bench_path", "")):
+        arms = data.get("arms") or {}
+        if arms.get("full-inject", {}).get("total", 0):
+            return data
+    return None
+
+
 def main() -> int:
     updated = False
     comp = RESULTS / "competitive-latest.json"
@@ -166,17 +178,25 @@ def main() -> int:
             if inject_rmc_bench(PAPER, data["rmc_bench"]):
                 print(f"Updated RMC-Bench table in {PAPER}")
                 updated = True
+        sealqa = _sealqa_upstream_payload(data)
+        if sealqa:
+            table = build_sealqa_table(sealqa)
+            if inject_sealqa(PAPER, table):
+                print(f"Updated SealQA table from competitive-latest in {PAPER}")
+                updated = True
 
     path = RESULTS / "wikiskill-latest.json"
     if path.exists():
         data = json.loads(path.read_text(encoding="utf-8"))
-        if "sealqa" in str(data.get("bench_path", "")):
-            arms = data.get("arms") or {}
-            if arms.get("full-inject", {}).get("total", 0):
-                table = build_sealqa_table(data)
-                if inject_sealqa(PAPER, table):
-                    print(f"Updated SealQA table in {PAPER}")
-                    updated = True
+        sealqa = _sealqa_upstream_payload(data)
+        if sealqa and not (
+            comp.exists()
+            and _sealqa_upstream_payload(json.loads(comp.read_text(encoding="utf-8")))
+        ):
+            table = build_sealqa_table(sealqa)
+            if inject_sealqa(PAPER, table):
+                print(f"Updated SealQA table from wikiskill-latest in {PAPER}")
+                updated = True
 
     if not updated:
         print("no Codex results to inject yet", file=sys.stderr)

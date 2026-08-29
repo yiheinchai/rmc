@@ -38,6 +38,7 @@ def main() -> int:
     runs: list[tuple[str, str | None, str]] = []
     for name in agents:
         if name == "codex" and args.codex_models:
+            runs.append(("codex", None, "codex"))
             for model in args.codex_models:
                 runs.append(("codex", model, f"codex:{model}"))
         else:
