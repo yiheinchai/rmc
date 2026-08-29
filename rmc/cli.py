@@ -652,7 +652,7 @@ def cmd_compact(args: argparse.Namespace) -> int:
         node = store.get(args.node)
         if node is None:
             return die(f"no such node: {args.node}")
-        results = [compress_node(store, adapter, node, dry_run=args.dry_run)]
+        results = [compress_node(store, adapter, node, dry_run=args.dry_run, skip_replay=args.skip_replay)]
     else:
         pending = due_nodes(store)
         if not pending:
@@ -796,6 +796,35 @@ def cmd_route(args: argparse.Namespace) -> int:
     )
     if len(kept) < len(rules):
         print(dim(f"  {len(rules) - len(kept)} rule(s) marked · are over the cap and not injected"))
+    return 0
+
+
+def cmd_bench(args: argparse.Namespace) -> int:
+    """Run RMC-Bench: transfer, retention, retrieval, and cost axes."""
+    import json as _json
+    from pathlib import Path
+
+    from .bench import DEFAULT_BENCH, run as run_bench, to_dict
+
+    adapter = get_adapter(args.agent or "mock", model=args.model)
+    if not adapter.available():
+        return die(f"agent {args.agent!r} is not available on this machine")
+    path = Path(args.path) if args.path else DEFAULT_BENCH
+    report = run_bench(
+        adapter,
+        path=path,
+        samples=args.samples,
+        retention=not args.no_retention,
+        retrieval=not args.no_retrieval,
+    )
+    print(report.render())
+    if args.json:
+        print(_json.dumps(to_dict(report), indent=2))
+    if args.save:
+        out = Path(args.save)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(_json.dumps(to_dict(report), indent=2), encoding="utf-8")
+        print(f"\nsaved {out}")
     return 0
 
 
@@ -1552,6 +1581,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--list", action="store_true", help="list what is due, do nothing")
     p.add_argument("--limit", type=int, default=1)
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument(
+        "--skip-replay",
+        action="store_true",
+        help="accept compression without meta-testing replay (ablation only)",
+    )
     add_agent_flags(p)
     p.set_defaults(func=cmd_compact)
 
@@ -1569,6 +1603,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--forget", metavar="RULE_ID", help="delete a rule")
     p.set_defaults(func=cmd_route)
 
+    p = sub.add_parser("bench", help="run RMC-Bench procedural memory evaluation")
+    p.add_argument("--path", help="bench yaml (default: evals/rmc-bench.yaml)")
+    p.add_argument("--samples", type=int, default=1)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--save", metavar="PATH", help="write JSON results to this path")
+    p.add_argument("--no-retention", action="store_true")
+    p.add_argument("--no-retrieval", action="store_true")
+    add_agent_flags(p)
+    p.set_defaults(func=cmd_bench)
+
     p = sub.add_parser("eval", help="does compression preserve transfer? measure it")
     p.add_argument("--holdout", type=float, default=0.3, help="fraction of episodes to test on")
     p.add_argument("--samples", type=int, default=1, help="repeats per arm; 1 is a coin toss")
@@ -1584,9 +1628,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--limit", type=int, default=0, help="episodes to score; 0 is all")
     p.add_argument(
         "--arm",
-        choices=["judge", "agentic"],
+        choices=["judge", "agentic", "serve-all"],
         default="judge",
-        help="judge: the apex-walk baseline. agentic: search the whole store cold",
+        help="judge: apex-walk baseline. agentic: search whole store. serve-all: no filter",
     )
     p.add_argument("--save", metavar="NAME", help="store this run so a later one can be compared to it")
     p.add_argument("--against", metavar="NAME", help="compare this run to a saved one")

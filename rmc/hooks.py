@@ -587,8 +587,9 @@ An unnecessary rule costs every future prompt.
 def _spawn_fork(store: Store, session_id: str, cwd: str, served: list[str] | None = None) -> bool:
     """Fork the live session for reflection. True if the fork was launched."""
     from .adapters._proc import child_env, which
+    from .adapters.codex import reflection_fork_argv
 
-    if not session_id or which("claude") is None:
+    if not session_id:
         return False
 
     # Attribution belongs here rather than in the digest pass: the fork has the
@@ -608,19 +609,28 @@ def _spawn_fork(store: Store, session_id: str, cwd: str, served: list[str] | Non
     # and it leaves no trace anywhere else.
     if store.config.get("routing.enabled", True):
         attribution += SELECTION.format(session=session_id)
-    argv = [
-        "claude",
-        "--resume",
-        session_id,
-        "--fork-session",  # new session id, so the live one is never touched
-        "-p",
-        FORK_PROMPT.format(attribution=attribution),
-        "--no-session-persistence",
-        "--permission-mode",
-        "acceptEdits",
-        "--allowedTools",
-        "Bash",  # it needs exactly one tool: to run `rmc add`
-    ]
+    prompt = FORK_PROMPT.format(attribution=attribution)
+    model = store.config.get("model")
+    agent = str(store.config.get("agent", "claude")).lower()
+
+    if agent == "codex" and which("codex") is not None:
+        argv = reflection_fork_argv(session_id, prompt, model=model)
+    elif which("claude") is not None:
+        argv = [
+            "claude",
+            "--resume",
+            session_id,
+            "--fork-session",  # new session id, so the live one is never touched
+            "-p",
+            prompt,
+            "--no-session-persistence",
+            "--permission-mode",
+            "acceptEdits",
+            "--allowedTools",
+            "Bash",  # it needs exactly one tool: to run `rmc add`
+        ]
+    else:
+        return False
     log_path = store.root / "background.log"
     try:
         log_path.parent.mkdir(parents=True, exist_ok=True)

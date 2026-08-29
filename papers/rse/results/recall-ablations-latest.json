@@ -1,0 +1,49 @@
+{
+  "arms": {
+    "serve-all": {
+      "arm": "serve-all",
+      "precision": 0.4666666666666667,
+      "recall": 1.0,
+      "hits": 14,
+      "kept": 30,
+      "used": 14,
+      "misses": 0,
+      "noise_tokens": 2054,
+      "useful_tokens": 1653,
+      "baseline_tokens": 3707,
+      "episodes": 11,
+      "searches": 0
+    },
+    "judge": {
+      "arm": "judge",
+      "precision": 1.0,
+      "recall": 1.0,
+      "hits": 14,
+      "kept": 14,
+      "used": 14,
+      "misses": 0,
+      "noise_tokens": 0,
+      "useful_tokens": 1653,
+      "baseline_tokens": 3707,
+      "episodes": 11,
+      "searches": 0
+    },
+    "agentic": {
+      "arm": "agentic",
+      "precision": 0.9285714285714286,
+      "recall": 0.9285714285714286,
+      "hits": 13,
+      "kept": 14,
+      "used": 14,
+      "misses": 1,
+      "noise_tokens": 54,
+      "useful_tokens": 1535,
+      "baseline_tokens": 3707,
+      "episodes": 11,
+      "searches": 35
+    }
+  },
+  "comparisons": {
+    "judge_vs_serve_all": "                              serve-all     judge\nprecision                        47%      100%\nrecall                          100%      100%\nuseful lessons delivered          14        14\nlessons dropped that helped        0         0\nnoise tokens                    2054         0\n\nthese arms faced different candidate sets \u2014 read them as two outcomes,\nnot as two scores on the same test"
+  }
+}

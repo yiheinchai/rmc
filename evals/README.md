@@ -88,7 +88,14 @@ For `distractor` and `null`, passing means the candidate does **not** apply the
 named lesson. Serving it at all is recorded as a retrieval miss even when the
 answer happens to be right — a system that is right by luck is not right.
 
-Aggregate per axis. Report the control arm alongside every number, always.
+Run the benchmark:
+
+```bash
+rmc bench --agent mock          # reproducible, no API keys
+rmc bench --agent claude --samples 3
+```
+
+See `papers/rse/README.md` for the publication evaluation suite.
 
 ---
 

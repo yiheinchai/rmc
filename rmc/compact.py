@@ -202,6 +202,7 @@ def compress_node(
     *,
     cwd: Path | None = None,
     dry_run: bool = False,
+    skip_replay: bool = False,
 ) -> CompactionResult:
     config = store.config
     ratio = float(config.get("compaction.max_ratio", 0.6))
@@ -292,8 +293,12 @@ def compress_node(
             f"{str((verdict or {}).get('why') or '')[:120]}"
         )
 
-    result.replays = validate(store, adapter, body, episodes, cwd=cwd)
-    if result.pass_rate < threshold:
+    if skip_replay:
+        result.replays = []
+        result.reason = "accepted without replay (ablation)"
+    else:
+        result.replays = validate(store, adapter, body, episodes, cwd=cwd)
+    if not skip_replay and result.pass_rate < threshold:
         failures = [r for r in result.replays if not r.ok]
         result.reason = f"regression pass-rate {result.pass_rate:.0%} < {threshold:.0%}"
         if not dry_run:
@@ -308,7 +313,10 @@ def compress_node(
         return result
 
     result.accepted = True
-    result.reason = f"accepted at {result.ratio:.0%} of original, {result.pass_rate:.0%} replay pass"
+    if skip_replay:
+        result.reason = f"accepted at {result.ratio:.0%} of original (replay skipped)"
+    else:
+        result.reason = f"accepted at {result.ratio:.0%} of original, {result.pass_rate:.0%} replay pass"
     if dry_run:
         return result
 

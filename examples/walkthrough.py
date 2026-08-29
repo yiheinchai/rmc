@@ -145,7 +145,7 @@ def main() -> int:
 
     # ---------------------------------------------------------------- 4
     head(4, "Recall now serves the cheap apex")
-    pack = recall_pack(store, "the http client needs retry logic")
+    pack = recall_pack(store, "the http client needs retry logic", adapter)
     print(f"   {pack.tokens} tokens served {DIM}(was {result.before_tokens}){OFF}")
 
     # ---------------------------------------------------------------- 5

@@ -1961,7 +1961,8 @@ class TestReflectionTrigger(StoreCase):
 
         hooks.subprocess.Popen = FakePopen
         try:
-            result = self.fire(self.transcript([True] * 14), session="sess-abc")
+            with mock.patch("rmc.adapters._proc.which", return_value="/usr/bin/claude"):
+                result = self.fire(self.transcript([True] * 14), session="sess-abc")
         finally:
             hooks.subprocess.Popen = original
 
@@ -1974,6 +1975,31 @@ class TestReflectionTrigger(StoreCase):
         # Without RMC_CHILD the fork fires these hooks and forks itself forever.
         self.assertEqual(kw["env"].get("RMC_CHILD"), "1")
         self.assertTrue(kw.get("start_new_session"))
+
+    def test_fork_mode_uses_codex_when_configured(self) -> None:
+        import rmc.hooks as hooks
+
+        self.store.config.set("learning.nudge_mode", "fork")
+        self.store.config.set("agent", "codex")
+        self.store.config.save(self.store.root / "config.yaml")
+
+        launched: list = []
+        original = hooks.subprocess.Popen
+
+        class FakePopen:
+            def __init__(self, argv, **kw):
+                launched.append((argv, kw))
+
+        hooks.subprocess.Popen = FakePopen
+        try:
+            with mock.patch("rmc.adapters._proc.which", return_value="/usr/bin/codex"):
+                self.fire(self.transcript([True] * 14), session="sess-abc")
+        finally:
+            hooks.subprocess.Popen = original
+
+        self.assertTrue(launched)
+        argv, _ = launched[0]
+        self.assertEqual(argv[:4], ["codex", "exec", "fork", "sess-abc"])
 
     def test_fork_falls_back_rather_than_skipping_reflection(self) -> None:
         import rmc.hooks as hooks

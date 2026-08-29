@@ -91,8 +91,9 @@ def available(store: Store, adapter: Adapter, session_id: str) -> tuple[bool, st
         # only after a process has started — about a second of the user's wait
         # spent discovering something the shape of the string already said.
         return False, f"session id {session_id!r} is not a resumable session"
-    if getattr(adapter, "name", "") != "claude":
-        return False, f"backend {getattr(adapter, 'name', '?')} cannot fork a session"
+    backend = getattr(adapter, "name", "")
+    if backend not in ("claude", "codex"):
+        return False, f"backend {backend or '?'} cannot fork a session"
     if not adapter.available():
         return False, "backend not on PATH"
     return True, ""
