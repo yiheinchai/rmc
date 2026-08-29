@@ -68,4 +68,7 @@ cd papers/rse && make
 echo "=== [6/6] Upstream follow-up (HotPotQA etc.) ==="
 bash ./scripts/run_upstream_followup.sh
 
+echo "=== Competitive bar audit ==="
+python3 scripts/audit_competitive_bar.py || true
+
 echo "=== Done ==="
