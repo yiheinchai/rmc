@@ -1238,5 +1238,113 @@
         "delta_accuracy": 0.10000000000000009
       }
     }
+  },
+  "memgpt_nested_kv": {
+    "agent": "codex",
+    "bench_path": "/workspace/evals/memgpt-nested-kv.yaml",
+    "arms": {
+      "fixed-context": {
+        "passed": 7,
+        "total": 8,
+        "accuracy": 0.875
+      },
+      "recall-agentic": {
+        "passed": 2,
+        "total": 8,
+        "accuracy": 0.25
+      }
+    },
+    "render": "MemGPT nested KV \u2014 agent=codex\n\n  fixed-context    7/8 (88%)\n  recall-agentic   2/8 (25%)"
+  },
+  "session_study": {
+    "agent": "codex",
+    "arms": {
+      "memory-off": {
+        "passed": 1,
+        "total": 5,
+        "accuracy": 0.2,
+        "mean_tokens": 0
+      },
+      "memory-on": {
+        "passed": 5,
+        "total": 5,
+        "accuracy": 1.0,
+        "mean_tokens": 168
+      }
+    },
+    "lift": 0.8,
+    "pairs": [
+      {
+        "pair_id": "charge-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate includes one Idempotency-Key reused across attempts and the correct base delays, but it never specifies the required \u00b125% jitter range. Saying only \u201cjittered backoffs\u201d is too vague to en"
+      },
+      {
+        "pair_id": "charge-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 223,
+        "reason": "The candidate includes both essential requirements: one Idempotency-Key generated once and reused across all attempts, and the 100ms/400ms/1.6s retry schedule with \u00b125% jitter bounded by the caller\u2019s "
+      },
+      {
+        "pair_id": "schema-purge-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate correctly specifies a forward-only migration and permanent purging via `?purge=true` (or physical SQL DELETE), but it does not make the column drop safe against currently deployed code. "
+      },
+      {
+        "pair_id": "schema-purge-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 264,
+        "reason": "The candidate includes every essential element: a staged forward-only migration, compatibility with currently deployed/older code before dropping the column, and physical deletion through `?purge=true"
+      },
+      {
+        "pair_id": "s3-upload-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate correctly identifies the HTTP 200 embedded-error problem and requires parsing the body, but it does not state the required retry behavior. It only suggests retrying according to SDK beha"
+      },
+      {
+        "pair_id": "s3-upload-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 103,
+        "reason": "The candidate identifies the essential issue: multipart completion can return HTTP 200 with an embedded XML error, so the response body must be parsed before declaring success, and such errors must fo"
+      },
+      {
+        "pair_id": "gdpr-erasure-followup",
+        "arm": "memory-off",
+        "passed": true,
+        "tokens": 0,
+        "reason": "The candidate includes the essential permanent-erasure request (`DELETE /records/{record_id}?purge=true`), explicitly warns that plain DELETE only soft-deletes, and verifies actual absence via a direc"
+      },
+      {
+        "pair_id": "gdpr-erasure-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 135,
+        "reason": "The candidate includes the required hard-delete call (`DELETE /records/{record_id}?purge=true`), explicitly distinguishes it from a plain soft delete that only sets `deleted_at`, and verifies that no "
+      },
+      {
+        "pair_id": "pg-port-followup",
+        "arm": "memory-off",
+        "passed": false,
+        "tokens": 0,
+        "reason": "The candidate correctly recommends running the host-side integration tests with PAYMENTS_PG_PORT=5433 and leaving the service occupying 5432 alone. However, it omits the known-good outcome\u2019s essential"
+      },
+      {
+        "pair_id": "pg-port-followup",
+        "arm": "memory-on",
+        "passed": true,
+        "tokens": 118,
+        "reason": "The candidate gives the required successful procedure: use PAYMENTS_PG_PORT=5433, avoid starting PostgreSQL on 5432, and do not use the unsupported --pg-port CLI flag. It also provides an actionable t"
+      }
+    ],
+    "render": "Session-length paired study \u2014 agent=codex\n\n  memory-off  1/5 (20%)  mean_tokens=0\n  memory-on   5/5 (100%)  mean_tokens=168\n\n  lift (memory-on \u2212 off): +80%"
   }
 }
