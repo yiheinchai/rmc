@@ -45,6 +45,10 @@ python3 scripts/run_wikiskill_evals.py \
   --checkpoint \
   --resume
 
+echo "=== Merge SealQA into competitive + inject manuscript ==="
+python3 scripts/merge_competitive_upstream.py || true
+python3 scripts/inject_paper_results.py || true
+
 echo "=== waiting for HotPotQA parallel job (pid=$HOTPOT_PID) ==="
 wait "$HOTPOT_PID" || true
 
