@@ -123,11 +123,18 @@ def main() -> int:
     ws_cases = len({c.get("case_id") for c in ws.get("cases", []) if c.get("case_id")})
     ws_scores = len(ws.get("cases") or [])
     ws_path = RESULTS / "wikiskill-latest.json"
+    shard2_path = RESULTS / "sealqa-shard2" / "wikiskill-latest.json"
+    shard2_cases = 0
+    if shard2_path.exists():
+        shard2_ws = json.loads(shard2_path.read_text(encoding="utf-8"))
+        shard2_cases = len({c.get("case_id") for c in shard2_ws.get("cases", []) if c.get("case_id")})
     print(
         f"wikiskill-latest.json    agent={ws.get('agent', '—')}  "
         f"cases={ws_cases}/111  scores={ws_scores}  ckpt={ws.get('checkpoint', False)}  "
         f"updated={_mtime(ws_path)}"
     )
+    if shard2_cases:
+        print(f"sealqa-shard2            cases={shard2_cases}/111  updated={_mtime(shard2_path)}")
     print(f"multimodel-latest.json   models={len(mm.get('models') or {})}  updated={_mtime(RESULTS / 'multimodel-latest.json')}")
     print(f"cross-transfer-latest    models={list((ct.get('table') or {}).keys())}")
 
@@ -148,6 +155,7 @@ def main() -> int:
         ("SealQA upstream", "scripts/run_wikiskill_evals.py --agent codex", "py"),
         ("multimodel", "scripts/run_multimodel_evals.py", "py"),
         ("HotPotQA parallel", "run_hotpot_parallel.sh", "script"),
+        ("SealQA parallel", "run_sealqa_parallel.sh", "script"),
         ("multimodel watcher", "watch_start_multimodel.sh", "script"),
     ]
     print("\nRunning:")

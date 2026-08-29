@@ -20,8 +20,12 @@ wait_for() {
   echo "$(date -u +%H:%M:%S) $label finished"
 }
 
-# Wait for the sequential Codex pipeline, then merge/finalize.
+# Wait for the sequential Codex pipeline, then any parallel upstream evals.
 wait_for "run_sequential_codex_evals.sh" "sequential pipeline"
+wait_for "run_sealqa_parallel.sh" "SealQA parallel orchestrator"
+wait_for "run_wikiskill_evals.py --agent codex --bench evals/upstream/sealqa-test.jsonl" "SealQA wikiskill"
+wait_for "run_competitive_evals.py.*hotpotqa-dev" "HotPotQA upstream"
+wait_for "run_multimodel_evals.py" "multimodel eval"
 
 echo "=== Merge full SealQA from wikiskill-latest into competitive ==="
 python3 scripts/merge_competitive_upstream.py || true

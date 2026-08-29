@@ -23,6 +23,7 @@ def main() -> int:
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--bench", type=Path, default=None, help="YAML or JSONL benchmark path")
     parser.add_argument("--limit", type=int, default=None, help="cap tasks (upstream splits)")
+    parser.add_argument("--offset", type=int, default=0, help="skip first N tasks (shard parallel runs)")
     parser.add_argument(
         "--arms",
         nargs="*",
@@ -78,6 +79,7 @@ def main() -> int:
         adapter,
         path=args.bench,
         samples=args.samples,
+        offset=args.offset,
         limit=args.limit,
         arms=use_arms,
         on_progress=on_progress,

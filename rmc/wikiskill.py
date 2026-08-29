@@ -306,6 +306,29 @@ def _bench_paths_match(left: str | Path | None, right: str | Path | None) -> boo
     return Path(left).resolve() == Path(right).resolve()
 
 
+def merge_reports(*reports: WikiSkillReport) -> WikiSkillReport:
+    """Combine shard reports, deduplicating by (case_id, arm)."""
+    if not reports:
+        return WikiSkillReport()
+    merged = WikiSkillReport(
+        agent=reports[0].agent,
+        bench_path=reports[0].bench_path,
+    )
+    seen: set[tuple[str, str]] = set()
+    for report in reports:
+        if report.bench_path and not merged.bench_path:
+            merged.bench_path = report.bench_path
+        if report.agent and merged.agent == "?":
+            merged.agent = report.agent
+        for row in report.cases:
+            key = (row.case_id, row.arm)
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.cases.append(row)
+    return merged
+
+
 def run(
     adapter: Adapter,
     *,
@@ -315,11 +338,14 @@ def run(
     store: Store | None = None,
     tmp_base: Path | None = None,
     arms: tuple[str, ...] | None = None,
+    offset: int = 0,
     limit: int | None = None,
     on_progress: Callable[[WikiSkillReport], None] | None = None,
     existing: WikiSkillReport | None = None,
 ) -> WikiSkillReport:
     cases, _ = load_bench(path)
+    if offset:
+        cases = cases[offset:]
     if limit is not None:
         cases = cases[:limit]
     bench_path = str(path or DEFAULT_BENCH)
