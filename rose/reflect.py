@@ -345,9 +345,14 @@ def mint(
     discovered = outcome.render_discoveries() if outcome else ""
     correction = (outcome.correction if outcome else "").strip()
 
+    from . import learning as learning_mod
+
+    guidance_text, guidance_rules = learning_mod.pack_for_reflect(store)
+
     run = adapter.run(
         REFLECT.format(
             families="\n".join(f"- {f}" for f in store.families()) or "(none yet)",
+            guidance=guidance_text or "(none yet)",
             correction=correction or "(the human did not correct anything)",
             discovered=discovered or "(nothing was worked out by trial)",
             excerpt=digest(facts, limit=7000),
@@ -356,6 +361,17 @@ def mint(
         cwd=cwd,
         timeout=int(store.config.get("limits.agent_timeout_s", 180)),
     )
+    if guidance_rules:
+        learning_mod.credit(
+            store, helped=[], wasted=[], shown=[r.id for r in guidance_rules]
+        )
+        if session_id:
+            state = store.read_session(session_id)
+            state["learning_shown"] = sorted(
+                {*state.get("learning_shown", []), *[r.id for r in guidance_rules]}
+            )
+            store.write_session(session_id, state)
+
     if not run.ok or not run.data:
         return MintResult(reason=f"reflector failed: {run.error[:200]}")
     if not run.data.get("capture"):
@@ -398,6 +414,7 @@ def mint(
         relation=decision.relation,
         session=session_id,
         tokens=node.tokens,
+        learning_shown=[r.id for r in guidance_rules],
     )
     if applied.node is None:
         return MintResult(reason=f"{decision.relation}: {decision.rationale}", placement=decision)

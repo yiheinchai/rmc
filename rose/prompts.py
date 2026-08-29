@@ -417,6 +417,13 @@ Existing families (reuse one if it fits):
 {families}
 FAMILIES>>>
 
+**Lesson-authoring guidance** from past mints. Prior knowledge, not orders — if a
+rule does not fit this session, ignore it.
+
+<<<GUIDANCE
+{guidance}
+GUIDANCE>>>
+
 <<<WHAT THE HUMAN CORRECTED
 {correction}
 WHAT THE HUMAN CORRECTED>>>
