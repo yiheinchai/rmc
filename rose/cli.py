@@ -590,6 +590,27 @@ def cmd_used(args: argparse.Namespace) -> int:
                 node.covers_tasks = sorted({*node.covers_tasks, episode.id})
                 store.save_node(node)
 
+        from .adapters import get_adapter
+        from . import probes as probes_mod
+
+        adapter = get_adapter(
+            str(store.config.get("agent", "claude")), model=store.config.get("model")
+        )
+        if adapter.available() and args.outcome:
+            for ident in used:
+                node = store.get(ident)
+                if node is None:
+                    continue
+                probes_mod.distill_and_add(
+                    store,
+                    adapter,
+                    node_id=ident,
+                    lesson_body=node.body,
+                    task=args.task,
+                    outcome=args.outcome,
+                    source_episode=episode.id,
+                )
+
     store.write_session(args.session, state)
     store.log(
         "attributed",
@@ -796,6 +817,45 @@ def cmd_route(args: argparse.Namespace) -> int:
     )
     if len(kept) < len(rules):
         print(dim(f"  {len(rules) - len(kept)} rule(s) marked · are over the cap and not injected"))
+    return 0
+
+
+def cmd_probes(args: argparse.Namespace) -> int:
+    """List minimal regression probes distilled from attributed lesson uses."""
+    from . import probes
+
+    store = need_store(args)
+    if store is None:
+        return 1
+
+    node_id = getattr(args, "node", None)
+    if node_id:
+        node = store.get(node_id)
+        if node is None:
+            return die(f"no such node: {node_id}")
+        items = probes.collect(store, node)
+        title = f"probes for {node_id}"
+    else:
+        directory = probes.probes_dir(store)
+        items = []
+        if directory.is_dir():
+            for path in sorted(directory.glob("*.json")):
+                try:
+                    items.append(probes.Probe.from_dict(json.loads(path.read_text(encoding="utf-8"))))
+                except Exception:
+                    continue
+        title = "all probes"
+
+    print(bold(title) + dim(f"  ·  {len(items)} total"))
+    if not items:
+        print(dim("\n  none yet — they are distilled when a lesson is minted or credited via `rose used`."))
+        return 0
+
+    print()
+    for probe in items:
+        print(f"  {probe.id}  {dim(f'node {probe.node_id} · {probe.axis}')}")
+        print(f"    task: {probe.task}")
+        print(f"    expect: {probe.outcome}")
     return 0
 
 
@@ -1588,6 +1648,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     add_agent_flags(p)
     p.set_defaults(func=cmd_compact)
+
+    p = sub.add_parser(
+        "probes",
+        help="minimal regression tasks distilled from attributed lesson uses",
+    )
+    p.add_argument("--node", help="show probes for one lesson node")
+    p.set_defaults(func=cmd_probes)
 
     p = sub.add_parser("index", help="the file the selector searches instead of being sent")
     p.add_argument("--rebuild", action="store_true", help="write it now")

@@ -1,0 +1,377 @@
+{
+  "bench_path": "/workspace/evals/sealqa-ablation/probe-dev.yaml",
+  "agent": "mock",
+  "presets": [
+    {
+      "preset": "baseline",
+      "probe_pass_rate": 1.0,
+      "probe_passed": 6,
+      "probe_total": 6,
+      "compaction_accepted": false,
+      "compaction_reason": "no compaction",
+      "tokens_before": 211,
+      "tokens_after": 211,
+      "probe_count": 6,
+      "episode_count": 0,
+      "by_axis": {
+        "explicit-count": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "entity-match": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "answer-format": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "no-guess": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "stated-count": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "table-row": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        }
+      },
+      "task_accuracy": 1.0,
+      "task_passed": 12,
+      "task_total": 12,
+      "replay_details": [
+        {
+          "probe_id": "p_sealqa-axis-count-1",
+          "axis": "explicit-count",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-entity-1",
+          "axis": "entity-match",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-format-1",
+          "axis": "answer-format",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-noguess-1",
+          "axis": "no-guess",
+          "ok": true,
+          "reason": "matched 2/2 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-stated-1",
+          "axis": "stated-count",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-table-1",
+          "axis": "table-row",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        }
+      ]
+    },
+    {
+      "preset": "compact-no-replay",
+      "probe_pass_rate": 1.0,
+      "probe_passed": 6,
+      "probe_total": 6,
+      "compaction_accepted": true,
+      "compaction_reason": "accepted at 9% of original (replay skipped)",
+      "tokens_before": 211,
+      "tokens_after": 20,
+      "probe_count": 6,
+      "episode_count": 0,
+      "by_axis": {
+        "explicit-count": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "entity-match": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "answer-format": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "no-guess": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "stated-count": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "table-row": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        }
+      },
+      "task_accuracy": 1.0,
+      "task_passed": 12,
+      "task_total": 12,
+      "replay_details": [
+        {
+          "probe_id": "p_sealqa-axis-count-1",
+          "axis": "explicit-count",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-entity-1",
+          "axis": "entity-match",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-format-1",
+          "axis": "answer-format",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-noguess-1",
+          "axis": "no-guess",
+          "ok": true,
+          "reason": "matched 2/2 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-stated-1",
+          "axis": "stated-count",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-table-1",
+          "axis": "table-row",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        }
+      ]
+    },
+    {
+      "preset": "compact-probe-replay",
+      "probe_pass_rate": 1.0,
+      "probe_passed": 6,
+      "probe_total": 6,
+      "compaction_accepted": true,
+      "compaction_reason": "accepted at 9% of original, 100% replay pass",
+      "tokens_before": 211,
+      "tokens_after": 20,
+      "probe_count": 6,
+      "episode_count": 0,
+      "by_axis": {
+        "explicit-count": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "entity-match": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "answer-format": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "no-guess": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "stated-count": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        },
+        "table-row": {
+          "passed": 1,
+          "total": 1,
+          "pass_rate": 1.0
+        }
+      },
+      "task_accuracy": 1.0,
+      "task_passed": 12,
+      "task_total": 12,
+      "replay_details": [
+        {
+          "probe_id": "p_sealqa-axis-count-1",
+          "axis": "explicit-count",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-entity-1",
+          "axis": "entity-match",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-format-1",
+          "axis": "answer-format",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-noguess-1",
+          "axis": "no-guess",
+          "ok": true,
+          "reason": "matched 2/2 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-stated-1",
+          "axis": "stated-count",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "p_sealqa-axis-table-1",
+          "axis": "table-row",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        }
+      ]
+    },
+    {
+      "preset": "compact-episode-replay",
+      "probe_pass_rate": 1.0,
+      "probe_passed": 12,
+      "probe_total": 12,
+      "compaction_accepted": true,
+      "compaction_reason": "accepted at 9% of original, 100% replay pass",
+      "tokens_before": 211,
+      "tokens_after": 20,
+      "probe_count": 6,
+      "episode_count": 12,
+      "by_axis": {
+        "unknown": {
+          "passed": 12,
+          "total": 12,
+          "pass_rate": 1.0
+        }
+      },
+      "task_accuracy": 1.0,
+      "task_passed": 12,
+      "task_total": 12,
+      "replay_details": [
+        {
+          "probe_id": "e_sealqa-axis-entity-2",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-noguess-1",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 2/2 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-noguess-2",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-stated-1",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-stated-2",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-table-1",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-table-2",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-count-1",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-count-2",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-entity-1",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-format-1",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        },
+        {
+          "probe_id": "e_sealqa-axis-format-2",
+          "axis": "unknown",
+          "ok": true,
+          "reason": "matched 1/1 key terms (100%)"
+        }
+      ]
+    },
+    {
+      "preset": "probes-off",
+      "probe_pass_rate": 0.0,
+      "probe_passed": 0,
+      "probe_total": 0,
+      "compaction_accepted": false,
+      "compaction_reason": "no compaction",
+      "tokens_before": 211,
+      "tokens_after": 211,
+      "probe_count": 0,
+      "episode_count": 0,
+      "by_axis": {},
+      "task_accuracy": 1.0,
+      "task_passed": 12,
+      "task_total": 12,
+      "replay_details": []
+    }
+  ],
+  "render": "SealQA ablation \u2014 /workspace/evals/sealqa-ablation/probe-dev.yaml\nagent=mock  cases=6\n\npreset                     probe_pass  compact tok_before tok_after task_acc\nbaseline                   6/6 (100%)     False        211       211     100%\ncompact-no-replay          6/6 (100%)      True        211        20     100%\ncompact-probe-replay       6/6 (100%)      True        211        20     100%\ncompact-episode-replay     12/12 (100%)      True        211        20     100%\nprobes-off                 0/0 (0%)     False        211       211     100%\n\nPer-axis probe pass (compact-probe-replay vs compact-no-replay):\n  answer-format        replay=1/1  no-replay=1/1\n  entity-match         replay=1/1  no-replay=1/1\n  explicit-count       replay=1/1  no-replay=1/1\n  no-guess             replay=1/1  no-replay=1/1\n  stated-count         replay=1/1  no-replay=1/1\n  table-row            replay=1/1  no-replay=1/1",
+  "generated_at": "20260829T152345Z",
+  "samples": 1
+}

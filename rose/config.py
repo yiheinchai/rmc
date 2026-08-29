@@ -159,7 +159,10 @@ DEFAULTS: dict[str, Any] = {
         # 0.75 per level is ~32% of the original after four levels.
         "max_ratio": 0.75,
         "threshold": 1.0,  # required replay pass-rate
-        "regression_k": 5,  # episodes replayed per validation
+        "regression_k": 5,  # probes/episodes replayed per validation
+        # Minimal tasks distilled from attributed uses; capped orthogonally by axis.
+        "max_probes": 10,
+        "probe_distill": True,
         "max_level": 6,
         "cooldown_s": 900,
     },

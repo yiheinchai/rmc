@@ -65,6 +65,22 @@ class TestWikiSkillBench(unittest.TestCase):
         )
         self.assertEqual(len(second.cases), len(first.cases))
 
+    def test_probe_seeding_attaches_to_store(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        from rose import probes as probes_mod
+        from rose.wikiskill import prepare_store
+
+        cases, _ = load_bench()
+        with tempfile.TemporaryDirectory() as tmp:
+            store = prepare_store(cases, Path(tmp), None, with_probes=True)
+            node = store.get("livemath-extremal")
+            self.assertIsNotNone(node)
+            seeded = probes_mod.load_for_node(store, node.id)
+            self.assertEqual(len(seeded), 1)
+            self.assertIn("minimum n", seeded[0].task.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

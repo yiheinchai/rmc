@@ -370,18 +370,28 @@ class Store:
         return path
 
     def regression_set(self, node: Node, *, limit: int | None = None) -> list[Episode]:
-        """Successful episodes covering this node *and its whole subtree*.
+        """Probes first, then successful episodes covering this node and subtree.
 
-        Validating a compression only against the episode that triggered it is
-        how you end up with a beautifully compressed, useless tree.
-
-        Deliberately **not** filtered by family. An episode's family is a weak
-        label — the first family that happened to be served — while what makes
-        an episode a regression test for a node is that the node was *used* in
-        it. Filtering by family meant a cross-family merge could never find its
-        evidence, which broke the one case merging exists for: two lessons from
-        different families that keep being needed together.
+        Probes are minimal distilled tasks; episodes are the raw per-use record.
+        Compaction replays whichever set exists, preferring probes because they
+        test generalisation rather than session summaries.
         """
+        from . import probes as probes_mod
+
+        probe_list = probes_mod.select_for_replay(self, node, limit=limit)
+        if probe_list:
+            return [
+                Episode(
+                    id=p.id,
+                    family=node.family,
+                    prompt=p.task,
+                    outcome="success",
+                    accepted_summary=p.outcome,
+                    used=[p.node_id],
+                )
+                for p in probe_list
+            ]
+
         ids = {node.id} | {d.id for d in self.descendants(node)}
         task_ids = set(node.covers_tasks)
         for desc in self.descendants(node):

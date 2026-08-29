@@ -183,6 +183,108 @@ def build_store(cases: list[WikiSkillCase], base: Path, *, dedupe_families: bool
     return store
 
 
+def node_id_for_case(case: WikiSkillCase, *, dedupe_families: bool) -> str:
+    if dedupe_families:
+        return case.family or case.id
+    return case.id
+
+
+def seed_probes_for_cases(
+    store: Store,
+    cases: list[WikiSkillCase],
+    *,
+    dedupe_families: bool = False,
+    adapter: Adapter | None = None,
+    distill: bool = False,
+) -> int:
+    """Attach one regression probe per benchmark case to its lesson node."""
+    from . import probes as probes_mod
+
+    count = 0
+    for case in cases:
+        if not case.skill:
+            continue
+        node_id = node_id_for_case(case, dedupe_families=dedupe_families)
+        node = store.get(node_id)
+        if node is None:
+            continue
+        probe = None
+        if distill and adapter is not None and adapter.available():
+            probe = probes_mod.distill(
+                store,
+                adapter,
+                node_id=node_id,
+                lesson_body=node.body,
+                task=case.task,
+                outcome=case.expected,
+                context="",
+            )
+        if probe is None:
+            probe = probes_mod.seed_from_case(
+                store,
+                case_id=case.id,
+                node_id=node_id,
+                task=case.task,
+                expected=case.expected,
+                axis=case.id,
+                enforce_cap=False,
+            )
+        if probe is not None:
+            count += 1
+            node.stats.successes = max(node.stats.successes, 1)
+            store.save_node(node)
+    for node in store.nodes():
+        if node.is_apex and probes_mod.load_for_node(store, node.id):
+            probes_mod.prune_to_cap(store, node.id)
+    store.invalidate()
+    return count
+
+
+def compact_probe_store(store: Store, adapter: Adapter) -> list[str]:
+    """Compress apex lessons that have probes and enough usage credit."""
+    from .compact import compress_node
+
+    compressed: list[str] = []
+    for node in store.nodes():
+        if not node.is_apex:
+            continue
+        from . import probes as probes_mod
+
+        if not probes_mod.collect(store, node):
+            continue
+        node.stats.successes = max(node.stats.successes, 1)
+        store.save_node(node)
+        result = compress_node(store, adapter, node)
+        if result.accepted and result.new_node is not None:
+            compressed.append(result.new_node.id)
+    store.invalidate()
+    return compressed
+
+
+def prepare_store(
+    cases: list[WikiSkillCase],
+    base: Path,
+    adapter: Adapter | None,
+    *,
+    dedupe_families: bool = False,
+    with_probes: bool = False,
+    distill_probes: bool = False,
+    compact: bool = False,
+) -> Store:
+    store = build_store(cases, base, dedupe_families=dedupe_families)
+    if with_probes:
+        seed_probes_for_cases(
+            store,
+            cases,
+            dedupe_families=dedupe_families,
+            adapter=adapter,
+            distill=distill_probes,
+        )
+    if compact and adapter is not None and with_probes:
+        compact_probe_store(store, adapter)
+    return store
+
+
 def full_inject_pack(store: Store) -> str:
     """WikiSkill test-time injection: all active skills in the prompt."""
     parts = []
@@ -342,6 +444,10 @@ def run(
     limit: int | None = None,
     on_progress: Callable[[WikiSkillReport], None] | None = None,
     existing: WikiSkillReport | None = None,
+    with_probes: bool = False,
+    distill_probes: bool = False,
+    compact: bool = False,
+    store_base: Path | None = None,
 ) -> WikiSkillReport:
     cases, _ = load_bench(path)
     if offset:
@@ -363,12 +469,20 @@ def run(
         import tempfile
 
         dedupe = path is not None and Path(path).suffix == ".jsonl"
-        with tempfile.TemporaryDirectory() as tmp:
-            store = build_store(cases, Path(tmp) / "repo", dedupe_families=dedupe)
-            _score_cases(
-                report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms,
-                on_progress=on_progress,
-            )
+        base = store_base or Path(tempfile.mkdtemp()) / "repo"
+        store = prepare_store(
+            cases,
+            base,
+            adapter if getattr(adapter, "name", "") != "mock" else None,
+            dedupe_families=dedupe,
+            with_probes=with_probes,
+            distill_probes=distill_probes,
+            compact=compact,
+        )
+        _score_cases(
+            report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms,
+            on_progress=on_progress,
+        )
     else:
         _score_cases(
             report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms,
