@@ -121,6 +121,8 @@ def main() -> int:
         tail = text.strip().splitlines()[-1]
         print(f"Latest sequential log ({logs[0].name}):")
         print(f"  {tail}")
+        log_ts = datetime.fromtimestamp(logs[0].stat().st_mtime, tz=timezone.utc)
+        print(f"  (log updated {log_ts.strftime('%H:%M:%S UTC')})")
     return 0
 
 
