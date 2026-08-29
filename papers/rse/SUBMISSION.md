@@ -15,7 +15,33 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 | Eval results | `results/submission-latest.json` | Complete (Codex) |
 | Figure generator | `../../scripts/generate_paper_figures.py` | Ready |
 
-## Pre-submission steps
+## Competitive bar progress (WikiSkill / Reflexion / MemGPT)
+
+| Requirement | Status |
+|---|---|
+| Bootstrap CIs + paired significance | **Done** — `rmc/stats.py`, in `wikiskill` reports |
+| External baseline arms (Trace2Skill/EvoSkill/SkillOpt/RAG proxies) | **Done** — `rmc/skill_baselines.py` |
+| Upstream benchmark import | **Partial** — SealQA 111 tasks (`evals/upstream/sealqa-test.jsonl`) |
+| Full-scale upstream eval | **Ready** — `scripts/run_competitive_evals.py --agent codex --limit N` |
+| MemGPT nested-KV proxy | **Done** — `evals/memgpt-nested-kv.yaml` (8 cases) |
+| Multi-model runner | **Done** — `scripts/run_multimodel_evals.py` |
+| Architecture figure | **Done** — `figures/fig_architecture.pdf` |
+| HotPotQA 100 (Reflexion) | **Blocked** — HF dataset id broken; manual JSONL needed |
+| 5 models × 5 benchmarks (WikiSkill Table 1) | **Not run** — needs Codex + Claude + open-weight |
+| Real EvoSkill/Trace2Skill/SkillOpt evolution loops | **Not implemented** — inference proxies only |
+| ALFWorld 134 envs (Reflexion) | **Not wired** — text proxy tasks only |
+
+```bash
+# Import upstream splits
+python3 scripts/import_upstream_bench.py --all
+
+# Competitive suite (probe + SealQA subset + MemGPT + session study)
+python3 scripts/run_competitive_evals.py --agent codex --samples 3 --limit 50
+
+# Multi-model Table-1 style probe
+python3 scripts/run_multimodel_evals.py --samples 3
+```
+
 
 ### Done in-repo
 

@@ -39,6 +39,45 @@ def _style() -> None:
     )
 
 
+def fig_architecture() -> Path:
+    """RSE three-layer architecture (WikiSkill Figure 2 style)."""
+    import matplotlib.patches as mpatches
+
+    fig, ax = plt.subplots(figsize=(6.5, 3.5))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 6)
+    ax.axis("off")
+
+    layers = [
+        (1, 4.2, "Raw layer\nepisodes / sessions", "#DD8452"),
+        (1, 2.4, "Knowledge layer\nlesson DAG + deltas", "#4C72B0"),
+        (1, 0.6, "Retrieval layer\nindex + selector", "#55A868"),
+    ]
+    for x, y, label, color in layers:
+        rect = mpatches.FancyBboxPatch(
+            (x, y), 8, 1.2, boxstyle="round,pad=0.05", linewidth=1.2, edgecolor="black", facecolor=color, alpha=0.35
+        )
+        ax.add_patch(rect)
+        ax.text(x + 4, y + 0.6, label, ha="center", va="center", fontsize=10, fontweight="bold")
+
+    arrows = [(5, 4.2, 5, 3.6), (5, 2.4, 5, 1.8)]
+    for x1, y1, x2, y2 in arrows:
+        ax.annotate("", xy=(x2, y2), xytext=(x1, y1), arrowprops=dict(arrowstyle="->", lw=1.5))
+
+    loop_x = [9.2, 9.2, 0.2, 0.2, 9.2]
+    loop_y = [5.4, 0.2, 0.2, 5.4, 5.4]
+    ax.plot(loop_x, loop_y, "k--", lw=1, alpha=0.5)
+    ax.text(9.5, 3, "co-evolve\nloop", rotation=90, va="center", fontsize=8)
+
+    ax.set_title("RSE three-layer architecture")
+    fig.tight_layout()
+    out = FIGURES / "fig_architecture.pdf"
+    fig.savefig(out)
+    fig.savefig(out.with_suffix(".png"))
+    plt.close(fig)
+    return out
+
+
 def fig_wikiskill(report: dict) -> Path:
     arms = report.get("wikiskill", {})
     labels = ["no-skill", "full-inject", "recall-judge", "recall-agentic"]
@@ -205,6 +244,7 @@ def main() -> int:
     bench = _load("rmc-bench-latest.json") or _load("experiments-full-latest.json").get("bench", {})
 
     paths = [
+        fig_architecture(),
         fig_wikiskill(report),
         fig_recall_ablations(report),
         fig_scaling(report),

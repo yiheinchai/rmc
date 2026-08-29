@@ -1,15 +1,21 @@
 """WikiSkill-comparable benchmark runner for RSE.
 
-Loads ``evals/wikiskill-bench.yaml`` and scores four arms per task:
+Loads YAML or JSONL benchmark files and scores multiple inference arms:
 
 * **no-skill** — bare task (WikiSkill "No skill" baseline)
 * **full-inject** — all store lessons concatenated (WikiSkill test-time injection)
+* **trace2skill** — single best keyword-matched skill (Trace2Skill proxy)
+* **evoskill** — top-2 keyword-matched skills (EvoSkill proxy)
+* **skillopt** — optimized single-skill header inject (SkillOpt proxy)
+* **keyword-rag** — MemGPT/RAG-style top-k lexical retrieval
 * **recall-judge** — RSE recall with judge-walk selector
-* **recall-agentic** — RSE recall with agentic selector (cold search when no session)
+* **recall-agentic** — RSE recall with agentic selector
+* **oracle-skill** — ground-truth task skill (upper bound)
 """
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -23,12 +29,22 @@ from .evaluate import CONTROL
 from .node import Node
 from .prompts import JUDGE_SCHEMA
 from .recall import recall_pack
+from .skill_baselines import (
+    evoskill_pack,
+    keyword_rag_pack,
+    oracle_skill_pack,
+    skillopt_pack,
+    trace2skill_pack,
+)
+from .stats import bootstrap_ci, paired_bootstrap_test
 from .store import Store
 from .util import count_tokens, utcnow
 
 DEFAULT_BENCH = Path(__file__).resolve().parents[1] / "evals" / "wikiskill-bench.yaml"
 
-ARMS = ("no-skill", "full-inject", "recall-judge", "recall-agentic")
+CORE_ARMS = ("no-skill", "full-inject", "recall-judge", "recall-agentic")
+BASELINE_ARMS = ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill")
+ARMS = CORE_ARMS + BASELINE_ARMS
 
 
 @dataclass
@@ -61,6 +77,8 @@ class ArmScore:
     pass_rate: float
     tokens: int
     reason: str = ""
+    samples_passed: int = 0
+    samples_total: int = 0
 
 
 @dataclass
@@ -120,24 +138,42 @@ class WikiSkillReport:
 
 def load_bench(path: Path | None = None) -> tuple[list[WikiSkillCase], list[str]]:
     bench_path = path or DEFAULT_BENCH
+    if bench_path.suffix == ".jsonl":
+        cases = []
+        for line in bench_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            cases.append(WikiSkillCase.from_dict(json.loads(line)))
+        benchmarks = sorted({c.benchmark for c in cases})
+        return cases, benchmarks
     raw = yamlish.load(bench_path.read_text(encoding="utf-8"))
     cases = [WikiSkillCase.from_dict(c) for c in (raw.get("cases") or []) if c.get("id")]
     benchmarks = [str(b) for b in (raw.get("benchmarks") or [])]
     return cases, benchmarks
 
 
-def build_store(cases: list[WikiSkillCase], base: Path) -> Store:
+def build_store(cases: list[WikiSkillCase], base: Path, *, dedupe_families: bool = False) -> Store:
     store = Store.init(base)
+    seen_families: set[str] = set()
     for case in cases:
         if not case.skill:
             continue
+        if dedupe_families:
+            key = case.family or case.id
+            if key in seen_families:
+                continue
+            seen_families.add(key)
+            node_id = key
+        else:
+            node_id = case.id
         store.save_node(
             Node(
-                id=case.id,
+                id=node_id,
                 family=case.family,
                 level=0,
-                title=case.id.replace("-", " "),
-                gist=f"{case.benchmark}: {case.id}",
+                title=node_id.replace("-", " "),
+                gist=f"{case.benchmark}: {node_id}",
                 body=case.skill,
                 created=utcnow(),
                 updated=utcnow(),
@@ -169,6 +205,16 @@ def _pack_for_arm(
         return ""
     if arm == "full-inject":
         return full_pack
+    if arm == "oracle-skill":
+        return oracle_skill_pack(case)
+    if arm == "trace2skill":
+        return trace2skill_pack(store, case.task)
+    if arm == "evoskill":
+        return evoskill_pack(store, case.task)
+    if arm == "skillopt":
+        return skillopt_pack(store, case.task)
+    if arm == "keyword-rag":
+        return keyword_rag_pack(store, case.task)
     selector = "judge" if arm == "recall-judge" else "agentic"
     prev = store.config.get("recall.selector", "agentic")
     store.config.set("recall.selector", selector)
@@ -235,9 +281,14 @@ def run(
     timeout: int = 180,
     store: Store | None = None,
     tmp_base: Path | None = None,
+    arms: tuple[str, ...] | None = None,
+    limit: int | None = None,
 ) -> WikiSkillReport:
     cases, _ = load_bench(path)
+    if limit is not None:
+        cases = cases[:limit]
     bench_path = str(path or DEFAULT_BENCH)
+    use_arms = arms or ARMS
     wrapped = wikiskill_adapter(adapter if getattr(adapter, "name", "") == "mock" else adapter, cases)
     if getattr(adapter, "name", "") != "mock":
         wrapped = adapter
@@ -246,11 +297,14 @@ def run(
     if store is None:
         import tempfile
 
+        dedupe = path is not None and Path(path).suffix == ".jsonl"
         with tempfile.TemporaryDirectory() as tmp:
-            store = build_store(cases, Path(tmp) / "repo")
-            _score_cases(report, wrapped, store, cases, samples=samples, timeout=timeout)
+            store = build_store(cases, Path(tmp) / "repo", dedupe_families=dedupe)
+            _score_cases(
+                report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms
+            )
     else:
-        _score_cases(report, wrapped, store, cases, samples=samples, timeout=timeout)
+        _score_cases(report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms)
 
     return report
 
@@ -263,30 +317,38 @@ def _score_cases(
     *,
     samples: int,
     timeout: int,
+    arms: tuple[str, ...],
 ) -> None:
+    from .bench import _grade, _probe
+
     full_pack = full_inject_pack(store)
     for case in cases:
-        for arm in ARMS:
+        for arm in arms:
             pack = _pack_for_arm(store, adapter, case, arm, full_pack=full_pack)
-            probe_arm = CONTROL if arm == "no-skill" else "L0"
-            score = score_transfer(
-                adapter,
-                _as_bench_case(case),
-                arm=probe_arm,
-                pack=pack,
-                samples=samples,
-                timeout=timeout,
-            )
-            passed_runs = int(score.passed) * samples  # score_transfer uses majority
+            passed_runs = 0
+            reasons: list[str] = []
+            for _ in range(samples):
+                probe_arm = CONTROL if arm == "no-skill" else "L0"
+                answer = _probe(adapter, case.task, pack if probe_arm != CONTROL else "", timeout)
+                ok, why = _grade(adapter, case.task, case.expected, answer, timeout)
+                if getattr(adapter, "name", "") == "mock" or not ok:
+                    ok2, why2 = mock_grade(case.expected, answer, kind="trap")
+                    if getattr(adapter, "name", "") == "mock":
+                        ok, why = ok2, why2
+                passed_runs += 1 if ok else 0
+                reasons.append(why)
+            rate = passed_runs / samples if samples else 0.0
             report.cases.append(
                 ArmScore(
                     case_id=case.id,
                     benchmark=case.benchmark,
                     arm=arm,
-                    passed=score.passed,
-                    pass_rate=1.0 if score.passed else 0.0,
+                    passed=rate >= 0.5,
+                    pass_rate=rate,
                     tokens=count_tokens(pack) if pack else 0,
-                    reason=score.reason,
+                    reason=reasons[0] if reasons else "",
+                    samples_passed=passed_runs,
+                    samples_total=samples,
                 )
             )
 
@@ -306,15 +368,38 @@ def _as_bench_case(case: WikiSkillCase):
     )
 
 
+def _case_pass_rates(report: WikiSkillReport, arm: str) -> list[float]:
+    seen: dict[str, float] = {}
+    for row in report.cases:
+        if row.arm == arm:
+            seen[row.case_id] = row.pass_rate
+    return list(seen.values())
+
+
+def significance_vs_full_inject(report: WikiSkillReport) -> dict[str, Any]:
+    full = _case_pass_rates(report, "full-inject")
+    out: dict[str, Any] = {}
+    for arm in ARMS:
+        if arm in ("no-skill", "full-inject"):
+            continue
+        rates = _case_pass_rates(report, arm)
+        if len(rates) == len(full) and rates:
+            out[arm] = paired_bootstrap_test(rates, full, iterations=1000, seed=7).as_dict()
+    return out
+
+
 def to_dict(report: WikiSkillReport) -> dict[str, Any]:
     arms: dict[str, Any] = {}
     for arm in ARMS:
         passed, total = report.by_arm().get(arm, (0, 0))
+        rates = _case_pass_rates(report, arm)
+        ci = bootstrap_ci(rates, iterations=1000, seed=3) if rates else None
         arms[arm] = {
             "passed": passed,
             "total": total,
             "accuracy": report.accuracy(arm),
             "mean_tokens": report.mean_tokens(arm),
+            "bootstrap_ci": ci.as_dict() if ci else None,
             "by_benchmark": {
                 bench: {"passed": p, "total": t, "accuracy": p / t if t else 0.0}
                 for bench, (p, t) in report.by_benchmark(arm).items()
@@ -330,12 +415,16 @@ def to_dict(report: WikiSkillReport) -> dict[str, Any]:
                 "benchmark": c.benchmark,
                 "arm": c.arm,
                 "passed": c.passed,
+                "pass_rate": c.pass_rate,
+                "samples_passed": c.samples_passed,
+                "samples_total": c.samples_total,
                 "tokens": c.tokens,
                 "reason": c.reason,
             }
             for c in report.cases
         ],
         "render": report.render(),
+        "significance_vs_full_inject": significance_vs_full_inject(report),
         "comparisons": {
             "full_inject_vs_no_skill": {
                 "delta_accuracy": report.accuracy("full-inject") - report.accuracy("no-skill"),
@@ -343,6 +432,10 @@ def to_dict(report: WikiSkillReport) -> dict[str, Any]:
             "recall_judge_vs_full_inject": {
                 "delta_accuracy": report.accuracy("recall-judge") - report.accuracy("full-inject"),
                 "token_savings": report.mean_tokens("full-inject") - report.mean_tokens("recall-judge"),
+            },
+            "recall_agentic_vs_full_inject": {
+                "delta_accuracy": report.accuracy("recall-agentic") - report.accuracy("full-inject"),
+                "token_savings": report.mean_tokens("full-inject") - report.mean_tokens("recall-agentic"),
             },
             "recall_agentic_vs_recall_judge": {
                 "delta_accuracy": report.accuracy("recall-agentic") - report.accuracy("recall-judge"),

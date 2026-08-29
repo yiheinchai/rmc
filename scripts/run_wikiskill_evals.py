@@ -21,6 +21,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="WikiSkill-comparable RSE benchmark")
     parser.add_argument("--agent", choices=["mock", "claude", "codex"], default="mock")
     parser.add_argument("--samples", type=int, default=3)
+    parser.add_argument("--bench", type=Path, default=None, help="YAML or JSONL benchmark path")
+    parser.add_argument("--limit", type=int, default=None, help="cap tasks (upstream splits)")
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     args = parser.parse_args()
 
@@ -31,7 +33,7 @@ def main() -> int:
     adapter = bench_adapter(raw) if args.agent == "mock" else raw
 
     print(f"Running WikiSkill-comparable bench (agent={adapter.name}, samples={args.samples})...")
-    report = run(adapter, samples=args.samples)
+    report = run(adapter, path=args.bench, samples=args.samples, limit=args.limit)
     text = report.render()
     print(text)
 

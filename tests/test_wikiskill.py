@@ -36,9 +36,11 @@ class TestWikiSkillBench(unittest.TestCase):
                 self.assertIn(case.skill.split()[0], pack)
 
     def test_mock_run_produces_all_arms(self) -> None:
-        report = run(bench_adapter(MockAdapter()), samples=1)
-        self.assertEqual(len(report.cases), 10 * len(ARMS))
-        for arm in ARMS:
+        from rmc.wikiskill import CORE_ARMS
+
+        report = run(bench_adapter(MockAdapter()), samples=1, arms=CORE_ARMS)
+        self.assertEqual(len(report.cases), 10 * len(CORE_ARMS))
+        for arm in CORE_ARMS:
             self.assertGreater(report.by_arm()[arm][1], 0)
 
     def test_to_dict_has_comparisons(self) -> None:

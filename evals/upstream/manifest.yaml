@@ -1,0 +1,21 @@
+# Upstream benchmark manifests for WikiSkill-comparable full-scale evals.
+# Import with: python3 scripts/import_upstream_bench.py --all
+
+version: 1
+
+sources:
+  - id: sealqa-test
+    benchmark: SealQA
+    family: sealqa
+    hf_dataset: vtllms/sealqa
+    hf_config: seal_0
+    hf_split: test
+    task_field: question
+    expected_field: answer
+    skill: |
+      SealQA: answer from provided evidence only. When snippets conflict,
+      prefer the snippet whose title matches the question entity. Format:
+      "Answer: <short fact>".
+
+  # HotPotQA import disabled — upstream HF dataset id broken in current hub;
+  # add hotpotqa-dev.jsonl manually when available (Reflexion uses 100 dev Qs).
