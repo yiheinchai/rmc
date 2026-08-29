@@ -64,13 +64,20 @@ fi
 SHARD2_OFFSET="$SPLIT"
 if [[ -f "$WORK/competitive-latest.json" ]]; then
   SHARD2_OFFSET=$(python3 -c "
-import json, re
-d = json.load(open('$WORK/competitive-latest.json'))
+import json
+from pathlib import Path
+work = Path('$WORK/competitive-latest.json')
+bench = Path('evals/upstream/hotpotqa-dev.jsonl')
+d = json.loads(work.read_text())
 cases = (d.get('upstream') or {}).get('hotpotqa-dev') or {}
-ids = [c.get('case_id','') for c in cases.get('cases') or [] if c.get('case_id')]
-nums = [int(re.search(r'(\d+)$', i).group(1)) for i in ids if re.search(r'(\d+)$', i)]
-start = ($SPLIT if not nums else max(max(nums) + 1, $SPLIT))
-print(min(start, 99))
+done = {c.get('case_id') for c in cases.get('cases') or [] if c.get('case_id')}
+order = [json.loads(line)['id'] for line in bench.read_text().splitlines() if line.strip()]
+for idx, case_id in enumerate(order):
+    if case_id not in done:
+        print(idx)
+        break
+else:
+    print(len(order))
 " 2>/dev/null || echo "$SPLIT")
 fi
 echo "shard2 offset from checkpoint: $SHARD2_OFFSET"
