@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
 
-INTERVAL="${1:-120}"
+INTERVAL="${1:-60}"
 MAIN="papers/rse/results/competitive-latest.json"
 HOTPOT="papers/rse/results/hotpot-workspace/competitive-latest.json"
 WIKI="papers/rse/results/wikiskill-latest.json"
@@ -12,16 +12,25 @@ WIKI="papers/rse/results/wikiskill-latest.json"
 echo "=== Upstream merge watcher (every ${INTERVAL}s) ==="
 
 while true; do
+  ts=$(date -u +%H:%M:%S)
+  merged=false
   if [[ -f "$WIKI" ]]; then
-    python3 scripts/merge_competitive_upstream.py \
+    if python3 scripts/merge_competitive_upstream.py \
       --competitive "$MAIN" \
-      --wikiskill "$WIKI" 2>/dev/null || true
+      --wikiskill "$WIKI" 2>&1; then
+      merged=true
+    fi
   fi
   if [[ -f "$HOTPOT" ]]; then
-    python3 scripts/merge_competitive_upstream.py \
+    if python3 scripts/merge_competitive_upstream.py \
       --competitive "$MAIN" \
       --from-competitive "$HOTPOT" \
-      --stem hotpotqa-dev 2>/dev/null || true
+      --stem hotpotqa-dev 2>&1; then
+      merged=true
+    fi
+  fi
+  if [[ "$merged" == false ]]; then
+    echo "$ts merge tick (no change)"
   fi
   sleep "$INTERVAL"
 done
