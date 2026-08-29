@@ -35,4 +35,7 @@ python3 scripts/generate_paper_figures.py
 python3 scripts/inject_paper_results.py || true
 cd papers/rse && make
 
+echo "=== Competitive bar audit ==="
+python3 scripts/audit_competitive_bar.py || true
+
 echo "=== Follow-up watcher done ==="

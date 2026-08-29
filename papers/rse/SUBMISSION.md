@@ -49,6 +49,9 @@ python3 scripts/run_multimodel_evals.py --samples 3 --resume
 
 # Pipeline status (while Codex evals run)
 python3 scripts/pipeline_status.py
+
+# Verify competitive bar when pipeline completes
+python3 scripts/audit_competitive_bar.py
 ```
 
 
