@@ -373,6 +373,10 @@ def main() -> int:
     bench = _load("rmc-bench-latest.json") or _load("experiments-full-latest.json").get("bench", {})
     competitive = _load("competitive-latest.json")
     cross_transfer = _load("cross-transfer-latest.json")
+    wikiskill_upstream = _load("wikiskill-latest.json")
+    if "sealqa" in str(wikiskill_upstream.get("bench_path", "")):
+        competitive = dict(competitive)
+        competitive.setdefault("upstream", {})["sealqa-test"] = wikiskill_upstream
 
     paths = [
         fig_architecture(),
