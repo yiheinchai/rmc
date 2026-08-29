@@ -66,6 +66,11 @@ def build_report() -> dict:
             agent = "codex"
         wikiskill_probe_arms = (competitive.get("wikiskill_probe") or {}).get("arms") or wikiskill_probe_arms
 
+    comp_hotpot = (competitive.get("upstream") or {}).get("hotpotqa-dev") if competitive else None
+    upstream_hotpotqa_arms = {}
+    if comp_hotpot and (comp_hotpot.get("arms") or {}).get("full-inject", {}).get("total", 0):
+        upstream_hotpotqa_arms = comp_hotpot.get("arms") or {}
+
     session_study = session_study or full.get("session_study") or {}
 
     # Prefer competitive suite RMC-Bench when available (expanded bench)
@@ -87,6 +92,7 @@ def build_report() -> dict:
         "recall_ablations": recall.get("arms", {}),
         "wikiskill": wikiskill_probe_arms or (full.get("wikiskill") or {}).get("arms", {}),
         "upstream_sealqa": upstream_sealqa_arms,
+        "upstream_hotpotqa": upstream_hotpotqa_arms,
         "upstream_sealqa_meta": {
             "bench_path": wikiskill_path or (comp_upstream or {}).get("bench_path", ""),
             "checkpoint": wikiskill_raw.get("checkpoint", False),
@@ -106,6 +112,7 @@ def build_report() -> dict:
             "codex_rmc_bench": bool(bench),
             "wikiskill_comparable": bool(wikiskill_probe_arms or upstream_sealqa_arms),
             "upstream_sealqa_eval": bool(upstream_sealqa_arms),
+            "upstream_hotpotqa_eval": bool(upstream_hotpotqa_arms),
             "recall_ablations": bool(recall.get("arms")),
             "scaling_study": bool((summary.get("scaling") or full.get("scaling", {})).get("rows")),
             "claude_cross_check": _claude_authenticated(),
@@ -155,6 +162,15 @@ def build_report() -> dict:
         n = fi.get("total", 0)
         findings.append(
             f"Upstream SealQA ({n} tasks): full-inject {fi.get('accuracy', 0):.0%}; "
+            f"recall-agentic {ra.get('accuracy', 0):.0%} @ {ra.get('mean_tokens', 0)} tok"
+        )
+    hp = report.get("upstream_hotpotqa") or {}
+    if hp:
+        fi = hp.get("full-inject", {})
+        ra = hp.get("recall-agentic", {})
+        n = fi.get("total", 0)
+        findings.append(
+            f"Upstream HotPotQA ({n} tasks): full-inject {fi.get('accuracy', 0):.0%}; "
             f"recall-agentic {ra.get('accuracy', 0):.0%} @ {ra.get('mean_tokens', 0)} tok"
         )
     ct = report.get("cross_transfer") or {}

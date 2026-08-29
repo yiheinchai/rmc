@@ -375,6 +375,40 @@ def fig_session_study(report: dict) -> Path:
     return out
 
 
+def fig_multimodel(data: dict) -> Path:
+    """Multi-model WikiSkill probe (Table 1 style)."""
+    models = data.get("models") or {}
+    out = FIGURES / "fig_multimodel.pdf"
+    if not models:
+        fig, ax = plt.subplots(figsize=(4.0, 2.5))
+        ax.text(0.5, 0.5, "Multi-model eval\n(run scripts/run_multimodel_evals.py)", ha="center", va="center")
+        ax.axis("off")
+        fig.savefig(out)
+        fig.savefig(out.with_suffix(".png"))
+        plt.close(fig)
+        return out
+
+    labels = sorted(models)
+    acc = [models[m].get("arms", {}).get("recall-agentic", {}).get("accuracy", 0) * 100 for m in labels]
+    tok = [models[m].get("arms", {}).get("recall-agentic", {}).get("mean_tokens", 0) for m in labels]
+
+    fig, ax = plt.subplots(figsize=(max(4.0, len(labels) * 1.2), 3.0))
+    x = np.arange(len(labels))
+    ax.bar(x, acc, color="#4C72B0", alpha=0.9)
+    for i, (a, t) in enumerate(zip(acc, tok)):
+        ax.text(i, a + 2, f"{a:.0f}%\n({t} tok)", ha="center", fontsize=8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=20, ha="right", fontsize=8)
+    ax.set_ylabel("recall-agentic accuracy (%)")
+    ax.set_ylim(0, 115)
+    ax.set_title("Multi-model WikiSkill probe")
+    fig.tight_layout()
+    fig.savefig(out)
+    fig.savefig(out.with_suffix(".png"))
+    plt.close(fig)
+    return out
+
+
 def main() -> int:
     FIGURES.mkdir(parents=True, exist_ok=True)
     _style()
@@ -382,6 +416,7 @@ def main() -> int:
     bench = _load("rmc-bench-latest.json") or _load("experiments-full-latest.json").get("bench", {})
     competitive = _load("competitive-latest.json")
     cross_transfer = _load("cross-transfer-latest.json")
+    multimodel = _load("multimodel-latest.json")
     wikiskill_upstream = _load("wikiskill-latest.json")
     if "sealqa" in str(wikiskill_upstream.get("bench_path", "")):
         competitive = dict(competitive)
@@ -397,6 +432,7 @@ def main() -> int:
         fig_session_study(report),
         fig_competitive_baselines(competitive),
         fig_cross_transfer(cross_transfer),
+        fig_multimodel(multimodel),
     ]
     for p in paths:
         if p.exists():

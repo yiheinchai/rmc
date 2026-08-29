@@ -56,6 +56,22 @@ def test_sealqa_upstream_payload_competitive(inj) -> None:
     assert payload["arms"]["full-inject"]["total"] == 50
 
 
+def test_build_hotpot_table(inj) -> None:
+    data = {
+        "arms": {
+            "full-inject": {
+                "accuracy": 0.5,
+                "total": 100,
+                "mean_tokens": 120,
+                "bootstrap_ci": {"low": 0.4, "high": 0.6},
+            },
+        }
+    }
+    table = inj.build_hotpot_table(data)
+    assert "100 tasks" in table
+    assert "HotPotQA" in table
+
+
 def test_build_sealqa_table(inj) -> None:
     data = {
         "arms": {

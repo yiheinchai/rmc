@@ -23,7 +23,7 @@ def _ci(ci: dict | None) -> str:
     return f" (95\\% CI: {_pct(ci['low'])}--{_pct(ci['high'])})"
 
 
-def build_sealqa_table(data: dict) -> str:
+def build_upstream_baseline_table(data: dict, *, benchmark: str, label: str) -> str:
     arms = data.get("arms") or {}
     order = [
         "no-skill",
@@ -40,8 +40,8 @@ def build_sealqa_table(data: dict) -> str:
     lines = [
         "\\begin{table}[t]",
         "  \\centering",
-        f"  \\caption{{Upstream SealQA ({n} tasks, Codex-graded, 1 sample).}}",
-        "  \\label{tab:sealqa_upstream}",
+        f"  \\caption{{Upstream {benchmark} ({n} tasks, Codex-graded, 1 sample).}}",
+        f"  \\label{{tab:{label}}}",
         "  \\begin{tabular}{lcc}",
         "    \\toprule",
         "    Arm & Accuracy & Mean tokens \\\\",
@@ -54,9 +54,9 @@ def build_sealqa_table(data: dict) -> str:
         acc = row.get("accuracy", 0)
         ci = row.get("bootstrap_ci")
         tok = row.get("mean_tokens", 0)
-        label = arm.replace("-", "\\mbox{-}")
+        arm_label = arm.replace("-", "\\mbox{-}")
         lines.append(
-            f"    {label} & {_pct(acc)}{_ci(ci)} & {tok} \\\\"
+            f"    {arm_label} & {_pct(acc)}{_ci(ci)} & {tok} \\\\"
         )
     lines += [
         "    \\bottomrule",
@@ -64,6 +64,14 @@ def build_sealqa_table(data: dict) -> str:
         "\\end{table}",
     ]
     return "\n".join(lines)
+
+
+def build_sealqa_table(data: dict) -> str:
+    return build_upstream_baseline_table(data, benchmark="SealQA", label="sealqa_upstream")
+
+
+def build_hotpot_table(data: dict) -> str:
+    return build_upstream_baseline_table(data, benchmark="HotPotQA", label="hotpot_upstream")
 
 
 def build_rmc_bench_rows(rb: dict) -> dict[str, str]:
@@ -135,10 +143,8 @@ def inject_rmc_bench(paper_path: Path, rb: dict) -> bool:
     return True
 
 
-def inject_sealqa(paper_path: Path, table: str) -> bool:
+def inject_marked_table(paper_path: Path, table: str, marker_start: str, marker_end: str, *, anchor: str = "") -> bool:
     text = paper_path.read_text(encoding="utf-8")
-    marker_start = "% AUTO:SEALQA_TABLE_BEGIN"
-    marker_end = "% AUTO:SEALQA_TABLE_END"
     block = f"{marker_start}\n{table}\n{marker_end}"
     if marker_start in text:
         text = re.sub(
@@ -148,25 +154,51 @@ def inject_sealqa(paper_path: Path, table: str) -> bool:
             count=1,
             flags=re.DOTALL,
         )
-    else:
-        anchor = "\\label{fig:competitive}"
-        if anchor not in text:
-            return False
+    elif anchor and anchor in text:
         text = text.replace(anchor, f"{anchor}\n\n{block}", 1)
+    else:
+        return False
     paper_path.write_text(text, encoding="utf-8")
     return True
 
 
-def _sealqa_upstream_payload(data: dict) -> dict | None:
-    """Extract SealQA upstream arms from competitive or wikiskill result blobs."""
-    upstream = (data.get("upstream") or {}).get("sealqa-test")
+def inject_sealqa(paper_path: Path, table: str) -> bool:
+    return inject_marked_table(
+        paper_path,
+        table,
+        "% AUTO:SEALQA_TABLE_BEGIN",
+        "% AUTO:SEALQA_TABLE_END",
+        anchor="\\label{fig:competitive}",
+    )
+
+
+def inject_hotpot(paper_path: Path, table: str) -> bool:
+    return inject_marked_table(
+        paper_path,
+        table,
+        "% AUTO:HOTPOT_TABLE_BEGIN",
+        "% AUTO:HOTPOT_TABLE_END",
+        anchor="\\label{sec:hotpot}",
+    )
+
+
+def _upstream_payload(data: dict, stem: str) -> dict | None:
+    upstream = (data.get("upstream") or {}).get(stem)
     if upstream and (upstream.get("arms") or {}).get("full-inject", {}).get("total", 0):
         return upstream
-    if "sealqa" in str(data.get("bench_path", "")):
+    if stem.replace("-", "") in str(data.get("bench_path", "")).replace("-", "").lower():
         arms = data.get("arms") or {}
         if arms.get("full-inject", {}).get("total", 0):
             return data
     return None
+
+
+def _sealqa_upstream_payload(data: dict) -> dict | None:
+    return _upstream_payload(data, "sealqa-test")
+
+
+def _hotpot_upstream_payload(data: dict) -> dict | None:
+    return _upstream_payload(data, "hotpotqa-dev")
 
 
 def main() -> int:
@@ -183,6 +215,12 @@ def main() -> int:
             table = build_sealqa_table(sealqa)
             if inject_sealqa(PAPER, table):
                 print(f"Updated SealQA table from competitive-latest in {PAPER}")
+                updated = True
+        hotpot = _hotpot_upstream_payload(data)
+        if hotpot:
+            table = build_hotpot_table(hotpot)
+            if inject_hotpot(PAPER, table):
+                print(f"Updated HotPotQA table from competitive-latest in {PAPER}")
                 updated = True
 
     path = RESULTS / "wikiskill-latest.json"
