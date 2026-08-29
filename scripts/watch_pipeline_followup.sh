@@ -27,7 +27,12 @@ wait_for "run_wikiskill_evals.py --agent codex --bench evals/upstream/sealqa-tes
 wait_for "run_competitive_evals.py.*hotpotqa-dev" "HotPotQA upstream"
 wait_for "run_multimodel_evals.py" "multimodel eval"
 
-echo "=== Merge full SealQA from wikiskill-latest into competitive ==="
+echo "=== Merge SealQA shards (if parallel) + competitive upstream ==="
+SHARD2="papers/rse/results/sealqa-shard2/wikiskill-latest.json"
+WIKI="papers/rse/results/wikiskill-latest.json"
+if [[ -f "$SHARD2" ]]; then
+  python3 scripts/merge_wikiskill_shards.py --out "$WIKI" "$WIKI" "$SHARD2" || true
+fi
 python3 scripts/merge_competitive_upstream.py || true
 
 echo "=== Running upstream follow-up (HotPotQA + incomplete splits) ==="
