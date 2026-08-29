@@ -23,6 +23,12 @@ def main() -> int:
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--bench", type=Path, default=None, help="YAML or JSONL benchmark path")
     parser.add_argument("--limit", type=int, default=None, help="cap tasks (upstream splits)")
+    parser.add_argument(
+        "--arms",
+        nargs="*",
+        default=None,
+        help="subset of arms (default: all). e.g. --arms no-skill full-inject recall-agentic",
+    )
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     args = parser.parse_args()
 
@@ -32,8 +38,9 @@ def main() -> int:
         raw = get_adapter("mock")
     adapter = bench_adapter(raw) if args.agent == "mock" else raw
 
+    use_arms = tuple(args.arms) if args.arms else None
     print(f"Running WikiSkill-comparable bench (agent={adapter.name}, samples={args.samples})...")
-    report = run(adapter, path=args.bench, samples=args.samples, limit=args.limit)
+    report = run(adapter, path=args.bench, samples=args.samples, limit=args.limit, arms=use_arms)
     text = report.render()
     print(text)
 

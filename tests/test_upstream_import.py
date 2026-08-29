@@ -62,3 +62,22 @@ def test_row_to_case_includes_evidence(imp) -> None:
     case = imp._row_to_case(row, spec, 1)
     assert "Evidence snippets" in case["task"]
     assert case["expected"] == "Answer: Alice"
+
+
+def test_row_to_case_page_hints(imp) -> None:
+    spec = {
+        "id": "test",
+        "benchmark": "SealQA",
+        "family": "sealqa",
+        "task_field": "question",
+        "expected_field": "answer",
+        "skill": "test skill",
+    }
+    row = {
+        "question": "How many?",
+        "answer": "12",
+        "urls": ["https://en.wikipedia.org/wiki/List_of_NBA_single-game_scoring_leaders#Single-game_leaders"],
+    }
+    case = imp._row_to_case(row, spec, 1)
+    assert "Reference context" in case["task"]
+    assert "NBA" in case["task"]

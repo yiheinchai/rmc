@@ -53,6 +53,23 @@ def _url_text_snippets(urls: list[str]) -> list[str]:
     return snippets
 
 
+def _url_page_hints(urls: list[str]) -> list[str]:
+    """Derive readable page/section hints from bare Wikipedia URLs."""
+    hints: list[str] = []
+    for url in urls:
+        if "wikipedia.org/wiki/" not in url:
+            continue
+        path = url.split("/wiki/", 1)[1]
+        page, _, frag = path.partition("#")
+        title = unquote(page).replace("_", " ")
+        if title:
+            hints.append(f"Wikipedia article: {title}")
+        if frag and not frag.startswith("~:text"):
+            anchor = frag.split(":~:", 1)[0]
+            hints.append(f"Section: {unquote(anchor).replace('_', ' ')}")
+    return hints
+
+
 def _row_to_case(row: dict, spec: dict, idx: int) -> dict:
     task_field = spec["task_field"]
     expected_field = spec["expected_field"]
@@ -60,11 +77,14 @@ def _row_to_case(row: dict, spec: dict, idx: int) -> dict:
     expected = str(row.get(expected_field) or "").strip()
     urls = _normalize_urls(row.get("urls"))
     snippets = _url_text_snippets(urls)
+    page_hints = _url_page_hints(urls) if not snippets else []
     evidence = ""
     if snippets:
         evidence = "\n\nEvidence snippets (from reference URLs):\n" + "\n".join(
             f"- {s}" for s in snippets[:4]
         )
+    elif page_hints:
+        evidence = "\n\nReference context (from URLs):\n" + "\n".join(f"- {h}" for h in page_hints[:4])
     elif urls:
         evidence = "\n\nReference URLs:\n" + "\n".join(f"- {u}" for u in urls[:3])
     task = f"{question}{evidence}\n\nAnswer with a short factual response starting with 'Answer:'."
