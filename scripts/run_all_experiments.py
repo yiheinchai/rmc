@@ -54,6 +54,7 @@ def main() -> int:
         "compaction": suite.compaction,
         "walkthrough": suite.walkthrough,
         "retention_curve": suite.retention_curve,
+        "wikiskill": suite.wikiskill,
         "notes": suite.notes,
     }
     (out / "summary-latest.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
@@ -65,6 +66,8 @@ def main() -> int:
     (out / "compaction-ablation-latest.json").write_text(
         json.dumps(suite.compaction, indent=2), encoding="utf-8"
     )
+    if suite.wikiskill:
+        (out / "wikiskill-latest.json").write_text(json.dumps(suite.wikiskill, indent=2), encoding="utf-8")
 
     print(f"\nWrote {full_path}")
     print(f"Wrote {txt_path}")

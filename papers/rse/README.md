@@ -27,7 +27,7 @@ Results land in `papers/rse/results/`:
 | `recall-ablations-latest.json` | serve-all vs judge precision/recall |
 | `compaction-ablation-latest.json` | meta-testing on/off |
 | `rmc-bench-latest.json` | Per-case transfer/retrieval scores |
-| `scaling-latest.json` | Synthetic store scaling table |
+| `wikiskill-latest.json` | WikiSkill-comparable: no-skill vs full-inject vs recall arms |
 
 ## What is measured
 
@@ -59,10 +59,10 @@ tuning, negative results. Cite alongside benchmark numbers.
 | RMC-Bench + full suite | **Run** — `experiments-full-latest.json` |
 | Recall ablations | **Run** — judge 100% prec vs serve-all 47% |
 | Retention curve | **Run** — L0 100% → L1 0% on held-out S3 |
-| WikiSkill-comparable benchmarks | Not yet integrated |
+| WikiSkill-comparable benchmarks | **Run** — `wikiskill-latest.json` |
 
 ## Next steps for submission-quality numbers
 
 1. `python3 scripts/run_all_experiments.py --agent claude --samples 3`
-2. Wire WikiSkill benchmark harness with RSE recall
+2. ~~Wire WikiSkill benchmark harness with RSE recall~~ **Done** — `scripts/run_wikiskill_evals.py`
 3. End-to-end session-length paired study (EXPERIMENTS.md §7)

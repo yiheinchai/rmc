@@ -21,6 +21,7 @@ class TestExperiments(unittest.TestCase):
         levels = suite.retention_curve.get("levels", {})
         self.assertEqual(levels.get("L0", {}).get("pass_rate"), 1.0)
         self.assertEqual(levels.get("L1", {}).get("pass_rate"), 0.0)
+        self.assertIn("no-skill", suite.wikiskill.get("arms", {}))
 
 
 if __name__ == "__main__":

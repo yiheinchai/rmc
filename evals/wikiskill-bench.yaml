@@ -1,0 +1,179 @@
+# WikiSkill-comparable benchmark subset for RSE evaluation.
+#
+# Mirrors the five WikiSkill domains (Table 6, arXiv:2608.27454) with
+# single-turn probeable tasks. Each case ships an evolved skill (lesson) that
+# full-inject loads WikiSkill-style; RSE recall arms select from the store.
+#
+# Arms: no-skill | full-inject | recall-judge | recall-agentic
+
+version: 1
+
+benchmarks:
+  - LiveMath
+  - SealQA
+  - SpreadSheet
+  - OfficeQA
+  - ALFWorld
+
+cases:
+
+  # --- LiveMath (competition-style reasoning) --------------------------------
+
+  - id: livemath-extremal
+    benchmark: LiveMath
+    family: livemath
+    skill: |
+      For extremal combinatorics MC problems, bound the object before counting.
+      If every pair must share at least one element, use double-counting on
+      incidences: sum of set sizes >= 2 * (number of pairs). For "minimum n
+      such that any n-set from {1..m} contains a triple with pairwise
+      intersection", first derive the Turán-type bound, then check tightness.
+    task: |
+      Multiple choice: What is the minimum n such that every collection of n
+      subsets of {1,2,3,4,5}, each of size 3, must contain three sets whose
+      pairwise intersections are all non-empty?
+      (A) 5  (B) 6  (C) 7  (D) 8
+    expected: |
+      Answer (B) 6. Use the extremal pairing bound: with n=6 any family of
+      3-sets on 5 elements forces three sets with mutual nonempty intersection.
+
+  - id: livemath-probability
+    benchmark: LiveMath
+    family: livemath
+    skill: |
+      For conditional probability MC items, expand P(A|B) = P(A∩B)/P(B) and
+      check whether events are independent before multiplying. When sampling
+      without replacement, update the denominator each draw.
+    task: |
+      A deck has 3 red and 2 blue cards. Two cards are drawn without
+      replacement. What is P(both red)?
+      (A) 3/10  (B) 3/20  (C) 6/20  (D) 9/20
+    expected: |
+      Answer (A) 3/10. P = (3/5)*(2/4) = 6/20 = 3/10.
+
+  # --- SealQA (search-grounded factual QA) -----------------------------------
+
+  - id: sealqa-paper-year
+    benchmark: SealQA
+    family: sealqa
+    skill: |
+      SealQA answers must cite the retrieved snippet verbatim. When a search
+      result gives a publication year in the header line, use that year — not
+      the journal volume year. Format: "Answer: <fact> (source: <title>, <year>)".
+    task: |
+      Search result snippet:
+      Title: Attention Is All You Need
+      Authors: Vaswani et al.
+      Venue: NeurIPS 2017
+      Abstract excerpt: "...introduces the Transformer architecture..."
+
+      Question: In what year was the Transformer architecture paper published?
+    expected: |
+      Answer: 2017 (source: Attention Is All You Need, 2017).
+
+  - id: sealqa-author-count
+    benchmark: SealQA
+    family: sealqa
+    skill: |
+      For author-list questions, count only named authors in the metadata block,
+      not "et al." When the snippet lists "A, B, and C et al.", the explicit
+      count is 3 unless the full author line is shown.
+    task: |
+      Search result snippet:
+      Title: BERT: Pre-training of Deep Bidirectional Transformers
+      Authors: Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova
+      Question: How many authors are explicitly named in the metadata?
+    expected: |
+      Answer: 4 authors (Devlin, Chang, Lee, Toutanova).
+
+  # --- SpreadSheet (table/code manipulation) --------------------------------
+
+  - id: spreadsheet-pivot-sum
+    benchmark: SpreadSheet
+    family: spreadsheet
+    skill: |
+      SpreadSheetBench tasks need executable pandas, not Excel formulas, when
+      the harness is Python-only. For "sum sales by region", use
+      df.groupby("region")["sales"].sum(). Reset index before returning.
+    task: |
+      Given columns region,sales with rows (East,10), (West,20), (East,15),
+      write the pandas one-liner to get total sales per region sorted by region.
+    expected: |
+      df.groupby("region", as_index=False)["sales"].sum().sort_values("region")
+
+  - id: spreadsheet-fillna
+    benchmark: SpreadSheet
+    family: spreadsheet
+    skill: |
+      When cleaning tables, forward-fill only time-series gaps; for categorical
+      columns use explicit fillna("Unknown"). Never mix ffill across unrelated
+      groups — groupby first, then ffill within group.
+    task: |
+      A status column has NaN after group "A" rows. What is the safe pandas
+      pattern to forward-fill status within each group_id only?
+    expected: |
+      df.groupby("group_id")["status"].ffill() or
+      df["status"] = df.groupby("group_id")["status"].ffill()
+
+  # --- OfficeQA (long-document treasury QA) ----------------------------------
+
+  - id: officeqa-receipts-total
+    benchmark: OfficeQA
+    family: officeqa
+    skill: |
+      OfficeQA Treasury bulletins: "Total receipts" on a summary table is the
+      sum of the line items above it, not the outlays column. Quote the table
+      row label exactly and give the figure with units (millions of dollars).
+    task: |
+      Treasury bulletin excerpt (Table 1, FY excerpt):
+      Individual income taxes: 1,200
+      Corporate income taxes: 300
+      Total receipts: 1,550
+      Total outlays: 1,700
+
+      Question: What were total receipts in this excerpt, and in what units?
+    expected: |
+      Total receipts were 1,550 (millions of dollars), per the Total receipts row.
+
+  - id: officeqa-outlays-vs-receipts
+    benchmark: OfficeQA
+    family: officeqa
+    skill: |
+      When comparing receipts vs outlays, compute deficit = outlays - receipts
+      only after confirming both are from the same fiscal period table. Cite
+      both row labels.
+    task: |
+      Using the same Table 1 excerpt (receipts 1,550; outlays 1,700), what is
+      the deficit?
+    expected: |
+      Deficit is 150 (outlays 1,700 minus receipts 1,550), same units as table.
+
+  # --- ALFWorld (text household tasks) ---------------------------------------
+
+  - id: alfworld-put-apple
+    benchmark: ALFWorld
+    family: alfworld
+    skill: |
+      ALFWorld pick-and-place: always `take <object> from <location>` then
+      `put <object> in/on <receptacle>`. Check admissible actions list before
+      moving. For food items, prefer countertop or fridge per task wording.
+    task: |
+      Task: put a clean apple on the countertop.
+      You are at the fridge. Admissible: open fridge, go to countertop, take
+      apple from fridge, clean apple with sink.
+      Give the minimal two-action sequence.
+    expected: |
+      take apple from fridge, then put apple on countertop (after clean if required).
+
+  - id: alfworld-heat-mug
+    benchmark: ALFWorld
+    family: alfworld
+    skill: |
+      Heating tasks require: take mug -> heat mug with microwave -> put mug on
+      target. Never skip the heat action when the goal says "hot mug".
+    task: |
+      Task: put a hot mug on the coffeemachine.
+      You hold a mug. Admissible: heat mug with microwave, put mug on coffeemachine.
+      Give the action sequence.
+    expected: |
+      heat mug with microwave, then put mug on coffeemachine.

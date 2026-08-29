@@ -33,6 +33,8 @@ from .recall import recall_pack, solve_with_descent
 from .scaling import render_table, run_scaling
 from .store import Episode, Store
 from .util import count_tokens, new_id, utcnow
+from .wikiskill import run as run_wikiskill
+from .wikiskill import to_dict as wikiskill_to_dict
 
 # Walkthrough lesson — multi-block so mock compression works.
 WALKTHROUGH_LESSON = """When calling flaky remote services in this codebase, follow these rules.
@@ -61,6 +63,7 @@ class ExperimentSuite:
     compaction: dict[str, Any] = field(default_factory=dict)
     walkthrough: dict[str, Any] = field(default_factory=dict)
     retention_curve: dict[str, Any] = field(default_factory=dict)
+    wikiskill: dict[str, Any] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -73,6 +76,7 @@ class ExperimentSuite:
             "compaction": self.compaction,
             "walkthrough": self.walkthrough,
             "retention_curve": self.retention_curve,
+            "wikiskill": self.wikiskill,
             "notes": self.notes,
         }
 
@@ -385,6 +389,8 @@ def run_all(*, agent: str = "mock", samples: int = 3) -> ExperimentSuite:
     suite.compaction = run_compaction_ablation(adapter)
     suite.walkthrough = run_walkthrough_cycle(adapter)
     suite.retention_curve = run_retention_curve(adapter, samples)
+    ws_report = run_wikiskill(adapter, samples=samples)
+    suite.wikiskill = wikiskill_to_dict(ws_report)
 
     return suite
 
@@ -416,6 +422,8 @@ def render_summary(suite: ExperimentSuite) -> str:
     lines += ["", "=== Retention curve (S3 task) ==="]
     for level, data in suite.retention_curve.get("levels", {}).items():
         lines.append(f"  {level:<8} transfer={data.get('pass_rate', 0):.0%}  tokens={data.get('tokens', 0)}")
+    if suite.wikiskill.get("render"):
+        lines += ["", "=== WikiSkill-comparable ===", suite.wikiskill["render"]]
     if suite.notes:
         lines += ["", "Notes:", *[f"  - {n}" for n in suite.notes]]
     return "\n".join(lines)

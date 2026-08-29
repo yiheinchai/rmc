@@ -178,12 +178,27 @@ From `EXPERIMENTS.md` (Aug 2026):
 |---|---|
 | Codex-graded RMC-Bench | **Done** (`--agent codex`) |
 | Claude-graded RMC-Bench | Needs `--agent claude` |
-| WikiSkill benchmark adapter | Not built |
+| WikiSkill-comparable bench (Codex) | **Done** — see §4.8 |
 | End-to-end session-length paired study | Not measured |
 
 ### 4.8 Comparison to WikiSkill
 
-WikiSkill co-evolves skills + wiki offline on fixed benchmarks with full skill injection. RSE targets the **production setting** WikiSkill defers: growing stores, retrieval under budget, validated compaction. Complementary, not competing — future work integrates WikiSkill benchmarks with RSE recall.
+WikiSkill co-evolves skills + wiki offline on fixed benchmarks with **full skill injection** at test time. RSE targets the production setting WikiSkill defers: growing stores, retrieval under budget, validated compaction.
+
+We built a WikiSkill-comparable subset (`evals/wikiskill-bench.yaml`) spanning the same five domains (LiveMath, SealQA, SpreadSheet, OfficeQA, ALFWorld) with evolved skills loaded into an RMC store. Each task is scored under four arms:
+
+| Arm | Mechanism | Accuracy (Codex, 3 samples) | Mean tokens |
+|---|---|---|---|
+| no-skill | bare task | 60% (6/10) | 0 |
+| full-inject | WikiSkill-style: all skills in prompt | 70% (7/10) | 534 |
+| recall-judge | RSE judge-walk selector | 70% (7/10) | **64** |
+| recall-agentic | RSE agentic DCD selector | **80% (8/10)** | **64** |
+
+**Headline:** agentic recall **matches or beats** full injection while using **~88% fewer tokens** (64 vs 534). Full injection adds +10pp over no-skill; agentic recall adds another +10pp over full-inject on this subset — including rescuing `alfworld-put-apple` where injecting all skills caused the model to over-complicate the action sequence.
+
+This is a curated 10-task probe subset, not the full WikiSkill test splits (124–280 tasks per benchmark). It establishes the comparison methodology; scaling to upstream task files is future work.
+
+Reproduce: `python3 scripts/run_wikiskill_evals.py --agent codex --samples 3` → `papers/rse/results/wikiskill-latest.json`.
 
 ---
 
@@ -220,7 +235,7 @@ RSE = WikiSkill's persistent knowledge insight + explicit retrieval co-evolution
 
 ## 7. Conclusion
 
-RSE compiles agent experience into recursively compressible lessons while co-evolving the retrieval that finds them. Meta-testing prevents silent behavioral drift; dynamic context discovery keeps catalog cost at zero injected tokens. RMC-Bench and scaling studies provide reproducible quantitative hooks; dogfood measurements confirm retrieval filtering and tuning matter in practice. Next: WikiSkill-comparable benchmark runs with recall enabled, completing the ablation table for submission.
+RSE compiles agent experience into recursively compressible lessons while co-evolving the retrieval that finds them. Meta-testing prevents silent behavioral drift; dynamic context discovery keeps catalog cost at zero injected tokens. RMC-Bench and scaling studies provide reproducible quantitative hooks; WikiSkill-comparable evals show agentic recall matching full skill injection at **~88% lower token cost** and beating it on accuracy (80% vs 70%) on a five-benchmark subset. Dogfood measurements confirm retrieval filtering and tuning matter in practice.
 
 ---
 
