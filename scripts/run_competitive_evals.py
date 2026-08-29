@@ -79,7 +79,7 @@ def main() -> int:
                 path=path,
                 samples=args.samples,
                 limit=args.limit,
-                arms=CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag"),
+                arms=CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill"),
             )
             payload["upstream"][path.stem] = wikiskill_to_dict(report)
             print(report.render(), flush=True)

@@ -489,9 +489,8 @@ def run(
     wrapped = bench_adapter(adapter)
 
     transfer_kinds = {"trap", "detail", "principle", "multi", "distractor", "null", "conflict"}
-    for case in cases:
-        if case.kind not in transfer_kinds:
-            continue
+    transfer_cases = [c for c in cases if c.kind in transfer_kinds]
+    for i, case in enumerate(transfer_cases, 1):
         pack = pack_for_case(case, by_id)
         for arm in (CONTROL, "L0"):
             score = score_transfer(
@@ -503,6 +502,7 @@ def run(
                 timeout=timeout,
             )
             report.cases.append(score)
+        print(f"  rmc-bench transfer {i}/{len(transfer_cases)}: {case.id}", flush=True)
 
     if retrieval:
         with tempfile.TemporaryDirectory() as tmp:

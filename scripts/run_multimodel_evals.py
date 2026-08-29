@@ -20,6 +20,12 @@ from rmc.wikiskill import CORE_ARMS, run, to_dict
 def main() -> int:
     parser = argparse.ArgumentParser(description="Multi-model WikiSkill probe")
     parser.add_argument("--agents", nargs="*", default=None, help="default: all available")
+    parser.add_argument(
+        "--codex-models",
+        nargs="*",
+        default=None,
+        help="run additional Codex variants (e.g. --codex-models gpt-5.6-sol)",
+    )
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     args = parser.parse_args()
@@ -28,21 +34,32 @@ def main() -> int:
     if not agents:
         agents = ["mock"]
 
+    # Build (backend, model, label) tuples for multi-model Table 1
+    runs: list[tuple[str, str | None, str]] = []
+    for name in agents:
+        if name == "codex" and args.codex_models:
+            for model in args.codex_models:
+                runs.append(("codex", model, f"codex:{model}"))
+        else:
+            runs.append((name, None, name))
+
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     results: dict[str, dict] = {"generated_at": stamp, "samples": args.samples, "models": {}}
 
-    for name in agents:
-        raw = get_adapter(name)
+    for backend, model, label in runs:
+        raw = get_adapter(backend, model=model)
         if not raw.available():
-            print(f"skip {name}: not available", file=sys.stderr)
+            print(f"skip {label}: not available", file=sys.stderr)
             continue
-        adapter = bench_adapter(raw) if name == "mock" else raw
-        print(f"\n=== {name} ===")
+        adapter = bench_adapter(raw) if backend == "mock" else raw
+        print(f"\n=== {label} ===", flush=True)
         report = run(adapter, samples=args.samples, arms=CORE_ARMS)
-        print(report.render())
-        results["models"][name] = to_dict(report)
+        print(report.render(), flush=True)
+        payload = to_dict(report)
+        payload["model"] = model
+        results["models"][label] = payload
 
     latest = out / "multimodel-latest.json"
     latest.write_text(json.dumps(results, indent=2), encoding="utf-8")
