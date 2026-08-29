@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Print one-screen status for competitive-bar Codex pipelines."""
+
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+RESULTS = ROOT / "papers" / "rse" / "results"
+
+EXPECTED = {"sealqa-test": 111, "hotpotqa-dev": 100}
+
+
+def _load(name: str) -> dict:
+    path = RESULTS / name
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _running(pattern: str) -> bool:
+    try:
+        proc = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True)
+        return proc.returncode == 0
+    except OSError:
+        return False
+
+
+def _mtime(path: Path) -> str:
+    if not path.exists():
+        return "—"
+    ts = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+    return ts.strftime("%Y-%m-%d %H:%M UTC")
+
+
+def main() -> int:
+    comp = _load("competitive-latest.json")
+    ws = _load("wikiskill-latest.json")
+    mm = _load("multimodel-latest.json")
+    ct = _load("cross-transfer-latest.json")
+
+    print("=== Competitive bar pipeline status ===")
+    print(f"competitive-latest.json  agent={comp.get('agent', '—')}  updated={_mtime(RESULTS / 'competitive-latest.json')}")
+    if comp.get("rmc_bench"):
+        lift = comp["rmc_bench"].get("lift")
+        print(f"  rmc_bench lift={lift}")
+    for stem, expected in EXPECTED.items():
+        blob = (comp.get("upstream") or {}).get(stem) or {}
+        total = ((blob.get("arms") or {}).get("full-inject") or {}).get("total", 0)
+        print(f"  upstream {stem}: {total}/{expected}")
+
+    ws_total = ((ws.get("arms") or {}).get("full-inject") or {}).get("total", 0)
+    print(f"wikiskill-latest.json    agent={ws.get('agent', '—')}  sealqa={ws_total}/111  ckpt={ws.get('checkpoint', False)}")
+    print(f"multimodel-latest.json   models={len(mm.get('models') or {})}  updated={_mtime(RESULTS / 'multimodel-latest.json')}")
+    print(f"cross-transfer-latest    models={list((ct.get('table') or {}).keys())}")
+
+    jobs = [
+        ("sequential pipeline", "run_sequential_codex_evals.sh"),
+        ("competitive step 2", "run_competitive_evals.py --agent codex --samples 1 --skip-upstream"),
+        ("SealQA upstream", "run_wikiskill_evals.py --agent codex"),
+        ("multimodel", "run_multimodel_evals.py"),
+        ("HotPotQA parallel", "run_hotpot_parallel.sh"),
+        ("codex exec", "codex exec"),
+    ]
+    print("\nRunning:")
+    any_running = False
+    for label, pattern in jobs:
+        if _running(pattern):
+            print(f"  • {label}")
+            any_running = True
+    if not any_running:
+        print("  (none)")
+
+    logs = sorted(Path("/tmp").glob("codex-sequential-*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if logs:
+        tail = logs[0].read_text(encoding="utf-8").strip().splitlines()[-1]
+        print(f"\nLatest sequential log ({logs[0].name}):")
+        print(f"  {tail}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.path.insert(0, str(ROOT))
+    raise SystemExit(main())

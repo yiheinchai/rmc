@@ -28,6 +28,7 @@ def main() -> int:
     )
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--resume", action="store_true", help="skip models already in multimodel-latest.json")
     args = parser.parse_args()
 
     agents = args.agents or [a for a in available_backends() if a != "mock"]
@@ -47,9 +48,22 @@ def main() -> int:
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    results: dict[str, dict] = {"generated_at": stamp, "samples": args.samples, "models": {}}
+    latest = out / "multimodel-latest.json"
+    if args.resume and latest.exists():
+        results = json.loads(latest.read_text(encoding="utf-8"))
+        results.setdefault("models", {})
+        print(f"Resuming multimodel eval ({len(results['models'])} models done)", flush=True)
+    else:
+        results: dict[str, dict] = {"generated_at": stamp, "samples": args.samples, "models": {}}
+
+    def _checkpoint() -> None:
+        results["generated_at"] = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        latest.write_text(json.dumps(results, indent=2), encoding="utf-8")
 
     for backend, model, label in runs:
+        if label in results["models"]:
+            print(f"skip {label}: already evaluated", flush=True)
+            continue
         raw = get_adapter(backend, model=model)
         if not raw.available():
             print(f"skip {label}: not available", file=sys.stderr)
@@ -61,9 +75,8 @@ def main() -> int:
         payload = to_dict(report)
         payload["model"] = model
         results["models"][label] = payload
+        _checkpoint()
 
-    latest = out / "multimodel-latest.json"
-    latest.write_text(json.dumps(results, indent=2), encoding="utf-8")
     print(f"\nWrote {latest}")
     return 0
 

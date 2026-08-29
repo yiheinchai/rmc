@@ -26,7 +26,7 @@ if python3 -c "from scripts.generate_submission_report import _claude_authentica
 else
   mapfile -t _CODEX_MODELS < <(python3 -c "from rmc.grader_specs import extra_codex_models; print('\n'.join(extra_codex_models()))")
   echo "note: claude not authenticated; Codex multi-model with: codex ${_CODEX_MODELS[*]}"
-  python3 scripts/run_multimodel_evals.py --agents codex --codex-models "${_CODEX_MODELS[@]}" --samples 3
+  python3 scripts/run_multimodel_evals.py --agents codex --codex-models "${_CODEX_MODELS[@]}" --samples 3 --resume
 fi
 
 echo "=== Multi-model parallel done ==="

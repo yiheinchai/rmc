@@ -30,6 +30,7 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 | Manuscript updated (upstream/cross-transfer) | **Done** — `paper.tex` §upstream, §cross_transfer |
 | MemGPT nested-KV proxy | **Done** — `evals/memgpt-nested-kv.yaml` (8 cases) |
 | Multi-model runner | **Done** — `scripts/run_multimodel_evals.py` + `rmc/grader_specs.py` (≥3 Codex variants when Claude unauth) |
+| Multi-model eval (≥3 backends) | **In progress** — parallel Codex run (`multimodel-parallel` tmux) |
 | Architecture figure | **Done** — `figures/fig_architecture.pdf` |
 | HotPotQA 100 (Reflexion) | **Imported** — `hotpotqa-dev.jsonl` (100 validation Qs); Codex eval queued |
 | 5 models × 5 benchmarks (WikiSkill Table 1) | **Not run** — needs Codex + Claude + open-weight |
@@ -44,7 +45,10 @@ python3 scripts/import_upstream_bench.py --all
 python3 scripts/run_competitive_evals.py --agent codex --samples 3
 
 # Multi-model Table-1 style probe
-python3 scripts/run_multimodel_evals.py --samples 3
+python3 scripts/run_multimodel_evals.py --samples 3 --resume
+
+# Pipeline status (while Codex evals run)
+python3 scripts/pipeline_status.py
 ```
 
 
