@@ -177,7 +177,7 @@ From `EXPERIMENTS.md` (Aug 2026):
 | Experiment | Status |
 |---|---|
 | Codex-graded RMC-Bench | **Done** (`--agent codex`) |
-| Claude-graded RMC-Bench | Needs `--agent claude` |
+| Claude-graded RMC-Bench | Blocked — `claude` installed but not authenticated; run `scripts/run_claude_crosscheck.sh` after `/login` |
 | WikiSkill-comparable bench (Codex) | **Done** — see §4.8 |
 | End-to-end session-length paired study | **Done** (proxy) — see §4.9 |
 

@@ -59,6 +59,7 @@ def build_report() -> dict:
             "recall_ablations": bool(recall.get("arms")),
             "scaling_study": bool((summary.get("scaling") or full.get("scaling", {})).get("rows")),
             "claude_cross_check": False,
+            "claude_cross_check_note": "claude CLI installed but not authenticated in this environment",
             "session_length_paired_study": bool(session_study.get("arms")),
         },
         "headline_findings": [],
