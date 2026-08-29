@@ -88,7 +88,14 @@ def main() -> int:
         print(f"  upstream {stem}: {total}/{expected}")
 
     ws_total = ((ws.get("arms") or {}).get("full-inject") or {}).get("total", 0)
-    print(f"wikiskill-latest.json    agent={ws.get('agent', '—')}  sealqa={ws_total}/111  ckpt={ws.get('checkpoint', False)}")
+    ws_cases = len({c.get("case_id") for c in ws.get("cases", []) if c.get("case_id")})
+    ws_scores = len(ws.get("cases") or [])
+    ws_path = RESULTS / "wikiskill-latest.json"
+    print(
+        f"wikiskill-latest.json    agent={ws.get('agent', '—')}  "
+        f"cases={ws_cases}/111  scores={ws_scores}  ckpt={ws.get('checkpoint', False)}  "
+        f"updated={_mtime(ws_path)}"
+    )
     print(f"multimodel-latest.json   models={len(mm.get('models') or {})}  updated={_mtime(RESULTS / 'multimodel-latest.json')}")
     print(f"cross-transfer-latest    models={list((ct.get('table') or {}).keys())}")
 
@@ -115,8 +122,13 @@ def main() -> int:
         transfers = re.findall(r"rmc-bench transfer (\d+)/(\d+)", text)
         upstream_scores = re.findall(r"upstream progress: (\d+) scores", text)
         if "=== [3/6]" in text or _running("scripts/run_wikiskill_evals.py --agent codex"):
-            n = upstream_scores[-1] if upstream_scores else ws_total
-            print(f"\nStep 3 SealQA upstream: {n} arm-scores written (target 111×9)")
+            n_cases = ws_cases if ws_cases else ws_total
+            n_scores = ws_scores if ws_scores else (int(upstream_scores[-1]) if upstream_scores else 0)
+            pct = 100 * n_cases / EXPECTED["sealqa-test"]
+            print(
+                f"\nStep 3 SealQA upstream: {n_cases}/111 cases "
+                f"({pct:.0f}%, {n_scores} arm-scores, target 999)"
+            )
         elif "=== WikiSkill probe" in text:
             print("\nStep 2 phase: WikiSkill probe (10-task)")
         elif "=== MemGPT" in text or "memgpt" in text.lower() and "=== [2/6]" not in text:

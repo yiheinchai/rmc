@@ -51,6 +51,13 @@ def main() -> int:
         payload["checkpoint"] = True
         latest = out / "wikiskill-latest.json"
         latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        n_cases = len({c.case_id for c in report.cases})
+        n_scores = len(report.cases)
+        bench_label = (args.bench or Path("wikiskill-bench.yaml")).name
+        print(
+            f"  upstream progress: {n_scores} scores ({n_cases} cases) — {bench_label}",
+            flush=True,
+        )
 
     on_progress = _write_checkpoint if args.checkpoint else None
     use_arms = tuple(args.arms) if args.arms else None
