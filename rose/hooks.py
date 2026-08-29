@@ -584,6 +584,34 @@ An unnecessary rule costs every future prompt.
 """
 
 
+GUIDANCE = """Fourth: how the *minting* went — whether the authoring guidance you were
+shown shaped a capture you would stand behind.
+
+These are norms about *how to write* lessons, not what to do on the task. Write
+one if, and only if, this session revealed something reusable about minting:
+
+  * a correction was captured as a fact when the real lesson was the required
+    shape or standard;
+  * a trial-and-error detour was summarised as the winning command, not the blind
+    spot it exposed;
+  * a lesson was too vague to retrieve, or too narrative to act on.
+
+    rose guidance --when "<the kind of session, recognisable before minting>" \
+      --then "<how to write the lesson when it fires>"
+
+**The `--when` has to name a kind of session**, not one lesson. "When the human
+corrects output format" is a rule. "n_abc should have had a gist" is not.
+
+Also say which guidance rules you were shown that actually helped, and which sent
+minting the wrong way:
+
+    rose used --session {session} --learning-helped <ids> --learning-wasted <ids>
+
+If minting went fine and there is no rule to write, say so and write nothing.
+
+"""
+
+
 def _spawn_fork(store: Store, session_id: str, cwd: str, served: list[str] | None = None) -> bool:
     """Fork the live session for reflection. True if the fork was launched."""
     from .adapters._proc import child_env, which
@@ -609,6 +637,8 @@ def _spawn_fork(store: Store, session_id: str, cwd: str, served: list[str] | Non
     # and it leaves no trace anywhere else.
     if store.config.get("routing.enabled", True):
         attribution += SELECTION.format(session=session_id)
+    if store.config.get("learning_rules.enabled", True):
+        attribution += GUIDANCE.format(session=session_id)
     prompt = FORK_PROMPT.format(attribution=attribution)
     model = store.config.get("model")
     agent = str(store.config.get("agent", "claude")).lower()

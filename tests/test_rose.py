@@ -3005,6 +3005,95 @@ class TestSelectionLessons(StoreCase):
         self.assertAlmostEqual(stats["ratio"], 0.1)
 
 
+class TestLearningGuidance(StoreCase):
+    def setUp(self) -> None:
+        super().setUp()
+        from rose import learning
+
+        self.learning = learning
+
+    def test_a_rule_needs_a_session_condition(self) -> None:
+        self.assertIsNone(self.learning.mint(self.store, when="", then="capture the shape"))
+        self.assertIsNotNone(
+            self.learning.mint(
+                self.store,
+                when="the human corrected output format",
+                then="capture the required shape, not just the fact",
+            )
+        )
+
+    def test_a_rule_with_no_action_is_refused(self) -> None:
+        self.assertIsNone(
+            self.learning.mint(self.store, when="the session was mostly trial and error", then="")
+        )
+
+    def test_the_same_condition_is_not_stored_twice(self) -> None:
+        self.learning.mint(
+            self.store,
+            when="the human corrected output format",
+            then="capture the required shape",
+        )
+        again = self.learning.mint(
+            self.store,
+            when="The human corrected output format.",
+            then="something else",
+        )
+        self.assertIsNone(again, "a repeated condition is a contradiction, not an addition")
+        self.assertEqual(len(self.learning.load(self.store)), 1)
+
+    def test_rules_live_outside_the_lesson_tree(self) -> None:
+        self.learning.mint(
+            self.store,
+            when="the human corrected output format",
+            then="capture the required shape",
+        )
+        self.assertEqual(self.store.nodes(), [])
+        self.assertTrue((self.store.root / "learning").is_dir())
+
+    def test_the_injected_layer_is_capped(self) -> None:
+        for i in range(20):
+            self.learning.mint(
+                self.store, when=f"the session kind {i}", then="mint like " + "x " * 40
+            )
+        rules = self.learning.load(self.store)
+        kept = self.learning.fit(rules, 200)
+        self.assertLess(len(kept), len(rules))
+        self.assertLessEqual(sum(r.tokens for r in kept), 200)
+
+    def test_the_cap_keeps_the_rules_with_the_best_record(self) -> None:
+        good = self.learning.mint(self.store, when="session A", then="capture blind spots")
+        bad = self.learning.mint(self.store, when="session B", then="capture commands only")
+        self.learning.credit(self.store, helped=[good.id] * 1, wasted=[], shown=[])
+        for _ in range(4):
+            self.learning.credit(self.store, helped=[], wasted=[bad.id], shown=[])
+        kept = self.learning.fit(self.learning.load(self.store), good.tokens + 2)
+        self.assertEqual([r.id for r in kept], [good.id])
+
+    def test_credit_is_recorded_across_reloads(self) -> None:
+        rule = self.learning.mint(self.store, when="session A", then="capture blind spots")
+        self.learning.credit(self.store, helped=[rule.id], wasted=[], shown=[rule.id])
+        again = self.learning.get(self.store, rule.id)
+        self.assertEqual((again.helped, again.shown), (1, 1))
+
+    def test_pack_for_reflect_respects_the_cap(self) -> None:
+        for i in range(20):
+            self.learning.mint(
+                self.store, when=f"the session kind {i}", then="mint like " + "x " * 40
+            )
+        text, rules = self.learning.pack_for_reflect(self.store)
+        budget = int(self.store.config.get("learning_rules.max_tokens", 600))
+        self.assertLessEqual(sum(r.tokens for r in rules), budget)
+        self.assertEqual(text, self.learning.render(rules))
+
+    def test_growth_reports_rules_against_lessons(self) -> None:
+        for i in range(10):
+            self.add_node(id=f"n{i}", family=f"f{i}", body="b")
+        self.learning.mint(self.store, when="session A", then="capture blind spots")
+        stats = self.learning.growth(self.store)
+        self.assertEqual((stats["rules"], stats["nodes"]), (1, 10))
+        self.assertAlmostEqual(stats["ratio"], 0.1)
+
+
 # =========================================================================== #
 # the agentic selector
 # =========================================================================== #

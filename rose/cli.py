@@ -569,6 +569,27 @@ def cmd_used(args: argparse.Namespace) -> int:
     if shown or helped or wasted:
         routing_mod.credit(store, helped=helped, wasted=wasted, shown=shown)
 
+    from . import learning as learning_mod
+
+    learning_helped = [
+        i.strip()
+        for i in (getattr(args, "learning_helped", "") or "").split(",")
+        if i.strip()
+    ]
+    learning_wasted = [
+        i.strip()
+        for i in (getattr(args, "learning_wasted", "") or "").split(",")
+        if i.strip()
+    ]
+    learning_shown = [i for i in (state.get("learning_shown") or []) if i]
+    if learning_shown or learning_helped or learning_wasted:
+        learning_mod.credit(
+            store,
+            helped=learning_helped,
+            wasted=learning_wasted,
+            shown=learning_shown,
+        )
+
     episode = None
     if used and args.task:
         # A per-use replay test: this task, these lessons, this outcome.
@@ -789,6 +810,62 @@ def cmd_route(args: argparse.Namespace) -> int:
     # with lessons rather than with kinds of work, the layer that was supposed
     # to be small is just a second copy of the store, and that has to be visible
     # rather than inferred.
+    print()
+    print(
+        f"  {stats['rules']} rules over {stats['nodes']} lessons  "
+        + dim(f"(ratio {stats['ratio']:.2f} — this should fall as the store grows)")
+    )
+    if len(kept) < len(rules):
+        print(dim(f"  {len(rules) - len(kept)} rule(s) marked · are over the cap and not injected"))
+    return 0
+
+
+def cmd_guidance(args: argparse.Namespace) -> int:
+    """Read and edit lesson-authoring guidance injected into reflection."""
+    from . import learning
+
+    store = need_store(args)
+    if store is None:
+        return 1
+
+    if args.forget:
+        rule = learning.get(store, args.forget)
+        if rule is None:
+            return die(f"no such rule: {args.forget}")
+        learning.delete(rule)
+        print(f"{green('forgot')} {rule.id} — when {rule.when}")
+        return 0
+
+    if args.when or args.then_:
+        if not (args.when and args.then_):
+            return die("--when and --then are both required to add a rule")
+        rule = learning.mint(store, when=args.when, then=args.then_, origin="manual")
+        if rule is None:
+            return die("rejected: a rule needs a task condition and an action, and must be new")
+        print(f"{green('learned')} {rule.id}")
+        print(dim(f"  {rule.render()}"))
+        return 0
+
+    rules = learning.load(store)
+    stats = learning.growth(store)
+    budget = int(store.config.get("learning_rules.max_tokens", 600))
+    kept = {r.id for r in learning.fit(rules, budget)}
+
+    print(
+        bold("lesson-authoring guidance")
+        + dim(f"  ·  {stats['tokens']}/{budget} tokens injected per mint")
+    )
+    if not rules:
+        print(dim("\n  none yet — they are written by reflection after a session."))
+        return 0
+
+    print()
+    for rule in rules:
+        mark = " " if rule.id in kept else yellow("·")
+        record = f"{rule.helped}/{rule.helped + rule.wasted}" if rule.shown else "no record yet"
+        print(f"{mark} {rule.id}  " + dim(f"helped {record}"))
+        print(f"    {rule.render()}")
+
     print()
     print(
         f"  {stats['rules']} rules over {stats['nodes']} lessons  "
@@ -1566,6 +1643,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--rule-helped", help="comma-separated selection rule ids that shortened the search")
     p.add_argument("--rule-wasted", help="comma-separated selection rule ids that sent it astray")
+    p.add_argument(
+        "--learning-helped",
+        help="comma-separated authoring-guidance rule ids that shaped a good capture",
+    )
+    p.add_argument(
+        "--learning-wasted",
+        help="comma-separated authoring-guidance rule ids that sent minting astray",
+    )
     p.set_defaults(func=cmd_used)
 
     p = sub.add_parser("observe", help="judge a transcript and update stats")
@@ -1602,6 +1687,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--then", dest="then_", help="what the selector should do when it fires")
     p.add_argument("--forget", metavar="RULE_ID", help="delete a rule")
     p.set_defaults(func=cmd_route)
+
+    p = sub.add_parser(
+        "guidance",
+        help="authoring guidance: what ROSE learned about how to write lessons",
+    )
+    p.add_argument("--list", action="store_true", help="show the rules and their record")
+    p.add_argument("--when", help="the session condition this rule fires on")
+    p.add_argument("--then", dest="then_", help="how to mint when it fires")
+    p.add_argument("--forget", metavar="RULE_ID", help="delete a rule")
+    p.set_defaults(func=cmd_guidance)
 
     p = sub.add_parser("bench", help="run ROSE-Bench procedural memory evaluation")
     p.add_argument("--path", help="bench yaml (default: evals/rose-bench.yaml)")

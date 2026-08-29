@@ -134,6 +134,11 @@ DEFAULTS: dict[str, Any] = {
         # improving a selection are the ones that fall out.
         "max_tokens": 800,
     },
+    "learning_rules": {
+        # Lesson-authoring guidance in ``learning/``: how to mint, not what to do.
+        "enabled": True,
+        "max_tokens": 600,
+    },
     "selection": {
         # The model decides which dropped detail explains a failure; the other
         # two terms are evidence (observed rescue rate) and measurement (tokens),
