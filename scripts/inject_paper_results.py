@@ -92,8 +92,9 @@ def build_multimodel_table(data: dict, *, min_models: int = 3) -> str | None:
         ra = arms.get("recall-agentic") or {}
         if not ra.get("total"):
             continue
+        escaped_label = label.replace("_", r"\_")
         lines.append(
-            f"    {label.replace('_', '\\_')} & {_pct(fi.get('accuracy', 0))} & "
+            f"    {escaped_label} & {_pct(fi.get('accuracy', 0))} & "
             f"{_pct(ra.get('accuracy', 0))}{_ci(ra.get('bootstrap_ci'))} & {ra.get('mean_tokens', 0)} \\\\"
         )
     lines += [
