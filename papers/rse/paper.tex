@@ -29,7 +29,7 @@ We introduce \textbf{Recursive Skill Evolution (RSE)}, a framework that co-evolv
 RSE separates raw execution traces, a compressible lesson DAG, and a dynamic context-discovery layer that searches a greppable index rather than injecting the whole store.
 Lessons compress recursively only when \textbf{meta-testing}---fresh-process episode replay---confirms behavioral equivalence; when abstraction fails, a delta manifest enables descent to recover dropped detail.
 Retrieval co-evolves through selection rules and gated self-tuning that keeps changes only when precision and recall both improve.
-On \textbf{RMC-Bench}, a benchmark for procedural memory under compression, RSE achieves \textbf{+20\% lift} over control on core transfer cases and \textbf{90\%} L0 transfer at \textbf{$\sim$139 tokens} per prompt (Codex-graded).
+On \textbf{RMC-Bench}, a benchmark for procedural memory under compression, RSE achieves \textbf{+25\% lift} over control on core transfer cases and \textbf{95\%} L0 transfer at \textbf{$\sim$81 tokens} per prompt (Codex-graded, 25-case expanded suite).
 Judge filtering reaches \textbf{100\%} precision with \textbf{0} noise tokens; agentic search achieves \textbf{93\%} precision/recall at \textbf{54} noise tokens vs.\ \textbf{2,054} for serve-all.
 On a WikiSkill-comparable five-benchmark subset, agentic recall reaches \textbf{80\%} accuracy vs.\ \textbf{70\%} for WikiSkill-style full injection at \textbf{$\sim$88\% lower token cost} (64 vs.\ 534 tokens).
 A scaling study shows index cost stays at \textbf{0 injected tokens} while routing cost grows with apex count---motivating dynamic context discovery over full injection.
@@ -130,20 +130,22 @@ The benchmark now includes \textbf{25 cases} (expanded from the original 10) spa
 
 \begin{table}[t]
   \centering
-  \caption{RMC-Bench results (Codex-graded, 3 samples).}
+  \caption{RMC-Bench results (Codex-graded, expanded 25-case suite, 1 sample).}
   \label{tab:bench}
+% AUTO:RMC_BENCH_TABLE_BEGIN
   \begin{tabular}{lc}
     \toprule
     Metric & Result \\
     \midrule
-    Lift (L0 $-$ control, core kinds) & \textbf{+20\%} \\
-    Transfer @ L0 & \textbf{9/10 (90\%)} \\
-    Detail / trap / multi transfer & 3/3, 3/3, 2/2 (100\%) \\
-    Principle transfer & 1/2 (50\%) \\
-    Mean L0 tokens & \textbf{139} \\
-    Bench retrieval axis & \textbf{7/7 (100\%)} \\
+    Lift (L0 $-$ control, core kinds) & \textbf{+25\%} \\
+    Transfer @ L0 & \textbf{19/20 (95\%)} \\
+    Detail / trap / multi transfer & 5/5, 8/8, 3/3 (100\%) \\
+    Principle transfer & 3/4 (75\%) \\
+    Mean L0 tokens & \textbf{81} \\
+    Bench retrieval axis & \textbf{5/8 (62\%)} \\
     \bottomrule
   \end{tabular}
+% AUTO:RMC_BENCH_TABLE_END
 \end{table}
 
 \subsection{Recall ablations}

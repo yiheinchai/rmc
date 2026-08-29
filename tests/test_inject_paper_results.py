@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 import sys
 from pathlib import Path
 
@@ -27,14 +26,34 @@ def inj():
     return _load()
 
 
+def test_build_rmc_bench_rows(inj) -> None:
+    rb = {
+        "lift": 0.25,
+        "transfer": {"passed": 19, "total": 20},
+        "retrieval": {"passed": 5, "total": 8},
+        "cases": [
+            {"kind": "trap", "arm": "L0", "passed": True, "tokens": 80},
+            {"kind": "detail", "arm": "L0", "passed": True, "tokens": 82},
+        ],
+    }
+    rows = inj.build_rmc_bench_rows(rb)
+    assert "+25" in rows["lift"] or "25" in rows["lift"]
+    assert "19/20" in rows["transfer"]
+
+
 def test_build_sealqa_table(inj) -> None:
-  data = {
-      "arms": {
-          "full-inject": {"accuracy": 0.7, "total": 50, "mean_tokens": 100, "bootstrap_ci": {"low": 0.6, "high": 0.8}},
-          "recall-agentic": {"accuracy": 0.8, "total": 50, "mean_tokens": 40},
-      }
-  }
-  table = inj.build_sealqa_table(data)
-  assert "50 tasks" in table
-  assert "70\\%" in table
-  assert "80\\%" in table
+    data = {
+        "arms": {
+            "full-inject": {
+                "accuracy": 0.7,
+                "total": 50,
+                "mean_tokens": 100,
+                "bootstrap_ci": {"low": 0.6, "high": 0.8},
+            },
+            "recall-agentic": {"accuracy": 0.8, "total": 50, "mean_tokens": 40},
+        }
+    }
+    table = inj.build_sealqa_table(data)
+    assert "50 tasks" in table
+    assert "70\\%" in table
+    assert "80\\%" in table

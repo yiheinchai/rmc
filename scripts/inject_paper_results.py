@@ -66,7 +66,76 @@ def build_sealqa_table(data: dict) -> str:
     return "\n".join(lines)
 
 
-def inject(paper_path: Path, table: str) -> bool:
+def build_rmc_bench_rows(rb: dict) -> dict[str, str]:
+    transfer = rb.get("transfer") or {}
+    retrieval = rb.get("retrieval") or {}
+    cases = rb.get("cases") or []
+    l0_toks = [c["tokens"] for c in cases if c.get("arm") == "L0" and c.get("tokens")]
+    mean_tok = sum(l0_toks) // len(l0_toks) if l0_toks else 0
+
+    by_kind: dict[str, tuple[int, int]] = {}
+    for kind in ("detail", "trap", "multi", "principle"):
+        rows = [c for c in cases if c.get("kind") == kind and c.get("arm") == "L0"]
+        if rows:
+            by_kind[kind] = (sum(1 for c in rows if c.get("passed")), len(rows))
+
+    def _fmt(kind: str) -> str:
+        p, t = by_kind.get(kind, (0, 0))
+        return f"{p}/{t} ({p * 100 // t if t else 0}\\%)" if t else "—"
+
+    lift = rb.get("lift")
+    lift_s = f"\\textbf{{{lift:+.0%}}}" if lift is not None else "—"
+    tr_p, tr_t = transfer.get("passed", 0), transfer.get("total", 0)
+    tr_s = f"\\textbf{{{tr_p}/{tr_t} ({tr_p * 100 // tr_t if tr_t else 0}\\%)}}"
+    ret_p, ret_t = retrieval.get("passed", 0), retrieval.get("total", 0)
+    ret_s = f"\\textbf{{{ret_p}/{ret_t} ({ret_p * 100 // ret_t if ret_t else 0}\\%)}}"
+
+    return {
+        "lift": lift_s,
+        "transfer": tr_s,
+        "detail": _fmt("detail"),
+        "trap": _fmt("trap"),
+        "multi": _fmt("multi"),
+        "principle": _fmt("principle"),
+        "mean_tokens": f"\\textbf{{{mean_tok}}}",
+        "retrieval": ret_s,
+    }
+
+
+def inject_rmc_bench(paper_path: Path, rb: dict) -> bool:
+    rows = build_rmc_bench_rows(rb)
+    block = f"""% AUTO:RMC_BENCH_TABLE_BEGIN
+  \\begin{{tabular}}{{lc}}
+    \\toprule
+    Metric & Result \\\\
+    \\midrule
+    Lift (L0 $-$ control, core kinds) & {rows['lift']} \\\\
+    Transfer @ L0 & {rows['transfer']} \\\\
+    Detail / trap / multi transfer & {rows['detail']}, {rows['trap']}, {rows['multi']} \\\\
+    Principle transfer & {rows['principle']} \\\\
+    Mean L0 tokens & {rows['mean_tokens']} \\\\
+    Bench retrieval axis & {rows['retrieval']} \\\\
+    \\bottomrule
+  \\end{{tabular}}
+% AUTO:RMC_BENCH_TABLE_END"""
+    text = paper_path.read_text(encoding="utf-8")
+    marker_start = "% AUTO:RMC_BENCH_TABLE_BEGIN"
+    marker_end = "% AUTO:RMC_BENCH_TABLE_END"
+    if marker_start in text:
+        text = re.sub(
+            rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}",
+            table,
+            text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        return False
+    paper_path.write_text(text, encoding="utf-8")
+    return True
+
+
+def inject_sealqa(paper_path: Path, table: str) -> bool:
     text = paper_path.read_text(encoding="utf-8")
     marker_start = "% AUTO:SEALQA_TABLE_BEGIN"
     marker_end = "% AUTO:SEALQA_TABLE_END"
@@ -82,7 +151,6 @@ def inject(paper_path: Path, table: str) -> bool:
     else:
         anchor = "\\label{fig:competitive}"
         if anchor not in text:
-            print("anchor not found in paper.tex", file=sys.stderr)
             return False
         text = text.replace(anchor, f"{anchor}\n\n{block}", 1)
     paper_path.write_text(text, encoding="utf-8")
@@ -90,21 +158,29 @@ def inject(paper_path: Path, table: str) -> bool:
 
 
 def main() -> int:
+    updated = False
+    comp = RESULTS / "competitive-latest.json"
+    if comp.exists():
+        data = json.loads(comp.read_text(encoding="utf-8"))
+        if data.get("agent") == "codex" and data.get("rmc_bench"):
+            if inject_rmc_bench(PAPER, data["rmc_bench"]):
+                print(f"Updated RMC-Bench table in {PAPER}")
+                updated = True
+
     path = RESULTS / "wikiskill-latest.json"
-    if not path.exists():
-        print(f"missing {path}", file=sys.stderr)
+    if path.exists():
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if "sealqa" in str(data.get("bench_path", "")):
+            arms = data.get("arms") or {}
+            if arms.get("full-inject", {}).get("total", 0):
+                table = build_sealqa_table(data)
+                if inject_sealqa(PAPER, table):
+                    print(f"Updated SealQA table in {PAPER}")
+                    updated = True
+
+    if not updated:
+        print("no Codex results to inject yet", file=sys.stderr)
         return 1
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if "sealqa" not in str(data.get("bench_path", "")):
-        print("wikiskill-latest.json is not upstream SealQA", file=sys.stderr)
-        return 1
-    arms = data.get("arms") or {}
-    if not arms.get("full-inject", {}).get("total", 0):
-        print("no upstream SealQA results yet", file=sys.stderr)
-        return 1
-    table = build_sealqa_table(data)
-    if inject(PAPER, table):
-        print(f"Updated {PAPER}")
     return 0
 
 
