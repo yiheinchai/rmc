@@ -113,11 +113,27 @@ def main() -> int:
     if logs:
         text = logs[0].read_text(encoding="utf-8")
         transfers = re.findall(r"rmc-bench transfer (\d+)/(\d+)", text)
-        if transfers:
+        upstream_scores = re.findall(r"upstream progress: (\d+) scores", text)
+        if "=== [3/6]" in text or _running("scripts/run_wikiskill_evals.py --agent codex"):
+            n = upstream_scores[-1] if upstream_scores else ws_total
+            print(f"\nStep 3 SealQA upstream: {n} arm-scores written (target 111×9)")
+        elif "=== WikiSkill probe" in text:
+            print("\nStep 2 phase: WikiSkill probe (10-task)")
+        elif "=== MemGPT" in text or "memgpt" in text.lower() and "=== [2/6]" not in text:
+            print("\nStep 2 phase: MemGPT nested-KV")
+        elif "=== Session" in text or "session_study" in text:
+            print("\nStep 2 phase: session paired study")
+        elif transfers:
             cur, total = transfers[-1]
             pct = 100 * int(cur) / int(total)
             remaining = int(total) - int(cur)
-            print(f"\nRMC-Bench transfer: {cur}/{total} ({pct:.0f}%, {remaining} cases left in transfer phase)")
+            if int(cur) >= int(total):
+                print("\nStep 2 phase: RMC-Bench retrieval/retention (post-transfer)")
+            else:
+                print(
+                    f"\nStep 2 phase: RMC-Bench transfer {cur}/{total} "
+                    f"({pct:.0f}%, {remaining} cases left)"
+                )
         tail = text.strip().splitlines()[-1]
         print(f"Latest sequential log ({logs[0].name}):")
         print(f"  {tail}")
