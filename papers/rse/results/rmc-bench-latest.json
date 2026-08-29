@@ -1,20 +1,20 @@
 {
-  "agent": "mock",
+  "agent": "codex",
   "bench_path": "/workspace/evals/rmc-bench.yaml",
-  "lift": 0.7,
+  "lift": 0.20000000000000007,
   "transfer": {
     "passed": 9,
     "total": 10,
     "rate": 0.9
   },
   "retrieval": {
-    "passed": 5,
+    "passed": 7,
     "total": 7,
-    "rate": 0.7142857142857143
+    "rate": 1.0
   },
   "retention": {
     "L0": {
-      "passed": 3,
+      "passed": 2,
       "total": 3
     },
     "L1": {
@@ -27,10 +27,10 @@
       "case_id": "delete-is-soft",
       "kind": "trap",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 1/3 key terms (33%)"
+      "reason": "The candidate includes the essential purge deletion endpoint, explicitly distinguishes hard deletion from a plain soft delete, and verifies that the record/row is absent rather than merely marked with"
     },
     {
       "case_id": "delete-is-soft",
@@ -39,7 +39,7 @@
       "passed": true,
       "tokens": 128,
       "retrieval_ok": null,
-      "reason": "matched 2/3 key terms (67%)"
+      "reason": "The candidate includes the essential purge request (`DELETE /records/{record_id}?purge=true`), explicitly warns that plain DELETE only soft-deletes by setting `deleted_at`, and verifies that the recor"
     },
     {
       "case_id": "migrations-forward-only",
@@ -48,7 +48,7 @@
       "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 1/1 key terms (100%)"
+      "reason": "The candidate correctly makes `verified_at` nullable, preserving compatibility during rollout. However, it explicitly proposes a reversible migration, backward migration testing, and rollback restorat"
     },
     {
       "case_id": "migrations-forward-only",
@@ -57,16 +57,16 @@
       "passed": true,
       "tokens": 120,
       "retrieval_ok": null,
-      "reason": "matched 1/1 key terms (100%)"
+      "reason": "The candidate matches the known-good outcome: it specifies a forward-only migration, adds a nullable `verified_at` timestamp so deployed code can continue operating during rollout, omits `down`, and s"
     },
     {
       "case_id": "charges-not-idempotent",
       "kind": "trap",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 0/1 key terms (0%)"
+      "reason": "The candidate includes the essential behavior: one payment idempotency key is reused across all attempts to prevent duplicate charges. This necessarily places key creation outside the retry loop, and "
     },
     {
       "case_id": "charges-not-idempotent",
@@ -75,16 +75,16 @@
       "passed": true,
       "tokens": 102,
       "retrieval_ok": null,
-      "reason": "matched 1/1 key terms (100%)"
+      "reason": "The candidate includes the essential behavior: it generates one Idempotency-Key before the first charge attempt and reuses that exact key across all retries. It also explicitly explains that a timed-o"
     },
     {
       "case_id": "integration-pg-port",
       "kind": "detail",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 0/3 key terms (0%)"
+      "reason": "The candidate contradicts the required fix. It proposes starting PostgreSQL on localhost:5432 and using Docker Compose, while the known-good outcome requires running the tests with `PAYMENTS_PG_PORT=5"
     },
     {
       "case_id": "integration-pg-port",
@@ -93,16 +93,16 @@
       "passed": true,
       "tokens": 111,
       "retrieval_ok": null,
-      "reason": "matched 3/3 key terms (100%)"
+      "reason": "The candidate gives the required actionable command using PAYMENTS_PG_PORT=5433, avoids starting PostgreSQL on 5432, avoids an unsupported CLI port flag, and explains why those alternatives fail."
     },
     {
       "case_id": "retry-backoff-constants",
       "kind": "detail",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 0/4 key terms (0%)"
+      "reason": "The candidate includes all essential policy details: 100 ms, 400 ms, and 1.6 s delays; \u00b125% jitter; and retries bounded by the caller\u2019s remaining deadline rather than a fixed attempt count. The added "
     },
     {
       "case_id": "retry-backoff-constants",
@@ -111,7 +111,7 @@
       "passed": true,
       "tokens": 103,
       "retrieval_ok": null,
-      "reason": "matched 4/4 key terms (100%)"
+      "reason": "The core timings, jitter, and deadline-bounded/no-fixed-count policy match. However, the claim that 300 ms remaining permits only the immediate attempt contradicts that policy: the first retry delay i"
     },
     {
       "case_id": "s3-two-hundred-error",
@@ -120,7 +120,7 @@
       "passed": false,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 0/1 key terms (0%)"
+      "reason": "The candidate correctly identifies that HTTP 200 may contain an embedded multipart-completion error and that the body/SDK result must be interpreted. However, it does not state the essential required "
     },
     {
       "case_id": "s3-two-hundred-error",
@@ -129,7 +129,7 @@
       "passed": true,
       "tokens": 95,
       "retrieval_ok": null,
-      "reason": "matched 1/1 key terms (100%)"
+      "reason": "The candidate identifies the essential issue: multipart completion can return HTTP 200 with an error document in the body, so status alone is insufficient. It also correctly says to parse the body and"
     },
     {
       "case_id": "meaning-is-not-overlap",
@@ -138,7 +138,7 @@
       "passed": false,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 0/1 key terms (0%)"
+      "reason": "The candidate makes embedding/BM25 similarity and ranking the core relevance mechanism. The known-good outcome requires relevance to be decided by a model call against a schema, with efficiency provid"
     },
     {
       "case_id": "meaning-is-not-overlap",
@@ -147,16 +147,16 @@
       "passed": false,
       "tokens": 178,
       "retrieval_ok": null,
-      "reason": "matched 0/1 key terms (0%)"
+      "reason": "The candidate captures model-judged, schema-structured relevance, budgets, and caching, but it exceeds the 120-word limit and does not specify the essential efficiency mechanism: walking a tree or ind"
     },
     {
       "case_id": "teardown-cancels-hooks",
       "kind": "principle",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 0/1 key terms (0%)"
+      "reason": "The candidate includes the essential behavior: the SessionEnd hook immediately spawns a detached worker for the LLM-based summary and exits successfully without waiting, explicitly noting that blockin"
     },
     {
       "case_id": "teardown-cancels-hooks",
@@ -165,16 +165,16 @@
       "passed": true,
       "tokens": 101,
       "retrieval_ok": null,
-      "reason": "matched 1/1 key terms (100%)"
+      "reason": "The candidate captures the essential requirement: the SessionEnd hook launches a fully detached worker and returns immediately without awaiting the LLM call, because teardown can terminate a blocking "
     },
     {
       "case_id": "retry-a-charge-properly",
       "kind": "multi",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 1/6 key terms (17%)"
+      "reason": "The candidate includes both essential requirements: one Idempotency-Key generated before the initial request and reused across all attempts, plus the 100ms/400ms/1.6s retry schedule with \u00b125% jitter b"
     },
     {
       "case_id": "retry-a-charge-properly",
@@ -183,16 +183,16 @@
       "passed": true,
       "tokens": 207,
       "retrieval_ok": null,
-      "reason": "matched 6/6 key terms (100%)"
+      "reason": "The candidate includes both essential requirements: a single Idempotency-Key generated once and reused across all attempts, and the 100ms/400ms/1.6s backoff schedule with \u00b125% jitter bounded by the ca"
     },
     {
       "case_id": "ship-a-schema-change",
       "kind": "multi",
       "arm": "none",
-      "passed": true,
+      "passed": false,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "matched 1/2 key terms (50%)"
+      "reason": "The candidate gives a deploy-safe phased migration and accounts for persistent soft-deleted rows, but it does not specify using `?purge=true` for the actual removal. That mechanism is essential to ens"
     },
     {
       "case_id": "ship-a-schema-change",
@@ -201,7 +201,7 @@
       "passed": true,
       "tokens": 250,
       "retrieval_ok": null,
-      "reason": "matched 2/2 key terms (100%)"
+      "reason": "The candidate includes all essential elements: an expand/contract rollout safe for currently deployed code, a forward-only column-drop migration, and permanent deletion through the API using `?purge=t"
     },
     {
       "case_id": "retry-a-ci-job",
@@ -210,106 +210,106 @@
       "passed": false,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "content terms 0/1"
+      "reason": "The candidate gives strong general flake-management advice, but it recommends test-runner-level retries instead of the essential CI-level action in the known-good outcome: re-running the failed job wi"
     },
     {
       "case_id": "retry-a-ci-job",
       "kind": "distractor",
-      "arm": "L0",
-      "passed": false,
-      "tokens": 103,
-      "retrieval_ok": null,
-      "reason": "content terms 0/1"
-    },
-    {
-      "case_id": "cache-the-rendered-page",
-      "kind": "distractor",
-      "arm": "none",
-      "passed": false,
-      "tokens": 0,
-      "retrieval_ok": null,
-      "reason": "content terms 0/2"
-    },
-    {
-      "case_id": "cache-the-rendered-page",
-      "kind": "distractor",
-      "arm": "L0",
-      "passed": false,
-      "tokens": 0,
-      "retrieval_ok": null,
-      "reason": "content terms 0/2"
-    },
-    {
-      "case_id": "which-pg-port",
-      "kind": "conflict",
-      "arm": "none",
-      "passed": false,
-      "tokens": 0,
-      "retrieval_ok": null,
-      "reason": "conflict=False, terms 0/2"
-    },
-    {
-      "case_id": "which-pg-port",
-      "kind": "conflict",
       "arm": "L0",
       "passed": true,
+      "tokens": 103,
+      "retrieval_ok": null,
+      "reason": "The candidate recommends a limited CI-level retry, preserving/reporting retry outcomes, quarantining and fixing the flaky test, and removing retries after repair. It explicitly distinguishes service-c"
+    },
+    {
+      "case_id": "cache-the-rendered-page",
+      "kind": "distractor",
+      "arm": "none",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "The candidate fully matches the known-good outcome: it addresses edge/CDN TTLs, targeted purge on CMS changes and deploys, appropriate cache-key design, and stale-while-revalidate. It also adds releva"
+    },
+    {
+      "case_id": "cache-the-rendered-page",
+      "kind": "distractor",
+      "arm": "L0",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "The candidate fully covers the essential edge-caching strategy: explicit TTLs, stale-while-revalidate, deploy/CMS-triggered purging, carefully scoped cache keys, and safe bypass conditions. It also ad"
+    },
+    {
+      "case_id": "which-pg-port",
+      "kind": "conflict",
+      "arm": "none",
+      "passed": true,
+      "tokens": 0,
+      "retrieval_ok": null,
+      "reason": "The candidate silently asserts 5433 and proceeds with that value. The known-good outcome requires noticing that recalled memory contains incompatible values, 5433 and 5434, then either asking which is"
+    },
+    {
+      "case_id": "which-pg-port",
+      "kind": "conflict",
+      "arm": "L0",
+      "passed": false,
       "tokens": 174,
       "retrieval_ok": null,
-      "reason": "conflict=True, terms 2/2"
+      "reason": "The candidate asserts 5434 without acknowledging that memory contains incompatible values, 5433 and 5434. Claiming the later lesson supersedes the earlier one does not satisfy the required caution."
     },
     {
       "case_id": "name-the-feature-flag",
       "kind": "null",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "content terms 0/1"
+      "reason": "The candidate gives a sensible flag name and places it in the existing centralized feature-flag configuration. Its additional implementation guidance is compatible with the task, and it correctly appl"
     },
     {
       "case_id": "name-the-feature-flag",
       "kind": "null",
       "arm": "L0",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "content terms 0/1"
+      "reason": "The candidate gives a sensible flag name and an actionable centralized location, matching the known-good outcome. It does not apply or cite any stored lesson; merely stating that none was applicable d"
     },
     {
       "case_id": "explain-a-regex",
       "kind": "null",
       "arm": "none",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "content terms 0/1"
+      "reason": "The candidate correctly identifies the regex as matching a restricted lowercase ASCII email-shaped string, accurately explains the local part and domain constraints, and gives a valid simplification b"
     },
     {
       "case_id": "explain-a-regex",
       "kind": "null",
       "arm": "L0",
-      "passed": false,
+      "passed": true,
       "tokens": 0,
       "retrieval_ok": null,
-      "reason": "content terms 0/1"
+      "reason": "The candidate correctly identifies the regex as a deliberately narrow email-shaped pattern, accurately explains the local part, domain labels, and lowercase suffix, and gives the key syntactic simplif"
     },
     {
       "case_id": "retry-a-charge-properly",
       "kind": "multi",
       "arm": "retrieval",
-      "passed": false,
-      "tokens": 0,
-      "retrieval_ok": false,
-      "reason": "kept [] want ['charges-not-idempotent', 'retry-backoff-constants']"
+      "passed": true,
+      "tokens": 205,
+      "retrieval_ok": true,
+      "reason": "kept ['charges-not-idempotent', 'retry-backoff-constants'] want ['charges-not-idempotent', 'retry-backoff-constants']"
     },
     {
       "case_id": "ship-a-schema-change",
       "kind": "multi",
       "arm": "retrieval",
-      "passed": false,
-      "tokens": 0,
-      "retrieval_ok": false,
-      "reason": "kept [] want ['delete-is-soft', 'migrations-forward-only']"
+      "passed": true,
+      "tokens": 248,
+      "retrieval_ok": true,
+      "reason": "kept ['delete-is-soft', 'migrations-forward-only'] want ['delete-is-soft', 'migrations-forward-only']"
     },
     {
       "case_id": "retry-a-ci-job",
@@ -357,5 +357,5 @@
       "reason": "kept [] want []"
     }
   ],
-  "render": "RMC-Bench \u2014 37 scored arm(s), agent=mock\nbench: /workspace/evals/rmc-bench.yaml\n\nLift (L0 \u2212 control, core kinds): +70%\n\nTransfer @ L0 (trap|detail|principle|multi)\n  9/10  (90%)\n    detail       3/3  (100%)\n    multi        2/2  (100%)\n    principle    1/2  (50%)\n    trap         3/3  (100%)\n\nRetention (detail cases, L0 vs L1)\n  L0   3/3  (100%)\n  L1   0/0  (\u2014)\n\nRetrieval (distractor|null|conflict|multi)\n  5/7  (71%)\n    conflict     1/1  (100%)\n    distractor   2/2  (100%)\n    multi        0/2  (0%)\n    null         2/2  (100%)\n\nCost (mean L0 tokens): 111"
+  "render": "RMC-Bench \u2014 37 scored arm(s), agent=codex\nbench: /workspace/evals/rmc-bench.yaml\n\nLift (L0 \u2212 control, core kinds): +20%\n\nTransfer @ L0 (trap|detail|principle|multi)\n  9/10  (90%)\n    detail       3/3  (100%)\n    multi        2/2  (100%)\n    principle    1/2  (50%)\n    trap         3/3  (100%)\n\nRetention (detail cases, L0 vs L1)\n  L0   2/3  (67%)\n  L1   0/0  (\u2014)\n\nRetrieval (distractor|null|conflict|multi)\n  7/7  (100%)\n    conflict     1/1  (100%)\n    distractor   2/2  (100%)\n    multi        2/2  (100%)\n    null         2/2  (100%)\n\nCost (mean L0 tokens): 111"
 }
