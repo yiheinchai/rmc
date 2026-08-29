@@ -45,7 +45,7 @@ class TestInjectPaperResults(unittest.TestCase):
             "upstream": {
                 "sealqa-test": {
                     "arms": {
-                        "full-inject": {"accuracy": 0.6, "total": 50, "mean_tokens": 90},
+                        "full-inject": {"accuracy": 0.6, "total": 111, "mean_tokens": 90},
                     }
                 }
             },
@@ -53,7 +53,7 @@ class TestInjectPaperResults(unittest.TestCase):
         payload = self.inj._sealqa_upstream_payload(data)
         self.assertIsNotNone(payload)
         assert payload is not None
-        self.assertEqual(payload["arms"]["full-inject"]["total"], 50)
+        self.assertEqual(payload["arms"]["full-inject"]["total"], 111)
 
     def test_sealqa_upstream_rejects_small_mock_subset(self) -> None:
         data = {
@@ -87,15 +87,15 @@ class TestInjectPaperResults(unittest.TestCase):
             "arms": {
                 "full-inject": {
                     "accuracy": 0.7,
-                    "total": 50,
+                    "total": 111,
                     "mean_tokens": 100,
                     "bootstrap_ci": {"low": 0.6, "high": 0.8},
                 },
-                "recall-agentic": {"accuracy": 0.8, "total": 50, "mean_tokens": 40},
+                "recall-agentic": {"accuracy": 0.8, "total": 111, "mean_tokens": 40},
             }
         }
         table = self.inj.build_sealqa_table(data)
-        self.assertIn("50 tasks", table)
+        self.assertIn("111 tasks", table)
         self.assertIn("70\\%", table)
         self.assertIn("80\\%", table)
 
