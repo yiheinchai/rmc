@@ -125,9 +125,16 @@ def main() -> int:
     ws_path = RESULTS / "wikiskill-latest.json"
     shard2_path = RESULTS / "sealqa-shard2" / "wikiskill-latest.json"
     shard2_cases = 0
+    shard2_scores = 0
     if shard2_path.exists():
         shard2_ws = json.loads(shard2_path.read_text(encoding="utf-8"))
         shard2_cases = len({c.get("case_id") for c in shard2_ws.get("cases", []) if c.get("case_id")})
+        shard2_scores = len(shard2_ws.get("cases") or [])
+    combined_cases = ws_cases
+    if shard2_cases:
+        ids_main = {c.get("case_id") for c in ws.get("cases", []) if c.get("case_id")}
+        ids_shard = {c.get("case_id") for c in shard2_ws.get("cases", []) if c.get("case_id")}
+        combined_cases = len(ids_main | ids_shard)
     print(
         f"wikiskill-latest.json    agent={ws.get('agent', '—')}  "
         f"cases={ws_cases}/111  scores={ws_scores}  ckpt={ws.get('checkpoint', False)}  "
@@ -174,7 +181,7 @@ def main() -> int:
         transfers = re.findall(r"rmc-bench transfer (\d+)/(\d+)", text)
         upstream_scores = re.findall(r"upstream progress: (\d+) scores", text)
         if "=== [3/6]" in text or _running("scripts/run_wikiskill_evals.py --agent codex"):
-            n_cases = ws_cases if ws_cases else ws_total
+            n_cases = combined_cases if combined_cases else (ws_cases if ws_cases else ws_total)
             n_scores = ws_scores if ws_scores else (int(upstream_scores[-1]) if upstream_scores else 0)
             pct = 100 * n_cases / EXPECTED["sealqa-test"]
             eta = _eta("sealqa", n_cases, EXPECTED["sealqa-test"])
