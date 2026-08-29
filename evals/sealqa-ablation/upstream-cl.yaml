@@ -1,0 +1,1140 @@
+version: 1
+benchmark: SealQA
+source: "vtllms/sealqa seal_0 test (111 tasks)"
+lesson: |
+  SealQA procedural memory — answer from provided evidence only.
+
+  - Format every answer as: Answer: <short fact>
+  - When a snippet header or metadata block gives a year, date, or count, prefer
+    that over journal volume years or surrounding prose. @header-metadata
+  - When counting authors or items, count only explicitly named entries; never
+    count "et al." as additional names. @explicit-count
+  - When snippets conflict, prefer the snippet whose title or entity matches the
+    question subject. @entity-match
+  - When evidence is missing or says the premise is wrong, say so directly
+    rather than guessing from the question. @no-guess
+  - When a table row is labeled Total X, use that row — not a different column.
+    @table-row
+  - For "how many" questions, return a number only if the snippet states it;
+    do not infer from partial lists. @stated-count
+stats:
+  total: 111
+  train: 56
+  test: 55
+  evidence_quality:
+    usable: 55
+    wikipedia: 33
+    wikipedia_supplement: 13
+    bare_url: 9
+    page_hint: 1
+cases:
+  - id: sealqa-cl-0001
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Who holds the all-time record at the Grammys for the most wins in the album of the year category?\n\nEvidence snippets:\n- Serban Ghenea (as engineer/mixer) is the most frequent winner in this category with five awards. Taylor Swift (as performer);\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Serban Ghenea"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0002
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many NBA players have scored 60 or more points in a regular season game since 2023?\n\nEvidence snippets (enriched):\n- This is a complete listing of National Basketball Association players who have scored 60 or more points in a regular season game.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 12 players"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0003
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "What is the most recent film to join the top 10 highest-grossing films of all time?\n\nEvidence snippets (enriched):\n- the world.-,Highest-grossing films,-[12]\n- Films generate income from several revenue streams, including theatrical exhibition, home video, television broadcast rights, and merchandising. However, theatrical box-office earnings are the primary metric for trade publications in assessing the success of a film, mostly because of the availability of the data compared to sales figures for home video and broadcast rights, but also because of historical practice. Included on the list are charts of the top box-office earners, a chart of high-grossing films by calendar year, a timeline showing the transition of the highest-grossing film record, and a chart of the highest-grossing film franchises and series. All charts are ranked by international theatrical box-office performance where possible, excluding income derived from home video, broadcasting rights, and merchandise.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Spider-Man: Brand New Day"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0004
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "What is the current age of the last American experimental physicist to win the Nobel Prize in Physics?\n\nEvidence snippets:\n- John Clauser (b,American\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 83 years old"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0005
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "How many airlines are members of IATA, the organization that supports airline activity and helps formulate industry policy and standards?\n\nEvidence snippets (enriched):\n- Found 352 airline members\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 377"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: wikipedia_supplement
+    topic: Others
+    split: train
+  - id: sealqa-cl-0006
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "How many books has Jamie Oliver published since 2020?\n\nEvidence snippets (enriched):\n- James Trevor Oliver is an English celebrity chef, restaurateur and writer. Known for his casual approach to cuisine, Oliver has fronted many television shows, opened numerous restaurants, developed a wide range of food products, and written best-selling cookbooks.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 10"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: wikipedia
+    topic: Others
+    split: test
+  - id: sealqa-cl-0007
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "What was the acceptance rate for the most recent Conference on Empirical Methods in Natural Language Processing (EMNLP), including both the main conference and Findings?\n\nReference URLs:\n- https://aclanthology.org/2025.emnlp-main.0.pdf\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 39.50%"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: bare_url
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0008
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many of the top 10 highest-paid athletes in the latest Forbes list are professional golfers living in the U.S.?\n\nEvidence snippets (enriched):\n- This is a list of the highest-paid athletes in the world as ranked by Forbes magazine.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 1"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0009
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many versions of the .NET platform have been released that have a support lifetime of more than 12 months?\n\nEvidence snippets:\n- 3 years-,.NET 9,-November 12, 2024\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 11"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0010
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many YouTube music videos have surpassed 7 billion views?\n\nEvidence snippets:\n- Baby Shark Dance[,October 8, 2016\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 6"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0011
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Across all released seasons, how many episodes of The Lord of the Rings: The Rings of Power were not directed solely by Charlotte Brändström?\n\nEvidence snippets (enriched):\n- The Lord of the Rings: The Rings of Power is an American fantasy television series developed by J. D. Payne and Patrick McKay for the streaming service Amazon Prime Video. It is based on J. R. R. Tolkien's history of Middle-earth, primarily material from the appendices of the novel The Lord of the Rings (1954–55). The series is set thousands of years before the novel and depicts the major events of Middle-earth's Second Age. It is produced by Amazon MGM Studios in association with New Line Cinema.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 11"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0012
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "Among the 50 most-liked Instagram posts, how many were made by Cristiano Ronaldo’s account and received over 35 million likes?\n\nEvidence snippets (enriched):\n- This list of most-liked Instagram posts contains the top 20 posts by number of likes on the photo and video-sharing social networking service Instagram.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: wikipedia
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0013
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many of the top 20 most-liked Instagram posts by non-football-related accounts—excluding footballers like Lionel Messi and Cristiano Ronaldo and football organizations—also appear in the overall top 20 most-liked posts? Note that Selena Gomez does not have any posts in the overall top 20 most-liked posts.\n\nEvidence snippets:\n- Also in the overall top 20\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 11"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0014
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many of the top 50 most-followed Instagram accounts belong to individuals or entities based in the United States?\n\nEvidence snippets (enriched):\n- This list contains the top 50 accounts with the most followers on the social media platform Instagram. As of June 2026, Instagram's own account is the most-followed with over 685 million followers; the most-followed person is Portuguese footballer Cristiano Ronaldo with over 678 million followers.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 29"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Others
+    split: train
+  - id: sealqa-cl-0015
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many of the top 30 most-liked YouTube videos belong to MrBeast?\n\nEvidence snippets (enriched):\n- This list of most-liked YouTube videos contains the top 30 videos with the most likes of all time, taken directly from the video page. The American video platform YouTube implemented a like and dislike button on these pages in March 2010, part of a major redesign of the site. This served as a replacement for their five-star rating system; YouTube's designers found the previous system ineffective because the options to rate a video between two and four stars were rarely selected.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 9"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0016
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many videos on YouTube have received more than 29 million likes?\n\nEvidence snippets (enriched):\n- This list of most-liked YouTube videos contains the top 30 videos with the most likes of all time, taken directly from the video page. The American video platform YouTube implemented a like and dislike button on these pages in March 2010, part of a major redesign of the site. This served as a replacement for their five-star rating system; YouTube's designers found the previous system ineffective because the options to rate a video between two and four stars were rarely selected.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 27"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0017
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many YouTube videos have surpassed 5 billion views?\n\nEvidence snippets (enriched):\n- Baby Shark[,3.91\n- YouTube is an American video-sharing service provider headquartered in San Bruno, California. The site indicates view counts of each uploaded video, making it possible to keep track of the most viewed, many of which continue to exist while others are no longer available on the site. Although the most-viewed were initially viral videos uploaded by amateur content creators, such as \"Evolution of Dance\" and \"Charlie Bit My Finger\", they have increasingly been music videos produced on behalf of professional recording artists. Since Lady Gaga's \"Bad Romance\" in April 2010, every video that has reached the top of the \"most-viewed YouTube videos\" list has been a music video.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 14"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia_supplement
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0018
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many of the top 50 most-subscribed YouTube channels are based in India?\n\nEvidence snippets (enriched):\n- A subscriber to a channel on the American video-sharing platform YouTube is a user with an account who chooses to follow a channel's content by clicking on that channel's \"Subscribe\" button, and each user's subscription feed consists of videos published by channels to which the user is subscribed. The ability for users to subscribe was introduced in October 2005. YouTube began publishing a list of its most-subscribed channels in April 2006. An early archive of the list dates to May 17, 2006. As of 2026, YouTube does not publish lists of most-subscribed channels.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 17"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0019
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many of the 50 most-subscribed YouTube channels use only English as their primary language?\n\nEvidence snippets (enriched):\n- A subscriber to a channel on the American video-sharing platform YouTube is a user with an account who chooses to follow a channel's content by clicking on that channel's \"Subscribe\" button, and each user's subscription feed consists of videos published by channels to which the user is subscribed. The ability for users to subscribe was introduced in October 2005. YouTube began publishing a list of its most-subscribed channels in April 2006. An early archive of the list dates to May 17, 2006. As of 2026, YouTube does not publish lists of most-subscribed channels.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 16"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0020
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many films released before 2020 are currently among the top 30 highest-grossing films worldwide?\n\nEvidence snippets (enriched):\n- the world.-,Highest-grossing films,-[12]\n- Films generate income from several revenue streams, including theatrical exhibition, home video, television broadcast rights, and merchandising. However, theatrical box-office earnings are the primary metric for trade publications in assessing the success of a film, mostly because of the availability of the data compared to sales figures for home video and broadcast rights, but also because of historical practice. Included on the list are charts of the top box-office earners, a chart of high-grossing films by calendar year, a timeline showing the transition of the highest-grossing film record, and a chart of the highest-grossing film franchises and series. All charts are ranked by international theatrical box-office performance where possible, excluding income derived from home video, broadcasting rights, and merchandise.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 18"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia_supplement
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0021
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "Of the drivers who have won consecutive World Drivers' Championships, how many competed in this year's Championship?\n\nEvidence snippets:\n- 2014–2015-,Drivers in bold have competed in the 2025 World Championship.,-Drivers' Champions for\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 4"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: usable
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0022
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many American artists have received more than 40 Grammy nominations?\n\nEvidence snippets (enriched):\n- The following is a list of Grammy Awards winners and nominees from the United States.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 31"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0023
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Among this year's films that have grossed over $150 million worldwide, which has earned the least revenue?\n\nReference URLs:\n- https://www.boxofficemojo.com/year/world/?sort=worldwideGrossToDate\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Dhurandhar The Revenge"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: bare_url
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0024
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Which North Atlantic tropical storm, whose peak intensity remained at tropical storm level, caused the highest number of deaths last year?\n\nEvidence snippets (enriched):\n- The 2025 Atlantic hurricane season was an abnormal Atlantic hurricane season which featured bursts of intense hurricanes between long stretches of weak tropical activity. Three Category 5 hurricanes formed this season, the second most of any year on record, behind only the 2005 season, which had four. Among the three was Hurricane Melissa, the strongest tropical cyclone of the year globally, among the most intense Atlantic hurricanes on record, as well as the strongest tropical cyclone to make landfall in Jamaica on record. Due in large part to these systems, and despite a below-average number of named storms and hurricanes, the season had an above-normal accumulated cyclone energy (ACE) rating of 130.8 units. The season officially began on June 1, and ended on November 30. These dates, adopted by convention, historically describe the period in each year when most subtropical or tropical\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Tropical Storm Barry"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0025
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What was Coco Gauff's WTA ranking points total immediately after last year's US Open – Women's Singles?\n\nEvidence snippets (enriched):\n- Defending champion Aryna Sabalenka defeated Amanda Anisimova in the final, 6–3, 7–6(7–3) to win the women's singles tennis title at the 2025 US Open. It was her second US Open singles title and fourth major singles title overall. Sabalenka was the first woman to defend the title since Serena Williams in 2014. She retained the world No. 1 singles ranking after reaching the quarterfinals; Iga Świątek and Coco Gauff were also in contention for the top ranking at the beginning of the tournament.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 7,874"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0026
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many individuals have won the Oscar for Best Animated Feature?\n\nEvidence snippets (enriched):\n- The Academy Award for Best Animated Feature is an Academy Award presented annually by the Academy of Motion Picture Arts and Sciences (AMPAS) for the best animated feature film. An animated feature is defined by the academy as a film with a running time of more than 40 minutes in which characters' performances are created using a frame-by-frame technique, a significant number of the major characters are animated, and animation figures in no less than 75 percent of the running time. The Academy Award for Best Animated Feature was first awarded in 2002 for films released in 2001.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 20"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0027
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many non-brand TikTok accounts have reached more than 50 million followers?\n\nEvidence snippets (enriched):\n- This list contains the top 50 accounts by number of followers on the Chinese social media platform TikTok, which merged with musical.ly in 2018. As of 21 August 2026, the most-followed person on the platform is Khaby Lame, with 162.7 million followers. He surpassed Charli D'Amelio, the first user to reach 100 million followers, on 22 June 2022.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 34"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0028
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Google is significantly expanding its presence in the Asia-Pacific region, with Singapore as their current Asia Pacific headquarters. How many office locations does the company currently operate across Asian countries?\n\nEvidence snippets:\n- Switzerland-,Asia–Pacific,-SN\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 22"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0029
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What is the name of the largest wildfire in Northern California last year?\n\nEvidence snippets (enriched):\n- A series of wildfires burned throughout the state of California during 2025. By the end of the year, a total of 8,036 fires had burned 525,223 acres (212,550 ha) across the state.\n- Northern California is a geocultural region that comprises the northern portion of the U.S. state of California, spanning the northernmost 48 of the state's 58 counties. One of the 11 megaregions of the United States, Northern California in its largest definition is determined by dividing the state into two parts, the other being Southern California. The region's main population centers include the San Francisco Bay Area, Greater Sacramento, Metropolitan Fresno, and the Monterey Bay Area.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Butler"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Others
+    split: test
+  - id: sealqa-cl-0030
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What is the current age of the youngest grandmaster of chess?\n\nEvidence snippets:\n- months, 0 days-,2021,12 years, 4 months, 25 days[16],-This is a\n- 5, 2009 (-,age 16,-) Long Branch\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 17 years"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0031
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "What is the total number of civilian awards conferred in the Arts discipline in India from 2015 to 2025?\n\nEvidence snippets:\n- Agriculture (19 awards)-,.,-A Flourish chart\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 364"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: usable
+    topic: Others
+    split: train
+  - id: sealqa-cl-0032
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What is the total number of documentary films produced by Sahitya Akademi?\n\nEvidence snippets:\n- List of Documentary Films Produced by Sahitya Akademi\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 175"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0033
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "Among women’s soccer players with 100 or more international goals, who has the highest goals-per-match ratio?\n\nEvidence snippets:\n- 148-,0.97,-18 September 2005\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Julie Fleeting"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: usable
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0034
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many documentary films produced by Sahitya Akademi to date have a duration of less than 30 minutes?\n\nEvidence snippets:\n- List of Documentary Films Produced by Sahitya Akademi\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 157"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0035
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many total offices has Google opened across the Asia–Pacific, Africa, and Middle East regions since January 1, 2022?\n\nEvidence snippets (enriched):\n- Google LLC is an American multinational technology corporation focused on information technology, online advertising, search engine technology, email, cloud computing, software, quantum computing, e-commerce, consumer electronics, and artificial intelligence (AI). It has been referred to as \"the most powerful company in the world\" by the BBC, and is one of the world's most valuable brands. Google's parent company Alphabet Inc. has been described as a Big Tech company.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 11"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0036
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "Which three North American countries will host the 2026 FIFA's Women World Cup, the first to be co-hosted by three nations and the first North American World Cup since 1994?\n\nEvidence snippets:\n- Host countries,Mexico United States\n- Tournaments,202320272031\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: There won't be a FIFA's Women World Cup in 2026."
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0037
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "Who is the only female artist to have topped Spotify's list of most-streamed artists in three consecutive years (2020–2022)?\n\nEvidence snippets:\n- Since 2012, Spotify,the list (2023).\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: No one"
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0038
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Which tropical rainforest represents a quarter of the total area of remaining tropical forests on Earth and comprises one of the largest and most biodiverse tracts of tropical rainforest in the world?\n\nEvidence snippets:\n- contains a quarter of the world's remaining tropical forest\n- comprises the largest and most biodiverse tract of tropical rainforest in the world\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Congolian rainforests"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0039
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many countries did both Donald Trump (during his first term) and Joe Biden visit during their presidencies, including the West Bank?\n\nEvidence snippets (enriched):\n- This is a list of international presidential trips made by Joe Biden, the 46th president of the United States. Joe Biden made 21 international trips to 28 countries during his presidency, which began on January 20, 2021 and ended on January 20, 2025. Due to the COVID-19 pandemic, Biden did not make any international trips between January and June 2021.\n- Donald Trump, the 45th and 47th president of the United States, made 19 international trips to 25 countries during his first presidency, which began on January 20, 2017, and ended on January 20, 2021. As of July 2026, Trump has made 12 international trips to 17 countries during his second presidency, which began on January 20, 2025.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 18"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0040
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What is the name of the in-place, stable comparison sorting algorithm with a worst-case time complexity of O(n log n) and a best-case time complexity of O(n)?\n\nEvidence snippets:\n- to arrive at O(n log n) (see Big O notation) in-place stable sorting time\n- Block sort,Yes\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Block sort"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0041
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What is the sum of all three-letter Roman numerals that read the same forwards and backwards?\n\nEvidence snippets:\n- The numerals for,the following examples:\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 5442"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0042
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Which two countries share the longest continuous international border in the world by total length?\n\nEvidence snippets:\n- Longest single segments of land borders:\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Kazakhstan and Russia"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "History & Geography"
+    split: test
+  - id: sealqa-cl-0043
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "At which awards ceremony did the film Oppenheimer, a solemn three-hour biopic that became an unlikely billion-dollar box-office sensation, first win the Best Film award?\n\nEvidence snippets:\n- [146]-,St. Louis Film Critics Association Awards,Won,-[147]\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2023 St. Louis Film Critics Association Awards"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0044
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "What is the smallest cube number which can be expressed as the sum of two different positive cube numbers in two different ways?\n\nEvidence snippets:\n- 1729, and remarked that the number seemed to be rather a dull one, and that I hoped it was not an unfavourable omen. \"No,\" he replied, \"it is a very interesting number; it is the smallest number expressible as the sum of two cubes in two different ways.\"\n- In number theory, Fermat's Last Theorem (sometimes called Fermat's conjecture, especially in older texts) states that no three positive integers a, b, and c satisfy the equation an + bn = cn for any integer value of n greater than 2.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: According to the Fermat's Last Theorem, it is impossible for a cube number to be a sum of two cube numbers."
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0045
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "What is the smallest positive integer that can be written as the sum of two perfect squares, with both of these perfect squares being prime numbers?\n\nEvidence snippets:\n- Prime Numbers and Perfect Square are mutually exclusive. This means a prime number cannot be a perfect square and nor can a perfect square be a prime number.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: No square number is a prime number."
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0046
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many countries were not listed as offering only paid access to YouTube Music at the time of its initial expansion in 2018?\n\nEvidence snippets (enriched):\n- May 22, 2018,[33]\n- YouTube Music is a music streaming service developed by the American video platform YouTube, a subsidiary of Google. The service is designed with an interface that allows users to simultaneously explore music audios and music videos from YouTube-based genres, playlists and recommendations. On December 1, 2020, YouTube Music replaced Google Play Music as Google's primary brand for music streaming. In April 2023, the service expanded its offerings to include support for podcasts shortly before Google Podcasts was shut down.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 4"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0047
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "In what year did the deadliest Philippine typhoon of the first decade of the 21st century occur?\n\nEvidence snippets (enriched):\n- The Philippines is a typhoon-prone country, with approximately twenty tropical cyclones entering its area of responsibility per year. Locally known generally as bagyo, typhoons regularly form in the Philippine Sea and less often, in the South China Sea, with the months of June to September being the most active, August being the month with the most activity. Each year, at least ten typhoons are expected to hit the island nation, with five expected to be destructive and powerful. In 2013, Time declared the country as the \"most exposed country in the world to tropical storms\".\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2004"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: "History & Geography"
+    split: train
+  - id: sealqa-cl-0048
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many of the heaviest living animals can reach a maximum mass exceeding 60 tonnes?\n\nEvidence snippets:\n- [16]-,6,-North Atlantic right\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 6"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0049
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "What is the valency of mercury in Mercury(I) chloride?\n\nEvidence snippets:\n- Mercury(I) chloride,Hg−Hg−Cl\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0050
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many smoke grenade models listed in the Polish Land Forces equipment originate exclusively from the Soviet Union?\n\nEvidence snippets:\n- Explosive weapons[,[edit]\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 0"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Others
+    split: train
+  - id: sealqa-cl-0051
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many films was Brad Pitt credited as both an actor and a producer (excluding executive producer roles) before the Covid-19 pandemic?\n\nEvidence snippets:\n- Ad Astra-,Yes,Yes,-Major Roy McBride\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 12"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0052
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "According to the ICT Development Index (IDI) 2024, how many countries scored below 25?\n\nReference URLs:\n- https://worldpopulationreview.com/country-rankings/ict-development-index-by-country#:~:text=Chad,23\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: bare_url
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0053
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What percentage of the global mobile population is covered by 2G networks in 2024, according to the International Telecommunication Union (ITU)?\n\nEvidence snippets:\n- Slack. Learn more →-,ITU Facts and Figures 2024,-by\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0054
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "According to the U.S. Census Bureau 2022 data, how many states had more than 25% of their population aged 25 and older holding an advanced degree?\n\nEvidence snippets (enriched):\n- 1,049,675-,28.27,-%\n- This list of U.S. states and territories by educational attainment covers the 50 U.S. states, the District of Columbia, and the territory of Puerto Rico and their populations' educational attainment for all people of at least 25 years of age. The four other inhabited U.S. territories are listed separately.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 1"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0055
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "As reported by the Food and Agriculture Organization of the United Nations, which nation ranked as the world’s second‑largest rice producer in 2023?\n\nEvidence snippets (enriched):\n- Production of Rice,2023\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: China"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0056
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Based on data from the U.S. Environmental Protection Agency, which year between 2010 and 2020 saw the highest CO₂ emissions from crop cultivation in the United States?\n\nEvidence snippets:\n- Map View-,Choose:,-1. Sector:\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2018"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0057
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "According to 2023 data from the U.S. Environmental Protection Agency, which sector produced the lowest CO₂ emissions in the state of Indiana?\n\nEvidence snippets:\n- Metals-,Pulp and Paper,-Total Reported Emissions\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Pulp and Paper"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0058
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "According to United Nations data from 2021, what percentage of national parliamentary seats in Northern Africa were held by women?\n\nEvidence snippets (enriched):\n- 24.6-,24.3,-f\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 24.3"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0059
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How much did the infant mortality rate (per 1,000 live births) decline in Northern Africa between 2010 and 2021, according to United Nations data?\n\nEvidence snippets:\n- Infant mortality rate,23d\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 8.7"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0060
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "According to United Nations data from 2015, what percentage of national parliamentary seats in Northern America were held by women?\n\nEvidence snippets (enriched):\n- 19-,21.8,-28.3h\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 21.8"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0061
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What was the average 911 call answer time in Washington D.C. on April 30, 2025?\n\nEvidence snippets:\n- You can adjust the time frame and move through the data using the page arrow.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 3 seconds"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Others
+    split: test
+  - id: sealqa-cl-0062
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "As of 2022, how many Indian states had any political party win more than 50% of the vote in assembly elections exactly twice?\n\nEvidence snippets:\n- Arunachal Pradesh, Assam, Jammu & Kashmir (when it was a state) & Karnataka have 3 such instances each.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 7"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Politics
+    split: test
+  - id: sealqa-cl-0063
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many hotels in the United States have more than 3,500 rooms?\n\nEvidence snippets:\n- Largest hotels in the world[,3,506[23]\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 13"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Others
+    split: train
+  - id: sealqa-cl-0064
+    benchmark: SealQA
+    family: sealqa
+    axis: cross-lingual
+    task: "What was the official retail price per liter (in VND, inclusive of VAT and environmental tax) of RON 92-III gasoline on April 24, 2025, according to PetroVietnam Oil Corporation (PVOIL)?\n\nReference URLs:\n- https://www.pvoil.com.vn/tin-gia-xang-dau\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 19.630 VND"
+    skill: Use the evidence language and entities as given in snippets.
+    evidence_quality: bare_url
+    topic: Others
+    split: train
+  - id: sealqa-cl-0065
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "I am a father of two undergraduate sons enrolling in Virginia Tech's Virtual Campus for Summer 2025. One is a Virginia resident taking 6 credit hours, and the other is a non-resident taking 8 credit hours. What is the total tuition I need to pay for both?\n\nReference URLs:\n- https://www.bursar.vt.edu/content/dam/bursar_vt_edu/tuition/summer-2025/202506%20Tuition%20Fee%20Rates.pdf#page=2\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: $14,746"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: bare_url
+    topic: Others
+    split: train
+  - id: sealqa-cl-0066
+    benchmark: SealQA
+    family: sealqa
+    axis: cross-lingual
+    task: "Which Vietnamese professor explained the mysterious case of two monks said to have been meditating for over 400 years, as shown in a YouTube video posted on April 4, 2023?\n\nReference URLs:\n- https://www.youtube.com/watch?v=9pi6FWvY4Lk\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Nguyen Lan Cuong"
+    skill: Use the evidence language and entities as given in snippets.
+    evidence_quality: bare_url
+    topic: Others
+    split: test
+  - id: sealqa-cl-0067
+    benchmark: SealQA
+    family: sealqa
+    axis: cross-lingual
+    task: "According to Vietcombank's exchange rate table on May 1, 2025, what was the cash buying rate for the US dollar (USD)?\n\nReference URLs:\n- https://www.vietcombank.com.vn/vi-VN/KHCN/Cong-cu-Tien-ich/Ty-gia\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 25,790.00"
+    skill: Use the evidence language and entities as given in snippets.
+    evidence_quality: bare_url
+    topic: Others
+    split: train
+  - id: sealqa-cl-0068
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "According to Private Equity International's 2024 ranking, among all non-U.S.-based private equity firms with at least $30 billion raised over the past five years, which firm has the latest founding date?\n\nEvidence snippets (enriched):\n- Below is a list of notable private equity firms.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Brookfield Asset Management"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: wikipedia
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0069
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "If I randomly select i.i.d. samples from a distribution n times, the distribution of the sampled variables will approximately follow a normal distribution as n becomes very large. This statement is based on which theory?\n\nEvidence snippets:\n- The misconceived belief,such random variables.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: There is no theory that supports this statement."
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0070
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "Who is currently the most highly decorated IOI contestant with 5 golds and 1 bronze medal?\n\nEvidence snippets:\n- Zhuo Qun Song, the most highly decorated IMO contestant with 5 golds and 1 bronze medal.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: No contestant has won 5 golds and 1 bronze medal at IOI."
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0071
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "Which non-American agency has the most followers on X?\n\nEvidence snippets:\n- 23-,@PMOIndia,-PMO India\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Office of the Prime Minister of India"
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0072
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "In what month and year was the water level of Lake Powell last below 3550 feet?\n\nReference URLs:\n- https://powell.uslakes.info/Level/\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: August 2026"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: bare_url
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0073
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "What is the title of the latest concert documentary film featuring Kendrick Lamar?\n\nEvidence snippets:\n- Renaissance: A Film,Documentary concert film\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Renaissance: A Film by Beyoncé"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: usable
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0074
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Which organization is the world's largest card payment processing organization, providing credit cards, debit cards, and electronic payment systems?\n\nEvidence snippets:\n- In 2015, the UnionPay overtook Visa and Mastercard in total value of payments made by customers and became the largest card payment processing organization (debit and credit cards combined) in the world surpassing the two\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: UnionPay"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0075
+    benchmark: SealQA
+    family: sealqa
+    axis: cross-lingual
+    task: "How many seasons are there in the Indonesian version of the game show \"Name That Tune\"?\n\nEvidence snippets (enriched):\n- Jmlh. musim,6\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 7"
+    skill: Use the evidence language and entities as given in snippets.
+    evidence_quality: wikipedia_supplement
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0076
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many active players are currently in the top 10 of all-time men’s international goal scorers in soccer?\n\nEvidence snippets (enriched):\n- u\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 5"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0077
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Which American airline has most recently filed for Chapter 7 bankruptcy protection?\n\nEvidence snippets:\n- Evergreen International Airlines,December 31, 2013\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Spirit Airlines"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Others
+    split: test
+  - id: sealqa-cl-0078
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "Which is the most recent film to dominate the British Academy Film Awards by winning more than seven awards while also having the most total wins and nominations in its award year?\n\nEvidence snippets (enriched):\n- he 38th British Academy Film Awards, more commonly known as the BAFTAs, took place on 5 March 1985 at the Grosvenor House Hotel in London, honouring the best national and foreign films of 1984. Presented by the British Academy of Film and Television Arts, accolades were handed out for the best feature-length film and documentaries of any nationality that were screened at British cinemas in 1984.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: The Killing Fields"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0079
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many times in history has the PDC World Darts Championship final featured two English players?\n\nEvidence snippets (enriched):\n- The PDC World Darts Championship, officially known as the Paddy Power World Darts Championship for sponsorship reasons, is a world championship competition held annually in the sport of darts. The championship begins in December and ends in January and has been held at Alexandra Palace in London since 2008. Organised by the Professional Darts Corporation (PDC), it is the most prestigious of their tournaments, with the winner receiving the Sid Waddell Trophy, named in honour of the darts commentator Sid Waddell. Along with the Premier League Darts and World Matchplay, it is part of the Triple Crown.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 14"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0080
+    benchmark: SealQA
+    family: sealqa
+    axis: no-guess
+    task: "How many state-level felonies has the most recent former president of the United States been convicted of?\n\nEvidence snippets:\n- Biden (disambiguation).-,Joe Biden,-Official portrait, 2021\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Joe Biden, the most recent former president of the United States, hasn't been convicted of any state-level felonies."
+    skill: "When the premise is wrong or evidence is missing, say so — do not guess."
+    evidence_quality: usable
+    topic: Politics
+    split: test
+  - id: sealqa-cl-0081
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many individuals from the Liberal Democratic Party have served as Prime Minister of Japan since the assassination of Shinzo Abe?\n\nEvidence snippets (enriched):\n- [99]-,Shinzo Abe,-安倍 晋三\n- The prime minister of Japan is the country's head of government and the leader of the Cabinet. This is a list of prime ministers of Japan, from when the first Japanese prime minister, Itō Hirobumi, took office in 1885, until the present day. 32 prime ministers under the Meiji Constitution had a mandate from the Emperor. The \"electoral mandates\" shown are for the House of Representatives, the lower house of the Imperial Diet, which was not constitutionally guaranteed to have any influence on the appointment of the prime minister.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 4"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia_supplement
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0082
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Which Schengen Area country implemented the Schengen Agreement the soonest after signing it?\n\nEvidence snippets (enriched):\n- The Schengen Area is a system of open borders that encompass 29 European countries that have officially abolished border controls at their common borders. As an element within the wider area of freedom, security and justice (AFSJ) policy of the European Union (EU), it mostly functions as a single jurisdiction under a common visa policy for international travel purposes. The area is named after the 1985 Schengen Agreement and the 1990 Schengen Convention, both signed in Schengen, Luxembourg.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Austria"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: "History & Geography"
+    split: train
+  - id: sealqa-cl-0083
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many Los Angeles Metro Rail stations are served by both the A Line and at least one other Metro Rail line?\n\nEvidence snippets (enriched):\n- Metro Rail is an urban rail transit system in Los Angeles County, California. It is operated by Los Angeles Metro. The system includes 110 metro stations on four light rail lines and two rapid transit lines, covering 125.1 miles (201.3 km) of route service. In 2019, the Metro Rail system served an average 295,889 passengers each weekday, totaling 93.2 million passengers in the calendar year. Metro Rail is one of the largest light rail and rapid transit systems in the United States by ridership. The system is complemented by two Metro Busway bus rapid transit lines.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: seven"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Others
+    split: test
+  - id: sealqa-cl-0084
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "Who was the last Bayern Munich player to finish in the top three for the Ballon d'Or?\n\nEvidence snippets:\n- 549-,2nd,Sadio Mané,-Bayern Munich[\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Sadio Mané"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: usable
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0085
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many Studio Ghibli feature films have been released with a runtime of 119 minutes or longer?\n\nEvidence snippets (enriched):\n- This is a list of works by the Japanese animation studio Studio Ghibli. Studio Ghibli has produced 22 feature films, with its first being Castle in the Sky on August 2, 1986, and its latest being The Boy and the Heron on July 14, 2023.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 9"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0086
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many Studio Ghibli feature films have received a Rotten Tomatoes Tomatometer score below 90%?\n\nEvidence snippets (enriched):\n- This is a list of works by the Japanese animation studio Studio Ghibli. Studio Ghibli has produced 22 feature films, with its first being Castle in the Sky on August 2, 1986, and its latest being The Boy and the Heron on July 14, 2023.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 6"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0087
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "According to the Emissions Database for Global Atmospheric Research, which country has experienced the largest percentage drop in per capita fossil carbon emissions since 2000?\n\nEvidence snippets:\n- List of countries by carbon emissions per capita\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Curaçao"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0088
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "What is the most widely used ride booking application in India that offers a wide variety of vehicle choices and prices?\n\nEvidence snippets:\n- \"Uber\" takes the top spot\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Uber"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0089
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Among artists with multiple wins for Album of the Year at the Grammys, who has received the most nominations for this award, with each nomination occurring in a different year?\n\nEvidence snippets:\n- 1974, 1975, 1977)-,George Harrison,] 1972, 1973,[iv] 1990[v]),-John Lennon\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: George Harrison"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0090
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many Kannada films have grossed at least ₹100 crore worldwide and also earned at least ₹50 crore during their opening week?\n\nEvidence snippets (enriched):\n- Kannada cinema is a part of Indian cinema based in Bengaluru, Karnataka. The films are made primarily in Kannada-language. The 2006 film Mungaru Male is the first Kannada movie to gross ₹50 crores. The 2017 film Raajakumara is the first Kannada movie to gross ₹75 crore mark.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 6"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0091
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many players have officially worn the No. 10 shirt for Barcelona's men's first team since Diego Maradona left the club in 1984?\n\nEvidence snippets:\n- (1901/02)-,10,-Ansu Fati\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 29"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0092
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "Who was the most recent Sheriff of Los Angeles County killed in the line of duty?\n\nEvidence snippets:\n- 7-,William C. Getman †,-1858\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: William C. Getman"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Politics
+    split: test
+  - id: sealqa-cl-0093
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Which was the third Asian country to report a case of clade Ib mpox during the most recent outbreak?\n\nEvidence snippets (enriched):\n- [27]-,Pakistan,-1[18\n- An epidemic of a new variant of clade I mpox, called clade 1b, began in Central Africa at least as early as September 2023. As of September 2024, more than 29,000 cases have been reported, with over 800 fatalities, nearly all in the Democratic Republic of the Congo. According to the European CDC: \"The size of these outbreaks could be larger than reported due to under-ascertainment and under-reporting.\"\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Pakistan"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia_supplement
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0094
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "For exactly how many days did the Instagram post by Justin Bieber's account that once held the record for most-liked post on the platform remain at the top?\n\nEvidence snippets:\n- [21]-,69,-@kendalljenner\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 69"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Entertainment
+    split: train
+  - id: sealqa-cl-0095
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "For exactly how many days did the Instagram post by Kendall Jenner's account that once held the record for most-liked post on the platform remain at the top?\n\nEvidence snippets:\n- [22]-,313,-@kimkardashian\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 313"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0096
+    benchmark: SealQA
+    family: sealqa
+    axis: cross-lingual
+    task: "On what date did the KOSPI (Korea Composite Stock Price Index) experience its largest relative single-day drop?\n\nEvidence snippets (enriched):\n- 1981.01.05.,-13.02%\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: January 05, 1981"
+    skill: Use the evidence language and entities as given in snippets.
+    evidence_quality: wikipedia_supplement
+    topic: Others
+    split: train
+  - id: sealqa-cl-0097
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many volcanic eruptions in the 21st century have produced a plume height of at least 18 miles?\n\nEvidence snippets (enriched):\n- This is a list of volcanic eruptions in the 21st century with a volcanic explosivity index (VEI) of 4 or higher, and smaller eruptions that resulted in fatalities, significant damage or disruptions.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0098
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many times has the Turing Award been given to multiple winners in the same year?\n\nEvidence snippets (enriched):\n- The ACM A. M. Turing Award is an annual prize given by the Association for Computing Machinery (ACM) for contributions of lasting and major technical importance to computer science. It is generally recognized as the highest distinction in the field of computer science and is often referred to as the \"Nobel Prize of Computing\". As of 2026, 81 people have been awarded the prize, with the most recent recipients being Charles H. Bennett and Gilles Brassard, who won in 2025.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 18"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0099
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many Super Bowl games had an attendance of more than 70,000?\n\nEvidence snippets:\n- 28–27)-,Super Bowl championships,-Game\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 48"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0100
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many former US presidents ran again for president after losing a general election and lost on their second attempt?\n\nEvidence snippets:\n- This list only includes former presidents who ran again for president.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 2"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Politics
+    split: test
+  - id: sealqa-cl-0101
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "How many national flags of countries recognized as United Nations (UN) member or observer states have had their most recent official adoption date since 2010?\n\nEvidence snippets (enriched):\n- All 193 member states and 2 General Assembly non-member observer states of the United Nations, in addition to several de facto states, represent themselves with national flags. National flags generally contain symbolism of their respective state, and serve as an emblem which distinguishes themselves from other states in international politics. National flags are adopted by governments to strengthen national bonds and legitimate formal authority. Such flags may contain symbolic elements of their peoples, militaries, territories, rulers, and dynasties. The flag of Denmark is the oldest flag still in current use as it has been recognized as a national symbol since the 13th century.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 16"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: "History & Geography"
+    split: train
+  - id: sealqa-cl-0102
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "What is the name of the steel roller coaster that most recently lost its title as the tallest operating steel roller coaster in the world?\n\nEvidence snippets:\n- 2003 – May 2005-,1,367.3 ft (112.0 m),-Intamin\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Top Thrill 2"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0103
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "On what date did the latest eruption of the world's most active composite volcano begin, which spewed fiery lava and ash thousands of feet into the sky?\n\nEvidence snippets:\n- Last eruption-,23 April 2025,-[4]\n- Mount Etna is the highest Mediterranean island mountain and the most active stratovolcano in the world.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 7 August 2026"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0104
+    benchmark: SealQA
+    family: sealqa
+    axis: header-metadata
+    task: "According to the WHO, in which year were the highest number of measles cases recorded worldwide?\n\nEvidence snippets:\n- 2020-,African Region,-1,240,993\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 1980"
+    skill: "Prefer header/metadata year, date, or count over surrounding prose."
+    evidence_quality: usable
+    topic: "Science & Technology"
+    split: test
+  - id: sealqa-cl-0105
+    benchmark: SealQA
+    family: sealqa
+    axis: entity-match
+    task: "As of now, which country or countries have won a single medal in the history of the Summer Olympic Games—and it was a gold?\n\nEvidence snippets (enriched):\n- The all-time medal table for all Olympic Games from 1896 to 2026, including Summer Olympic Games, Winter Olympic Games, and a combined total of both, is tabulated below. These Olympic medal counts do not include the 1906 Intercalated Games which are no longer recognized by the International Olympic Committee (IOC) as official Games. The IOC itself does not publish all-time tables, and publishes unofficial tables only per single Games. This table was thus compiled by adding up single entries from the IOC database.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Dominica"
+    skill: Prefer snippets whose title or entity matches the question subject.
+    evidence_quality: wikipedia
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0106
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many badminton athletes have won Olympic Gold and more than 2 Olympic medals in total?\n\nEvidence snippets (enriched):\n- Badminton is a sport contested at the Summer Olympic Games. Badminton was first held as a demonstration sport at the 1972 Summer Olympics, and was an exhibition sport at the 1988 Summer Olympics; the men's and women's singles and doubles have been held at every Summer Olympics since the 1992 Summer Olympics. The mixed doubles badminton tournament started in the 1996 Summer Olympics.\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 8"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: wikipedia
+    topic: Sports
+    split: train
+  - id: sealqa-cl-0107
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Who broke the short course world record in women's 400m freestyle at the youngest age from 2010 to now?\n\nReference context:\n- Wikipedia article: World record progression 400 metres freestyle?utm source=chatgpt.com\n- Section: Short course 2\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Wang Jianjiahe"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: page_hint
+    topic: Sports
+    split: test
+  - id: sealqa-cl-0108
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Who is the most recent female middle school student to represent China in the International Mathematical Olympiad (IMO) contest?\n\nReference URLs:\n- https://www.imo-official.org/country_individual_r.aspx?code=CHN\n- https://www.cms.org.cn/en/Home/comp/comp_details/198.html\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Binwei Yan"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: bare_url
+    topic: "Science & Technology"
+    split: train
+  - id: sealqa-cl-0109
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "How many movies with an estimated net budget of $350 million or more were not the highest-grossing film of their release year?\n\nEvidence snippets:\n- the 21st century.-,Most expensive films,-Rank\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 10"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Entertainment
+    split: test
+  - id: sealqa-cl-0110
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "Who was the purchaser in the largest confirmed merger or acquisition that ultimately failed to complete?\n\nEvidence snippets:\n- [427]-,Largest ever deals which have failed to complete,-[edit]\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: Astra Zeneca"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Politics
+    split: train
+  - id: sealqa-cl-0111
+    benchmark: SealQA
+    family: sealqa
+    axis: advanced-reasoning
+    task: "What is the total number of branches of the Akhil Bharatiya Marathi Sahitya Mahamandal?\n\nEvidence snippets:\n- अखिल भारतीय मराठी साहित्य परिषदेच्या ३५० शाखा\n- मराठी साहित्य परिषदेच्या-,३५० शाखा,-असून, १२ हजाराच्यावर\n\nAnswer with a short factual response starting with 'Answer:'."
+    expected: "Answer: 350"
+    skill: "Answer only from provided evidence; combine snippets carefully."
+    evidence_quality: usable
+    topic: Others
+    split: test

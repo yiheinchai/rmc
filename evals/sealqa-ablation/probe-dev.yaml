@@ -1,0 +1,132 @@
+# SealQA probe-dev: minimal regression tasks for ROSE compaction ablations.
+# Each case tests one evidence-handling axis; the shared lesson must generalise.
+
+version: 1
+benchmark: SealQA
+
+lesson: |
+  SealQA procedural memory — answer from provided evidence only.
+
+  - Format every answer as: Answer: <short fact>
+  - When a snippet header or metadata block gives a year, date, or count, prefer
+    that over journal volume years or surrounding prose. @header-metadata
+  - When counting authors or items, count only explicitly named entries; never
+    count "et al." as additional names. @explicit-count
+  - When snippets conflict, prefer the snippet whose title or entity matches the
+    question subject. @entity-match
+  - When evidence is missing or says the premise is wrong, say so directly
+    rather than guessing from the question. @no-guess
+  - When a table row is labeled Total X, use that row — not a different column.
+    @table-row
+  - For "how many" questions, return a number only if the snippet states it;
+    do not infer from partial lists. @stated-count
+
+cases:
+  - id: sealqa-axis-format-1
+    axis: answer-format
+    family: sealqa
+    task: |
+      Snippet: Title: Attention Is All You Need — Venue: NeurIPS 2017
+      Question: What year was the Transformer paper published?
+    expected: "Answer: 2017"
+    skill: "Format: Answer: <year from venue/header>."
+
+  - id: sealqa-axis-format-2
+    axis: answer-format
+    family: sealqa
+    task: |
+      Snippet: Found 377 airline members (IATA directory excerpt)
+      Question: How many IATA airline members?
+    expected: "Answer: 377"
+    skill: "Format: Answer: <number from snippet>."
+
+  - id: sealqa-axis-count-1
+    axis: explicit-count
+    family: sealqa
+    task: |
+      Metadata authors: Devlin, Chang, Lee, Toutanova
+      Question: How many authors are explicitly named?
+    expected: "Answer: 4"
+    skill: "Count only named authors, not et al."
+
+  - id: sealqa-axis-count-2
+    axis: explicit-count
+    family: sealqa
+    task: |
+      Snippet: Serban Ghenea (engineer) five wins; Taylor Swift (performer)
+      Question: Who holds the most Album of the Year wins as engineer/mixer?
+    expected: "Answer: Serban Ghenea"
+    skill: "Pick the role the question names."
+
+  - id: sealqa-axis-entity-1
+    axis: entity-match
+    family: sealqa
+    task: |
+      Snippet A (Spotify): No female artist topped 2020-2022 three years straight.
+      Snippet B (Grammys): Different list about album wins.
+      Question: Who is the only female artist to top Spotify most-streamed 2020-2022?
+    expected: "Answer: No one"
+    skill: "Match snippet topic to question entity."
+
+  - id: sealqa-axis-entity-2
+    axis: entity-match
+    family: sealqa
+    task: |
+      Snippet: Zhuo Qun Song — most decorated IMO contestant, 5 golds 1 bronze.
+      Question: Who is the most decorated IOI contestant with 5 golds 1 bronze?
+    expected: "Answer: No contestant has won 5 golds and 1 bronze medal at IOI."
+    skill: "Do not transfer facts across competitions."
+
+  - id: sealqa-axis-noguess-1
+    axis: no-guess
+    family: sealqa
+    task: |
+      Snippet: Host countries listed: Mexico, United States (men's World Cup 2026)
+      Question: Which three countries host the 2026 FIFA Women's World Cup?
+    expected: "Answer: There won't be a FIFA Women's World Cup in 2026."
+    skill: "Reject false premises in the question."
+
+  - id: sealqa-axis-noguess-2
+    axis: no-guess
+    family: sealqa
+    task: |
+      Snippet: Prime numbers and perfect squares are mutually exclusive.
+      Question: Smallest positive integer that is sum of two perfect-square primes?
+    expected: "Answer: No square number is a prime number."
+    skill: "State impossibility when evidence says so."
+
+  - id: sealqa-axis-table-1
+    axis: table-row
+    family: sealqa
+    task: |
+      Table: Individual income taxes 1200; Corporate 300; Total receipts 1550; Total outlays 1700
+      Question: What were total receipts?
+    expected: "Answer: 1550"
+    skill: "Use the Total receipts row."
+
+  - id: sealqa-axis-table-2
+    axis: table-row
+    family: sealqa
+    task: |
+      Same table as above.
+      Question: What is the deficit (outlays minus receipts)?
+    expected: "Answer: 150"
+    skill: "Compute from labeled rows, same units."
+
+  - id: sealqa-axis-stated-1
+    axis: stated-count
+    family: sealqa
+    task: |
+      Snippet: 12 players scored 60+ NBA points since 2023 (list header only)
+      Question: How many NBA players scored 60+ since 2023?
+    expected: "Answer: 12 players"
+    skill: "Use stated count from snippet."
+
+  - id: sealqa-axis-stated-2
+    axis: stated-count
+    family: sealqa
+    task: |
+      Snippet: 6 YouTube music videos surpassed 7 billion views
+      Question: How many YouTube music videos surpassed 7 billion views?
+    expected: "Answer: 6"
+    skill: "Do not extrapolate beyond snippet."
