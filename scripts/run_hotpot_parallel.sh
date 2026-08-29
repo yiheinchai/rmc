@@ -37,7 +37,9 @@ sys.exit(0 if ok else 1)
   echo "$(date -u +%H:%M:%S) waiting for competitive-latest.json step-2 sections..."
   sleep 30
 done
-echo "$(date -u +%H:%M:%S) step 2 complete — starting HotPotQA"
+echo "$(date -u +%H:%M:%S) step 2 complete — injecting Codex results into manuscript"
+python3 scripts/inject_paper_results.py || true
+echo "$(date -u +%H:%M:%S) starting HotPotQA"
 
 if ! python3 scripts/merge_competitive_upstream.py --check --competitive "$MAIN" | grep -qx hotpotqa-dev; then
   echo "HotPotQA already complete in $MAIN"

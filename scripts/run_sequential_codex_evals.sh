@@ -24,6 +24,7 @@ python3 scripts/run_competitive_evals.py \
   --samples 1 \
   --skip-upstream
 cp papers/rse/results/competitive-latest.json "papers/rse/results/competitive-codex-${STAMP}.json" 2>/dev/null || true
+python3 scripts/inject_paper_results.py || true
 
 echo "=== [2b/6] HotPotQA + multi-model (parallel with SealQA) ==="
 HOTPOT_LOG="/tmp/hotpot-parallel-${STAMP}.log"

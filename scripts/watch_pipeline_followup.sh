@@ -20,8 +20,7 @@ wait_for() {
   echo "$(date -u +%H:%M:%S) $label finished"
 }
 
-# Current long-running competitive suite from the 05:01 sequential run.
-wait_for "run_competitive_evals.py --agent codex" "competitive suite"
+# Wait for the sequential Codex pipeline, then merge/finalize.
 wait_for "run_sequential_codex_evals.sh" "sequential pipeline"
 
 echo "=== Merge full SealQA from wikiskill-latest into competitive ==="
