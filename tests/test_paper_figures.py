@@ -13,9 +13,18 @@ FIGURES = ROOT / "papers" / "rse" / "figures"
 RESULTS = ROOT / "papers" / "rse" / "results"
 
 
+def _has_matplotlib() -> bool:
+    try:
+        import matplotlib  # noqa: F401
+
+        return True
+    except ImportError:
+        return False
+
+
 @unittest.skipUnless(
-    (RESULTS / "submission-latest.json").exists(),
-    "submission-latest.json missing",
+    _has_matplotlib() and (RESULTS / "submission-latest.json").exists(),
+    "matplotlib or submission-latest.json missing",
 )
 class TestGeneratePaperFigures(unittest.TestCase):
     def test_generate_paper_figures_creates_pdfs(self) -> None:
