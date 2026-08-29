@@ -10,6 +10,11 @@ exec > >(tee -a "$LOG") 2>&1
 
 echo "=== Log: $LOG ==="
 
+MULTI_LOG="/tmp/multimodel-parallel-${STAMP}.log"
+bash ./scripts/run_multimodel_parallel.sh > >(tee -a "$MULTI_LOG") 2>&1 &
+MULTI_PID=$!
+echo "Multi-model background pid=$MULTI_PID log=$MULTI_LOG"
+
 echo "=== [1/6] Cross-model transfer (Codex) ==="
 if [[ -f papers/rse/results/cross-transfer-latest.json ]] && \
    python3 -c "import json; d=json.load(open('papers/rse/results/cross-transfer-latest.json')); exit(0 if 'codex' in d.get('table',{}) else 1)"; then
@@ -43,12 +48,14 @@ echo "=== waiting for HotPotQA parallel job (pid=$HOTPOT_PID) ==="
 wait "$HOTPOT_PID" || true
 
 echo "=== [4/6] Multi-model WikiSkill probe ==="
-if python3 -c "from scripts.generate_submission_report import _claude_authenticated; import sys; sys.exit(0 if _claude_authenticated() else 1)"; then
-  python3 scripts/run_multimodel_evals.py --agents claude codex --samples 3
+if [[ -f papers/rse/results/multimodel-latest.json ]] && \
+   python3 -c "import json; d=json.load(open('papers/rse/results/multimodel-latest.json')); exit(0 if len(d.get('models') or {})>=3 else 1)"; then
+  echo "skip: multimodel-latest.json already has >=3 models"
+elif kill -0 "$MULTI_PID" 2>/dev/null; then
+  echo "waiting for background multi-model job (pid=$MULTI_PID)..."
+  wait "$MULTI_PID" || true
 else
-  mapfile -t _CODEX_MODELS < <(python3 -c "from rmc.grader_specs import extra_codex_models; print('\n'.join(extra_codex_models()))")
-  echo "note: claude not authenticated; Codex multi-model with: codex ${_CODEX_MODELS[*]}"
-  python3 scripts/run_multimodel_evals.py --agents codex --codex-models "${_CODEX_MODELS[@]}" --samples 3
+  bash ./scripts/run_multimodel_parallel.sh
 fi
 
 echo "=== [5/6] Regenerate reports and figures ==="

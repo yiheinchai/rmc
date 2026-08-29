@@ -81,7 +81,30 @@ def main() -> int:
 
     payload = _load_payload(merge_path, stamp=stamp, adapter=adapter, samples=args.samples)
 
+    def _preserve_upstream_from_disk() -> None:
+        """Keep upstream splits merged by parallel jobs when this run re-flushes."""
+        if not latest.exists():
+            return
+        try:
+            on_disk = json.loads(latest.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return
+        disk_up = on_disk.get("upstream") or {}
+        if not disk_up:
+            return
+        payload.setdefault("upstream", {})
+        for stem, blob in disk_up.items():
+            disk_total = (
+                (blob.get("arms") or {}).get("full-inject") or {}
+            ).get("total", 0)
+            pay_total = (
+                (payload["upstream"].get(stem) or {}).get("arms", {}).get("full-inject") or {}
+            ).get("total", 0)
+            if disk_total > pay_total:
+                payload["upstream"][stem] = blob
+
     def _flush() -> None:
+        _preserve_upstream_from_disk()
         latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         print(f"  (checkpoint → {latest})", flush=True)
 

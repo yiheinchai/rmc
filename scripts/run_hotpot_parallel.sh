@@ -10,18 +10,32 @@ exec > >(tee -a "$LOG") 2>&1
 
 MAIN="papers/rse/results/competitive-latest.json"
 WORK="papers/rse/results/hotpot-workspace"
+STEP2_PATTERN='run_competitive_evals.py --agent codex --samples 1 --skip-upstream'
 
 echo "=== HotPotQA parallel runner ==="
 echo "log: $LOG"
 
-echo "waiting for competitive suite step 2 (agent=codex + rmc_bench)..."
+echo "waiting for competitive suite step 2 process to finish..."
+while pgrep -f "$STEP2_PATTERN" >/dev/null 2>&1; do
+  echo "$(date -u +%H:%M:%S) step 2 still running..."
+  sleep 120
+done
+
+echo "waiting for step-2 markers in $MAIN..."
 while ! python3 -c "
 import json, sys
 d = json.load(open('$MAIN'))
-sys.exit(0 if d.get('agent') == 'codex' and d.get('rmc_bench') else 1)
+ok = (
+    d.get('agent') == 'codex'
+    and d.get('rmc_bench')
+    and d.get('wikiskill_probe')
+    and d.get('memgpt_nested_kv')
+    and d.get('session_study')
+)
+sys.exit(0 if ok else 1)
 " 2>/dev/null; do
-  echo "$(date -u +%H:%M:%S) still waiting on step 2..."
-  sleep 120
+  echo "$(date -u +%H:%M:%S) waiting for competitive-latest.json step-2 sections..."
+  sleep 30
 done
 echo "$(date -u +%H:%M:%S) step 2 complete — starting HotPotQA"
 
