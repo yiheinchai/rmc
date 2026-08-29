@@ -70,18 +70,43 @@ def _url_page_hints(urls: list[str]) -> list[str]:
     return hints
 
 
+def _hotpot_evidence(row: dict) -> list[str]:
+    """Extract supporting-fact sentences from HotPotQA context paragraphs."""
+    ctx = row.get("context") or {}
+    titles = ctx.get("title") or []
+    sentences = ctx.get("sentences") or []
+    title_to_sents = {str(t): list(s) for t, s in zip(titles, sentences)}
+    sf = row.get("supporting_facts") or {}
+    sf_titles = sf.get("title") or []
+    sf_ids = sf.get("sent_id") or []
+    snippets: list[str] = []
+    for title, sent_id in zip(sf_titles, sf_ids):
+        sents = title_to_sents.get(str(title)) or []
+        if 0 <= int(sent_id) < len(sents):
+            snippets.append(f"{title}: {sents[int(sent_id)]}")
+    if not snippets:
+        for title, sents in list(title_to_sents.items())[:3]:
+            if sents:
+                snippets.append(f"{title}: {sents[0]}")
+    return snippets
+
+
 def _row_to_case(row: dict, spec: dict, idx: int) -> dict:
     task_field = spec["task_field"]
     expected_field = spec["expected_field"]
     question = str(row.get(task_field) or "").strip()
     expected = str(row.get(expected_field) or "").strip()
     urls = _normalize_urls(row.get("urls"))
-    snippets = _url_text_snippets(urls)
+    snippets: list[str] = []
+    if spec.get("evidence_mode") == "hotpot":
+        snippets = _hotpot_evidence(row)
+    else:
+        snippets = _url_text_snippets(urls)
     page_hints = _url_page_hints(urls) if not snippets else []
     evidence = ""
     if snippets:
         evidence = "\n\nEvidence snippets (from reference URLs):\n" + "\n".join(
-            f"- {s}" for s in snippets[:4]
+            f"- {s}" for s in snippets[:6]
         )
     elif page_hints:
         evidence = "\n\nReference context (from URLs):\n" + "\n".join(f"- {h}" for h in page_hints[:4])

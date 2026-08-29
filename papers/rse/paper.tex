@@ -322,7 +322,7 @@ This is a single-turn proxy, not live multi-turn agent sessions.
 \label{sec:limitations}
 
 \textbf{RMC-Bench} is hand-written (25 cases); cases from real captures would be more representative.
-\textbf{WikiSkill comparison} uses a 10-task probe plus full SealQA upstream split; HotPotQA/ALFWorld full splits not yet wired (HF import blocked).
+\textbf{WikiSkill comparison} uses a 10-task probe plus full SealQA upstream split (111 tasks) and HotPotQA dev-100 (Reflexion-aligned); ALFWorld full split not yet wired.
 \textbf{External baselines} use inference-time proxies for Trace2Skill/EvoSkill/SkillOpt, not full evolution loops.
 \textbf{Multi-model:} Codex primary; Claude/Gemini cross-check recommended before claiming cross-model generalization.
 \textbf{Session study} is a single-turn proxy.

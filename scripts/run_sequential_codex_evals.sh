@@ -35,12 +35,10 @@ python3 scripts/run_wikiskill_evals.py \
 echo "=== [4/5] Multi-model WikiSkill probe ==="
 if python3 -c "from scripts.generate_submission_report import _claude_authenticated; import sys; sys.exit(0 if _claude_authenticated() else 1)"; then
   python3 scripts/run_multimodel_evals.py --agents claude codex --samples 3
-elif [[ -n "${CODEX_MULTI_MODELS:-}" ]]; then
-  # shellcheck disable=SC2086
-  python3 scripts/run_multimodel_evals.py --agents codex --codex-models ${CODEX_MULTI_MODELS} --samples 3
 else
-  echo "note: claude not authenticated; running Codex-only multi-model probe"
-  python3 scripts/run_multimodel_evals.py --agents codex --samples 3
+  mapfile -t _CODEX_MODELS < <(python3 -c "from rmc.grader_specs import extra_codex_models; print('\n'.join(extra_codex_models()))")
+  echo "note: claude not authenticated; Codex multi-model with: codex ${_CODEX_MODELS[*]}"
+  python3 scripts/run_multimodel_evals.py --agents codex --codex-models "${_CODEX_MODELS[@]}" --samples 3
 fi
 
 echo "=== [5/5] Regenerate reports and figures ==="

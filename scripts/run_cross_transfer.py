@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT))
 
 from rmc.adapters import available_backends
 from rmc.cross_transfer import run_cross_transfer, to_dict as cross_transfer_to_dict
+from rmc.grader_specs import default_multimodel_specs
 
 
 def main() -> int:
@@ -25,7 +26,7 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     args = parser.parse_args()
 
-    graders = args.graders or [g for g in available_backends() if g != "mock"]
+    graders = args.graders or default_multimodel_specs()
     if not graders:
         graders = ["mock"]
 

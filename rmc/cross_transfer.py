@@ -13,6 +13,7 @@ from typing import Any
 
 from .adapters import Adapter, get_adapter
 from .bench import bench_adapter
+from .grader_specs import parse_grader_spec
 from .wikiskill import CORE_ARMS, WikiSkillCase, build_store, load_bench, run, to_dict as wikiskill_to_dict
 
 DEFAULT_BENCH = Path(__file__).resolve().parents[1] / "evals" / "wikiskill-bench.yaml"
@@ -72,11 +73,12 @@ def run_cross_transfer(
             Path(tmp) / "repo",
             dedupe_families=path.suffix == ".jsonl",
         )
-        for grader_name in graders:
-            raw = get_adapter(grader_name)
+        for grader_spec in graders:
+            backend, model, label = parse_grader_spec(grader_spec)
+            raw = get_adapter(backend, model=model)
             if not raw.available():
                 continue
-            adapter = bench_adapter(raw) if grader_name == "mock" else raw
+            adapter = bench_adapter(raw) if backend == "mock" else raw
             ws_report = run(
                 adapter,
                 path=path,
@@ -85,8 +87,10 @@ def run_cross_transfer(
                 arms=arms,
                 limit=limit,
             )
-            report.by_model[grader_name] = {
+            report.by_model[label] = {
                 "skill_source": skill_source,
+                "agent": backend,
+                "model": model,
                 **wikiskill_to_dict(ws_report),
             }
             for arm in arms:
@@ -94,7 +98,7 @@ def run_cross_transfer(
                     p, t = stats
                     report.cells.append(
                         TransferCell(
-                            inference_model=grader_name,
+                            inference_model=label,
                             skill_source=skill_source,
                             benchmark=bench,
                             arm=arm,

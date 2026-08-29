@@ -21,7 +21,7 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 |---|---|
 | Bootstrap CIs + paired significance | **Done** — `rmc/stats.py`, in `wikiskill` reports |
 | External baseline arms (Trace2Skill/EvoSkill/SkillOpt/RAG proxies) | **Done** — `rmc/skill_baselines.py` |
-| Upstream benchmark import | **Done** — SealQA 111 tasks with URL evidence snippets |
+| Upstream benchmark import | **Done** — SealQA 111 tasks + HotPotQA dev-100 (`evals/upstream/`) |
 | Full-scale upstream eval | **In progress** — SealQA Codex run (`--limit 50` then full 111) |
 | Cross-model transfer table | **Done** — `scripts/run_cross_transfer.py`, `fig_cross_transfer.pdf` |
 | Case-study figure | **Done** — `figures/fig_case_study.pdf` |
@@ -29,9 +29,9 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 | Competitive baseline figure | **Done** — `figures/fig_competitive_baselines.pdf` |
 | Manuscript updated (upstream/cross-transfer) | **Done** — `paper.tex` §upstream, §cross_transfer |
 | MemGPT nested-KV proxy | **Done** — `evals/memgpt-nested-kv.yaml` (8 cases) |
-| Multi-model runner | **Done** — `scripts/run_multimodel_evals.py` |
+| Multi-model runner | **Done** — `scripts/run_multimodel_evals.py` + `rmc/grader_specs.py` (≥3 Codex variants when Claude unauth) |
 | Architecture figure | **Done** — `figures/fig_architecture.pdf` |
-| HotPotQA 100 (Reflexion) | **Blocked** — HF dataset id broken; manual JSONL needed |
+| HotPotQA 100 (Reflexion) | **Imported** — `hotpotqa-dev.jsonl` (100 validation Qs); Codex eval queued |
 | 5 models × 5 benchmarks (WikiSkill Table 1) | **Not run** — needs Codex + Claude + open-weight |
 | Real EvoSkill/Trace2Skill/SkillOpt evolution loops | **Not implemented** — inference proxies only |
 | ALFWorld 134 envs (Reflexion) | **Not wired** — text proxy tasks only |

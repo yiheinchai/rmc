@@ -17,5 +17,18 @@ sources:
       prefer the snippet whose title matches the question entity. Format:
       "Answer: <short fact>".
 
-  # HotPotQA import disabled — upstream HF dataset id broken in current hub;
-  # add hotpotqa-dev.jsonl manually when available (Reflexion uses 100 dev Qs).
+  # HotPotQA: Reflexion uses 100 dev questions from the distractor split.
+  - id: hotpotqa-dev
+    benchmark: HotPotQA
+    family: hotpotqa
+    hf_dataset: hotpotqa/hotpot_qa
+    hf_config: distractor
+    hf_split: validation
+    limit: 100
+    task_field: question
+    expected_field: answer
+    evidence_mode: hotpot
+    skill: |
+      HotPotQA: multi-hop QA over the evidence paragraphs below.
+      Use only the provided context. Answer with "Answer: yes", "Answer: no",
+      or "Answer: <short phrase>".

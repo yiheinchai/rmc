@@ -64,6 +64,31 @@ def test_row_to_case_includes_evidence(imp) -> None:
     assert case["expected"] == "Answer: Alice"
 
 
+def test_row_to_case_hotpot(imp) -> None:
+    spec = {
+        "id": "hotpotqa-dev",
+        "benchmark": "HotPotQA",
+        "family": "hotpotqa",
+        "task_field": "question",
+        "expected_field": "answer",
+        "evidence_mode": "hotpot",
+        "skill": "hotpot skill",
+    }
+    row = {
+        "question": "Same nationality?",
+        "answer": "yes",
+        "context": {
+            "title": ["Alice", "Bob"],
+            "sentences": [["Alice is American."], ["Bob is American."]],
+        },
+        "supporting_facts": {"title": ["Alice", "Bob"], "sent_id": [0, 0]},
+    }
+    case = imp._row_to_case(row, spec, 1)
+    assert "Evidence snippets" in case["task"]
+    assert "American" in case["task"]
+    assert case["expected"] == "Answer: yes"
+
+
 def test_row_to_case_page_hints(imp) -> None:
     spec = {
         "id": "test",
