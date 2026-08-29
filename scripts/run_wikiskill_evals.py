@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT))
 
 from rmc.adapters import get_adapter
 from rmc.bench import bench_adapter
-from rmc.wikiskill import run, to_dict
+from rmc.wikiskill import _bench_paths_match, from_checkpoint_dict, run, to_dict
 
 
 def main() -> int:
@@ -31,6 +31,7 @@ def main() -> int:
     )
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     parser.add_argument("--checkpoint", action="store_true", help="write partial results after each task")
+    parser.add_argument("--resume", action="store_true", help="resume from wikiskill-latest.json checkpoint")
     args = parser.parse_args()
 
     raw = get_adapter(args.agent)
@@ -53,6 +54,18 @@ def main() -> int:
 
     on_progress = _write_checkpoint if args.checkpoint else None
     use_arms = tuple(args.arms) if args.arms else None
+    existing = None
+    latest = out / "wikiskill-latest.json"
+    bench_path = args.bench or None
+    if args.resume and latest.exists():
+        ckpt = json.loads(latest.read_text(encoding="utf-8"))
+        if ckpt.get("checkpoint") and _bench_paths_match(ckpt.get("bench_path"), bench_path):
+            existing = from_checkpoint_dict(ckpt)
+            n_cases = len({c.case_id for c in existing.cases})
+            print(
+                f"Resuming from checkpoint ({len(existing.cases)} scores, {n_cases} cases)",
+                flush=True,
+            )
     print(f"Running WikiSkill-comparable bench (agent={adapter.name}, samples={args.samples})...")
     report = run(
         adapter,
@@ -61,6 +74,7 @@ def main() -> int:
         limit=args.limit,
         arms=use_arms,
         on_progress=on_progress,
+        existing=existing,
     )
     text = report.render()
     print(text)

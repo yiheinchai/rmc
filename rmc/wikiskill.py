@@ -273,6 +273,39 @@ def wikiskill_adapter(base: Adapter | None, cases: list[WikiSkillCase]) -> Adapt
     return MockAdapter(router=router)
 
 
+def from_checkpoint_dict(data: dict[str, Any]) -> WikiSkillReport:
+    """Restore a partial WikiSkillReport from a checkpoint JSON payload."""
+    report = WikiSkillReport(
+        agent=str(data.get("agent", "?")),
+        bench_path=str(data.get("bench_path", "")),
+    )
+    for raw in data.get("cases") or []:
+        report.cases.append(
+            ArmScore(
+                case_id=str(raw.get("case_id", "")),
+                benchmark=str(raw.get("benchmark", "")),
+                arm=str(raw.get("arm", "")),
+                passed=bool(raw.get("passed")),
+                pass_rate=float(raw.get("pass_rate", 0)),
+                tokens=int(raw.get("tokens", 0)),
+                reason=str(raw.get("reason", "")),
+                samples_passed=int(raw.get("samples_passed", 0)),
+                samples_total=int(raw.get("samples_total", 0)),
+            )
+        )
+    return report
+
+
+def scored_keys(report: WikiSkillReport) -> set[tuple[str, str]]:
+    return {(c.case_id, c.arm) for c in report.cases}
+
+
+def _bench_paths_match(left: str | Path | None, right: str | Path | None) -> bool:
+    if left is None or right is None:
+        return False
+    return Path(left).resolve() == Path(right).resolve()
+
+
 def run(
     adapter: Adapter,
     *,
@@ -284,6 +317,7 @@ def run(
     arms: tuple[str, ...] | None = None,
     limit: int | None = None,
     on_progress: Callable[[WikiSkillReport], None] | None = None,
+    existing: WikiSkillReport | None = None,
 ) -> WikiSkillReport:
     cases, _ = load_bench(path)
     if limit is not None:
@@ -293,7 +327,11 @@ def run(
     wrapped = wikiskill_adapter(adapter if getattr(adapter, "name", "") == "mock" else adapter, cases)
     if getattr(adapter, "name", "") != "mock":
         wrapped = adapter
-    report = WikiSkillReport(agent=getattr(wrapped, "name", "?"), bench_path=bench_path)
+    if existing is not None and _bench_paths_match(existing.bench_path, bench_path):
+        report = existing
+        report.agent = getattr(wrapped, "name", report.agent)
+    else:
+        report = WikiSkillReport(agent=getattr(wrapped, "name", "?"), bench_path=bench_path)
 
     if store is None:
         import tempfile
@@ -328,8 +366,11 @@ def _score_cases(
     from .bench import _grade, _probe
 
     full_pack = full_inject_pack(store)
+    skip = scored_keys(report)
     for case in cases:
         for arm in arms:
+            if (case.id, arm) in skip:
+                continue
             pack = _pack_for_arm(store, adapter, case, arm, full_pack=full_pack)
             passed_runs = 0
             reasons: list[str] = []

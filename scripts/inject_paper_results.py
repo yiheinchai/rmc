@@ -13,8 +13,8 @@ RESULTS = ROOT / "papers" / "rse" / "results"
 PAPER = ROOT / "papers" / "rse" / "paper.tex"
 
 MIN_UPSTREAM_TASKS = {
-    "sealqa-test": 50,
-    "hotpotqa-dev": 50,
+    "sealqa-test": 111,
+    "hotpotqa-dev": 100,
 }
 
 
@@ -62,6 +62,39 @@ def build_upstream_baseline_table(data: dict, *, benchmark: str, label: str) -> 
         arm_label = arm.replace("-", "\\mbox{-}")
         lines.append(
             f"    {arm_label} & {_pct(acc)}{_ci(ci)} & {tok} \\\\"
+        )
+    lines += [
+        "    \\bottomrule",
+        "  \\end{tabular}",
+        "\\end{table}",
+    ]
+    return "\n".join(lines)
+
+
+def build_multimodel_table(data: dict, *, min_models: int = 3) -> str | None:
+    models = data.get("models") or {}
+    if len(models) < min_models:
+        return None
+    samples = data.get("samples", 3)
+    lines = [
+        "\\begin{table}[t]",
+        "  \\centering",
+        f"  \\caption{{Multi-model WikiSkill probe (recall-agentic vs. full-inject, {samples} samples).}}",
+        "  \\label{tab:multimodel}",
+        "  \\begin{tabular}{lccc}",
+        "    \\toprule",
+        "    Model & full-inject & recall-agentic & Mean tokens \\\\",
+        "    \\midrule",
+    ]
+    for label in sorted(models):
+        arms = models[label].get("arms") or {}
+        fi = arms.get("full-inject") or {}
+        ra = arms.get("recall-agentic") or {}
+        if not ra.get("total"):
+            continue
+        lines.append(
+            f"    {label.replace('_', '\\_')} & {_pct(fi.get('accuracy', 0))} & "
+            f"{_pct(ra.get('accuracy', 0))}{_ci(ra.get('bootstrap_ci'))} & {ra.get('mean_tokens', 0)} \\\\"
         )
     lines += [
         "    \\bottomrule",
@@ -232,6 +265,16 @@ def inject_cross_transfer(paper_path: Path, table: str) -> bool:
     )
 
 
+def inject_multimodel(paper_path: Path, table: str) -> bool:
+    return inject_marked_table(
+        paper_path,
+        table,
+        "% AUTO:MULTIMODEL_TABLE_BEGIN",
+        "% AUTO:MULTIMODEL_TABLE_END",
+        anchor="\\label{tab:wikiskill}",
+    )
+
+
 def _upstream_payload(data: dict, stem: str) -> dict | None:
     upstream = (data.get("upstream") or {}).get(stem)
     if upstream and _upstream_ready(upstream, stem):
@@ -292,6 +335,14 @@ def main() -> int:
                     print(f"Updated cross-transfer table ({model}) in {PAPER}")
                     updated = True
                 break
+
+    mm_path = RESULTS / "multimodel-latest.json"
+    if mm_path.exists():
+        mm = json.loads(mm_path.read_text(encoding="utf-8"))
+        table = build_multimodel_table(mm)
+        if table and inject_multimodel(PAPER, table):
+            print(f"Updated multi-model table in {PAPER}")
+            updated = True
 
     path = RESULTS / "wikiskill-latest.json"
     if path.exists():

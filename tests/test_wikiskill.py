@@ -50,6 +50,21 @@ class TestWikiSkillBench(unittest.TestCase):
         self.assertIn("arms", data)
         self.assertIn("no-skill", data["arms"])
 
+    def test_resume_skips_scored_pairs(self) -> None:
+        from rmc.wikiskill import CORE_ARMS, from_checkpoint_dict, scored_keys
+
+        first = run(bench_adapter(MockAdapter()), samples=1, arms=CORE_ARMS[:1])
+        ckpt = to_dict(first)
+        resumed = from_checkpoint_dict(ckpt)
+        self.assertEqual(scored_keys(resumed), scored_keys(first))
+        second = run(
+            bench_adapter(MockAdapter()),
+            samples=1,
+            arms=CORE_ARMS[:1],
+            existing=resumed,
+        )
+        self.assertEqual(len(second.cases), len(first.cases))
+
 
 if __name__ == "__main__":
     unittest.main()

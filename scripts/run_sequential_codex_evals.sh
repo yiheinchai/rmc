@@ -18,10 +18,11 @@ else
   python3 scripts/run_cross_transfer.py --graders codex --samples 3
 fi
 
-echo "=== [2/6] Competitive suite (full upstream splits + expanded RMC-Bench) ==="
+echo "=== [2/6] Competitive suite (RMC-Bench + probe + MemGPT + session; upstream in steps 3/6) ==="
 python3 scripts/run_competitive_evals.py \
   --agent codex \
-  --samples 1
+  --samples 1 \
+  --skip-upstream
 cp papers/rse/results/competitive-latest.json "papers/rse/results/competitive-codex-${STAMP}.json" 2>/dev/null || true
 
 echo "=== [3/6] Full upstream SealQA (111 tasks, checkpoint) ==="
@@ -29,7 +30,8 @@ python3 scripts/run_wikiskill_evals.py \
   --agent codex \
   --bench evals/upstream/sealqa-test.jsonl \
   --samples 1 \
-  --checkpoint
+  --checkpoint \
+  --resume
 
 echo "=== [4/6] Multi-model WikiSkill probe ==="
 if python3 -c "from scripts.generate_submission_report import _claude_authenticated; import sys; sys.exit(0 if _claude_authenticated() else 1)"; then

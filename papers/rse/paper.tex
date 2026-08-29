@@ -277,6 +277,22 @@ The same RMC store and recall policy are held fixed; only the grading agent chan
   \label{fig:cross_transfer}
 \end{figure}
 
+\subsection{Multi-model validation}
+\label{sec:multimodel}
+
+We replicate the WikiSkill probe across $\geq$3 inference backends (\texttt{scripts/run\_multimodel\_evals.py}): Codex variants when Claude is unavailable, otherwise Codex + Claude cross-check.
+
+% AUTO:MULTIMODEL_TABLE_BEGIN
+% Populated by: python3 scripts/inject_paper_results.py
+% AUTO:MULTIMODEL_TABLE_END
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.65\linewidth]{figures/fig_multimodel.pdf}
+  \caption{Multi-model WikiSkill probe: recall-agentic vs.\ full-inject accuracy.}
+  \label{fig:multimodel}
+\end{figure}
+
 \subsection{MemGPT nested-KV proxy}
 \label{sec:memgpt}
 
