@@ -12,6 +12,19 @@ python3 scripts/merge_competitive_upstream.py \
   --competitive "$COMPETITIVE" \
   --wikiskill "$WIKISKILL" || true
 
+HOTPOT_WS="papers/rse/results/hotpot-workspace/competitive-latest.json"
+HOTPOT2="papers/rse/results/hotpot-shard2/competitive-latest.json"
+if [[ -f "$HOTPOT_WS" && -f "$HOTPOT2" ]]; then
+  python3 scripts/merge_competitive_upstream.py \
+    --competitive "$HOTPOT_WS" \
+    --merge-shards "$HOTPOT_WS" "$HOTPOT2" \
+    --stem hotpotqa-dev || true
+  python3 scripts/merge_competitive_upstream.py \
+    --competitive "$COMPETITIVE" \
+    --from-competitive "$HOTPOT_WS" \
+    --stem hotpotqa-dev || true
+fi
+
 mapfile -t MISSING < <(python3 scripts/merge_competitive_upstream.py --check --competitive "$COMPETITIVE")
 
 if [[ ${#MISSING[@]} -eq 0 ]]; then
