@@ -43,3 +43,26 @@ class TestCrossTransfer(unittest.TestCase):
         payload = to_dict(report)
         self.assertIn("table", payload)
         self.assertTrue(report.cells)
+
+
+class TestCompetitiveEvalHelpers(unittest.TestCase):
+    def test_load_payload_merge(self) -> None:
+        import importlib.util
+        import json
+        import tempfile
+
+        spec = importlib.util.spec_from_file_location(
+            "run_competitive_evals",
+            Path(__file__).resolve().parents[1] / "scripts" / "run_competitive_evals.py",
+        )
+        assert spec and spec.loader
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            merge = Path(tmp) / "comp.json"
+            merge.write_text(json.dumps({"rmc_bench": {"lift": 0.25}, "upstream": {}}))
+            adapter = bench_adapter(MockAdapter())
+            payload = mod._load_payload(merge, stamp="t", adapter=adapter, samples=1)
+            self.assertEqual(payload["rmc_bench"]["lift"], 0.25)
+            self.assertEqual(payload["agent"], "mock")

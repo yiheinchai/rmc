@@ -47,4 +47,7 @@ python3 scripts/generate_paper_figures.py
 python3 scripts/inject_paper_results.py || true
 cd papers/rse && make
 
+echo "=== [6/6] Upstream follow-up (HotPotQA etc.) ==="
+bash ./scripts/run_upstream_followup.sh
+
 echo "=== Done ==="

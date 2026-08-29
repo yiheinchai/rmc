@@ -113,8 +113,15 @@ def fig_architecture() -> Path:
 
 
 def fig_competitive_baselines(report: dict) -> Path:
-    """External baseline arms on WikiSkill probe or upstream SealQA subset."""
-    data = report.get("upstream", {}).get("sealqa-test") or report.get("wikiskill_probe") or {}
+    """External baseline arms on WikiSkill probe or upstream splits."""
+    upstream = report.get("upstream") or {}
+    data = upstream.get("sealqa-test") or report.get("wikiskill_probe") or {}
+    if not (data.get("arms") or {}):
+        for key in sorted(upstream):
+            candidate = upstream[key]
+            if (candidate.get("arms") or {}).get("full-inject", {}).get("total", 0):
+                data = candidate
+                break
     arms_data = data.get("arms") or {}
     if not arms_data:
         out = FIGURES / "fig_competitive_baselines.pdf"
@@ -157,7 +164,9 @@ def fig_competitive_baselines(report: dict) -> Path:
     ax.set_xticklabels([l.replace("-", "\n") for l in labels], fontsize=7)
     ax.set_ylabel("Accuracy (%)")
     ax.set_ylim(0, 105)
-    title = "Upstream SealQA" if "sealqa" in str(data.get("bench_path", "")) else "WikiSkill probe"
+    title = "Upstream SealQA" if "sealqa" in str(data.get("bench_path", "")) else (
+        "HotPotQA dev-100" if "hotpot" in str(data.get("bench_path", "")).lower() else "WikiSkill probe"
+    )
     ax.set_title(f"External baselines + RSE arms ({title})")
     fig.tight_layout()
     out = FIGURES / "fig_competitive_baselines.pdf"

@@ -23,6 +23,23 @@ from rmc.wikiskill import CORE_ARMS, run as run_wikiskill
 from rmc.wikiskill import to_dict as wikiskill_to_dict
 
 UPSTREAM_DIR = ROOT / "evals" / "upstream"
+UPSTREAM_ARMS = CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill")
+
+
+def _load_payload(merge: Path | None, *, stamp: str, adapter, samples: int) -> dict:
+    if merge and merge.exists():
+        payload = json.loads(merge.read_text(encoding="utf-8"))
+        payload["generated_at"] = stamp
+        payload["agent"] = adapter.name
+        payload["samples"] = samples
+        payload["available_backends"] = available_backends()
+        return payload
+    return {
+        "generated_at": stamp,
+        "agent": adapter.name,
+        "samples": samples,
+        "available_backends": available_backends(),
+    }
 
 
 def main() -> int:
@@ -33,6 +50,21 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
     parser.add_argument("--skip-upstream", action="store_true")
     parser.add_argument("--skip-memgpt", action="store_true")
+    parser.add_argument("--skip-bench", action="store_true")
+    parser.add_argument("--skip-probe", action="store_true")
+    parser.add_argument("--skip-session", action="store_true")
+    parser.add_argument(
+        "--upstream",
+        nargs="*",
+        default=None,
+        help="only run these upstream JSONL stems (e.g. hotpotqa-dev)",
+    )
+    parser.add_argument(
+        "--merge",
+        type=Path,
+        default=None,
+        help="merge into an existing competitive-latest.json (keeps skipped sections)",
+    )
     args = parser.parse_args()
 
     raw = get_adapter(args.agent)
@@ -45,43 +77,48 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     latest = out / "competitive-latest.json"
+    merge_path = args.merge
+
+    payload = _load_payload(merge_path, stamp=stamp, adapter=adapter, samples=args.samples)
 
     def _flush() -> None:
         latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         print(f"  (checkpoint → {latest})", flush=True)
 
-    payload: dict = {
-        "generated_at": stamp,
-        "agent": adapter.name,
-        "samples": args.samples,
-        "available_backends": available_backends(),
-    }
-
-    print("=== RMC-Bench ===", flush=True)
-    bench_report = run_bench(adapter, samples=args.samples)
-    payload["rmc_bench"] = bench_to_dict(bench_report)
-    print(bench_report.render(), flush=True)
-    _flush()
-
-    print("\n=== WikiSkill probe (core arms) ===", flush=True)
-
-    def _probe_checkpoint(report) -> None:
-        payload["wikiskill_probe"] = wikiskill_to_dict(report)
+    if not args.skip_bench:
+        print("=== RMC-Bench ===", flush=True)
+        bench_report = run_bench(adapter, samples=args.samples)
+        payload["rmc_bench"] = bench_to_dict(bench_report)
+        print(bench_report.render(), flush=True)
         _flush()
+    elif payload.get("rmc_bench"):
+        print("=== RMC-Bench === (skipped, kept from merge)", flush=True)
 
-    ws_probe = run_wikiskill(
-        adapter,
-        samples=args.samples,
-        arms=CORE_ARMS,
-        on_progress=_probe_checkpoint,
-    )
-    payload["wikiskill_probe"] = wikiskill_to_dict(ws_probe)
-    print(ws_probe.render(), flush=True)
-    _flush()
+    if not args.skip_probe:
+        print("\n=== WikiSkill probe (core arms) ===", flush=True)
+
+        def _probe_checkpoint(report) -> None:
+            payload["wikiskill_probe"] = wikiskill_to_dict(report)
+            _flush()
+
+        ws_probe = run_wikiskill(
+            adapter,
+            samples=args.samples,
+            arms=CORE_ARMS,
+            on_progress=_probe_checkpoint,
+        )
+        payload["wikiskill_probe"] = wikiskill_to_dict(ws_probe)
+        print(ws_probe.render(), flush=True)
+        _flush()
+    elif payload.get("wikiskill_probe"):
+        print("\n=== WikiSkill probe === (skipped, kept from merge)", flush=True)
 
     if not args.skip_upstream:
         upstream_files = sorted(UPSTREAM_DIR.glob("*.jsonl"))
-        payload["upstream"] = {}
+        if args.upstream:
+            allowed = set(args.upstream)
+            upstream_files = [p for p in upstream_files if p.stem in allowed]
+        payload.setdefault("upstream", {})
         for path in upstream_files:
             print(f"\n=== Upstream: {path.name} ===", flush=True)
 
@@ -99,7 +136,7 @@ def main() -> int:
                 path=path,
                 samples=args.samples,
                 limit=args.limit,
-                arms=CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill"),
+                arms=UPSTREAM_ARMS,
                 on_progress=_upstream_checkpoint,
             )
             payload["upstream"][path.stem] = wikiskill_to_dict(report)
@@ -112,12 +149,17 @@ def main() -> int:
         payload["memgpt_nested_kv"] = memgpt_to_dict(memgpt_report)
         print(memgpt_report.render(), flush=True)
         _flush()
+    elif payload.get("memgpt_nested_kv"):
+        print("\n=== MemGPT nested KV proxy === (skipped, kept from merge)", flush=True)
 
-    print("\n=== Session paired study (Reflexion-style continuity) ===", flush=True)
-    session_report = run_session(adapter, samples=args.samples)
-    payload["session_study"] = session_to_dict(session_report)
-    print(session_report.render(), flush=True)
-    _flush()
+    if not args.skip_session:
+        print("\n=== Session paired study (Reflexion-style continuity) ===", flush=True)
+        session_report = run_session(adapter, samples=args.samples)
+        payload["session_study"] = session_to_dict(session_report)
+        print(session_report.render(), flush=True)
+        _flush()
+    elif payload.get("session_study"):
+        print("\n=== Session paired study === (skipped, kept from merge)", flush=True)
 
     latest = out / "competitive-latest.json"
     latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
