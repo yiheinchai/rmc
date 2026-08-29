@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import importlib.util
 import sys
+import unittest
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -22,30 +21,32 @@ def _load_import():
     return mod
 
 
-def test_parse_grader_spec() -> None:
-    from rmc.grader_specs import parse_grader_spec
+class TestGraderSpecs(unittest.TestCase):
+    def test_parse_grader_spec(self) -> None:
+        from rmc.grader_specs import parse_grader_spec
 
-    assert parse_grader_spec("codex") == ("codex", None, "codex")
-    assert parse_grader_spec("codex:gpt-5.6-sol") == ("codex", "gpt-5.6-sol", "codex:gpt-5.6-sol")
+        self.assertEqual(parse_grader_spec("codex"), ("codex", None, "codex"))
+        self.assertEqual(
+            parse_grader_spec("codex:gpt-5.6-sol"),
+            ("codex", "gpt-5.6-sol", "codex:gpt-5.6-sol"),
+        )
 
+    def test_hotpot_evidence(self) -> None:
+        imp = _load_import()
+        row = {
+            "context": {
+                "title": ["Alice", "Bob"],
+                "sentences": [["Alice is a chef."], ["Bob is a pilot."]],
+            },
+            "supporting_facts": {"title": ["Alice"], "sent_id": [0]},
+        }
+        snippets = imp._hotpot_evidence(row)
+        self.assertEqual(len(snippets), 1)
+        self.assertIn("chef", snippets[0])
 
-def test_hotpot_evidence() -> None:
-    imp = _load_import()
-    row = {
-        "context": {
-            "title": ["Alice", "Bob"],
-            "sentences": [["Alice is a chef."], ["Bob is a pilot."]],
-        },
-        "supporting_facts": {"title": ["Alice"], "sent_id": [0]},
-    }
-    snippets = imp._hotpot_evidence(row)
-    assert len(snippets) == 1
-    assert "chef" in snippets[0]
+    def test_default_multimodel_specs_count(self) -> None:
+        from rmc.grader_specs import default_multimodel_specs
 
-
-def test_default_multimodel_specs_count() -> None:
-    from rmc.grader_specs import default_multimodel_specs
-
-    specs = default_multimodel_specs()
-    assert len(specs) >= 3
-    assert "codex" in specs
+        specs = default_multimodel_specs()
+        self.assertGreaterEqual(len(specs), 3)
+        self.assertIn("codex", specs)

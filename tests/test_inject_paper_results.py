@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import importlib.util
 import sys
+import unittest
 from pathlib import Path
-
-import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "inject_paper_results.py"
@@ -21,70 +20,68 @@ def _load():
     return mod
 
 
-@pytest.fixture(scope="module")
-def inj():
-    return _load()
+class TestInjectPaperResults(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.inj = _load()
 
+    def test_build_rmc_bench_rows(self) -> None:
+        rb = {
+            "lift": 0.25,
+            "transfer": {"passed": 19, "total": 20},
+            "retrieval": {"passed": 5, "total": 8},
+            "cases": [
+                {"kind": "trap", "arm": "L0", "passed": True, "tokens": 80},
+                {"kind": "detail", "arm": "L0", "passed": True, "tokens": 82},
+            ],
+        }
+        rows = self.inj.build_rmc_bench_rows(rb)
+        self.assertTrue("+25" in rows["lift"] or "25" in rows["lift"])
+        self.assertIn("19/20", rows["transfer"])
 
-def test_build_rmc_bench_rows(inj) -> None:
-    rb = {
-        "lift": 0.25,
-        "transfer": {"passed": 19, "total": 20},
-        "retrieval": {"passed": 5, "total": 8},
-        "cases": [
-            {"kind": "trap", "arm": "L0", "passed": True, "tokens": 80},
-            {"kind": "detail", "arm": "L0", "passed": True, "tokens": 82},
-        ],
-    }
-    rows = inj.build_rmc_bench_rows(rb)
-    assert "+25" in rows["lift"] or "25" in rows["lift"]
-    assert "19/20" in rows["transfer"]
-
-
-def test_sealqa_upstream_payload_competitive(inj) -> None:
-    data = {
-        "upstream": {
-            "sealqa-test": {
-                "arms": {
-                    "full-inject": {"accuracy": 0.6, "total": 50, "mean_tokens": 90},
+    def test_sealqa_upstream_payload_competitive(self) -> None:
+        data = {
+            "upstream": {
+                "sealqa-test": {
+                    "arms": {
+                        "full-inject": {"accuracy": 0.6, "total": 50, "mean_tokens": 90},
+                    }
                 }
             }
         }
-    }
-    payload = inj._sealqa_upstream_payload(data)
-    assert payload is not None
-    assert payload["arms"]["full-inject"]["total"] == 50
+        payload = self.inj._sealqa_upstream_payload(data)
+        self.assertIsNotNone(payload)
+        assert payload is not None
+        self.assertEqual(payload["arms"]["full-inject"]["total"], 50)
 
-
-def test_build_hotpot_table(inj) -> None:
-    data = {
-        "arms": {
-            "full-inject": {
-                "accuracy": 0.5,
-                "total": 100,
-                "mean_tokens": 120,
-                "bootstrap_ci": {"low": 0.4, "high": 0.6},
-            },
+    def test_build_hotpot_table(self) -> None:
+        data = {
+            "arms": {
+                "full-inject": {
+                    "accuracy": 0.5,
+                    "total": 100,
+                    "mean_tokens": 120,
+                    "bootstrap_ci": {"low": 0.4, "high": 0.6},
+                },
+            }
         }
-    }
-    table = inj.build_hotpot_table(data)
-    assert "100 tasks" in table
-    assert "HotPotQA" in table
+        table = self.inj.build_hotpot_table(data)
+        self.assertIn("100 tasks", table)
+        self.assertIn("HotPotQA", table)
 
-
-def test_build_sealqa_table(inj) -> None:
-    data = {
-        "arms": {
-            "full-inject": {
-                "accuracy": 0.7,
-                "total": 50,
-                "mean_tokens": 100,
-                "bootstrap_ci": {"low": 0.6, "high": 0.8},
-            },
-            "recall-agentic": {"accuracy": 0.8, "total": 50, "mean_tokens": 40},
+    def test_build_sealqa_table(self) -> None:
+        data = {
+            "arms": {
+                "full-inject": {
+                    "accuracy": 0.7,
+                    "total": 50,
+                    "mean_tokens": 100,
+                    "bootstrap_ci": {"low": 0.6, "high": 0.8},
+                },
+                "recall-agentic": {"accuracy": 0.8, "total": 50, "mean_tokens": 40},
+            }
         }
-    }
-    table = inj.build_sealqa_table(data)
-    assert "50 tasks" in table
-    assert "70\\%" in table
-    assert "80\\%" in table
+        table = self.inj.build_sealqa_table(data)
+        self.assertIn("50 tasks", table)
+        self.assertIn("70\\%", table)
+        self.assertIn("80\\%", table)
