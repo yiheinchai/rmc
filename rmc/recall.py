@@ -83,7 +83,7 @@ def select_lessons(
     preference. The agentic one searches the store from a fork of the live
     session and is the only one whose cost does not grow with the store; it
     needs a session to fork and a backend that can fork it. When either is
-    missing — the first turn of a session, a non-Claude backend — the judge-walk
+    missing — the first turn of a session, a backend without fork support — the judge-walk
     below runs instead. It is the fallback, not a legacy path: it is also the
     measurement baseline every arm of `rmc eval-recall` is compared against.
     """
