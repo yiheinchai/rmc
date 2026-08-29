@@ -63,6 +63,7 @@ python3 scripts/run_competitive_evals.py \
   --skip-session \
   --merge "$MAIN" \
   --out "$WORK" \
+  --resume \
   --upstream hotpotqa-dev
 
 python3 scripts/merge_competitive_upstream.py \

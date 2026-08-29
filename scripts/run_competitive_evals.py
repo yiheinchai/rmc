@@ -19,11 +19,64 @@ from rmc.memgpt_bench import run as run_memgpt
 from rmc.memgpt_bench import to_dict as memgpt_to_dict
 from rmc.session_study import run as run_session
 from rmc.session_study import to_dict as session_to_dict
-from rmc.wikiskill import CORE_ARMS, run as run_wikiskill
+from rmc.wikiskill import CORE_ARMS, _bench_paths_match, from_checkpoint_dict, run as run_wikiskill
 from rmc.wikiskill import to_dict as wikiskill_to_dict
 
 UPSTREAM_DIR = ROOT / "evals" / "upstream"
 UPSTREAM_ARMS = CORE_ARMS + ("trace2skill", "evoskill", "skillopt", "keyword-rag", "oracle-skill")
+
+
+def _load_upstream_existing(
+    stem: str,
+    bench_path: Path,
+    *,
+    out_dir: Path,
+    payload: dict,
+    resume: bool,
+) -> "WikiSkillReport | None":
+    """Restore a partial upstream WikiSkillReport when resuming."""
+    if not resume:
+        return None
+    candidates: list[dict] = []
+    blob = (payload.get("upstream") or {}).get(stem)
+    if blob and blob.get("cases"):
+        candidates.append(blob)
+    workspace = out_dir / "competitive-latest.json"
+    if workspace.exists():
+        try:
+            on_disk = json.loads(workspace.read_text(encoding="utf-8"))
+            disk_blob = (on_disk.get("upstream") or {}).get(stem)
+            if disk_blob and disk_blob.get("cases"):
+                candidates.append(disk_blob)
+        except (json.JSONDecodeError, OSError):
+            pass
+    if stem == "sealqa-test":
+        wiki = ROOT / "papers" / "rse" / "results" / "wikiskill-latest.json"
+        if wiki.exists():
+            try:
+                ckpt = json.loads(wiki.read_text(encoding="utf-8"))
+                if ckpt.get("cases"):
+                    candidates.append(ckpt)
+            except (json.JSONDecodeError, OSError):
+                pass
+    best: dict | None = None
+    best_cases = 0
+    for cand in candidates:
+        if not _bench_paths_match(cand.get("bench_path"), bench_path):
+            continue
+        n_cases = len(cand.get("cases") or [])
+        if n_cases > best_cases:
+            best = cand
+            best_cases = n_cases
+    if not best:
+        return None
+    report = from_checkpoint_dict(best)
+    n_cases = len({c.case_id for c in report.cases})
+    print(
+        f"  resuming upstream {stem} ({len(report.cases)} scores, {n_cases} cases)",
+        flush=True,
+    )
+    return report
 
 
 def _load_payload(merge: Path | None, *, stamp: str, adapter, samples: int) -> dict:
@@ -64,6 +117,11 @@ def main() -> int:
         type=Path,
         default=None,
         help="merge into an existing competitive-latest.json (keeps skipped sections)",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume partial upstream checkpoints (wikiskill-latest or workspace JSON)",
     )
     args = parser.parse_args()
 
@@ -159,6 +217,13 @@ def main() -> int:
                 )
                 _flush()
 
+            existing = _load_upstream_existing(
+                path.stem,
+                path,
+                out_dir=out,
+                payload=payload,
+                resume=args.resume,
+            )
             report = run_wikiskill(
                 adapter,
                 path=path,
@@ -166,6 +231,7 @@ def main() -> int:
                 limit=args.limit,
                 arms=UPSTREAM_ARMS,
                 on_progress=_upstream_checkpoint,
+                existing=existing,
             )
             payload["upstream"][path.stem] = wikiskill_to_dict(report)
             print(report.render(), flush=True)

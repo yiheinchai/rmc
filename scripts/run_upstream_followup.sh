@@ -28,6 +28,7 @@ python3 scripts/run_competitive_evals.py \
   --skip-memgpt \
   --skip-session \
   --merge "$COMPETITIVE" \
+  --resume \
   --upstream "${MISSING[@]}"
 
 python3 scripts/generate_submission_report.py
