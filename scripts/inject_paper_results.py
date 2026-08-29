@@ -168,7 +168,11 @@ def build_rmc_bench_rows(rb: dict) -> dict[str, str]:
         return f"{p}/{t} ({p * 100 // t if t else 0}\\%)" if t else "—"
 
     lift = rb.get("lift")
-    lift_s = f"\\textbf{{{lift:+.0%}}}" if lift is not None else "—"
+    if lift is not None:
+        lift_pct = f"{lift:+.0%}".replace("%", "\\%")
+        lift_s = f"\\textbf{{{lift_pct}}}"
+    else:
+        lift_s = "—"
     tr_p, tr_t = transfer.get("passed", 0), transfer.get("total", 0)
     tr_s = f"\\textbf{{{tr_p}/{tr_t} ({tr_p * 100 // tr_t if tr_t else 0}\\%)}}"
     ret_p, ret_t = retrieval.get("passed", 0), retrieval.get("total", 0)

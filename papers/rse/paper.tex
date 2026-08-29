@@ -137,7 +137,7 @@ The benchmark now includes \textbf{25 cases} (expanded from the original 10) spa
     \toprule
     Metric & Result \\
     \midrule
-    Lift (L0 $-$ control, core kinds) & \textbf{+30%} \\
+    Lift (L0 $-$ control, core kinds) & \textbf{+30\%} \\
     Transfer @ L0 & \textbf{19/20 (95\%)} \\
     Detail / trap / multi transfer & 5/5 (100\%), 8/8 (100\%), 3/3 (100\%) \\
     Principle transfer & 3/4 (75\%) \\
@@ -230,7 +230,26 @@ Bootstrap 95\% CIs and paired significance vs.\ full-inject are computed per arm
 \end{figure}
 
 % AUTO:SEALQA_TABLE_BEGIN
-% Populated by: python3 scripts/inject_paper_results.py
+\begin{table}[t]
+  \centering
+  \caption{Upstream SealQA (111 tasks, Codex-graded, 1 sample).}
+  \label{tab:sealqa_upstream}
+  \begin{tabular}{lcc}
+    \toprule
+    Arm & Accuracy & Mean tokens \\
+    \midrule
+    no\mbox{-}skill & 14\% (95\% CI: 7\%--20\%) & 0 \\
+    keyword\mbox{-}rag & 12\% (95\% CI: 6\%--18\%) & 40 \\
+    trace2skill & 12\% (95\% CI: 6\%--18\%) & 40 \\
+    evoskill & 13\% (95\% CI: 7\%--19\%) & 40 \\
+    skillopt & 11\% (95\% CI: 5\%--16\%) & 56 \\
+    full\mbox{-}inject & 9\% (95\% CI: 5\%--14\%) & 40 \\
+    recall\mbox{-}judge & 9\% (95\% CI: 5\%--14\%) & 44 \\
+    recall\mbox{-}agentic & 10\% (95\% CI: 5\%--15\%) & 44 \\
+    oracle\mbox{-}skill & 12\% (95\% CI: 6\%--18\%) & 40 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 % AUTO:SEALQA_TABLE_END
 
 \subsection{Upstream HotPotQA (Reflexion dev-100)}
@@ -239,7 +258,26 @@ Bootstrap 95\% CIs and paired significance vs.\ full-inject are computed per arm
 We import the first 100 HotPotQA distractor-split validation questions \citep{yang2018hotpotqa}, matching the Reflexion evaluation subset, with supporting-fact evidence paragraphs (\texttt{evals/upstream/hotpotqa-dev.jsonl}).
 
 % AUTO:HOTPOT_TABLE_BEGIN
-% Populated by: python3 scripts/inject_paper_results.py
+\begin{table}[t]
+  \centering
+  \caption{Upstream HotPotQA (100 tasks, Codex-graded, 1 sample).}
+  \label{tab:hotpot_upstream}
+  \begin{tabular}{lcc}
+    \toprule
+    Arm & Accuracy & Mean tokens \\
+    \midrule
+    no\mbox{-}skill & 89\% (95\% CI: 83\%--94\%) & 0 \\
+    keyword\mbox{-}rag & 89\% (95\% CI: 83\%--95\%) & 40 \\
+    trace2skill & 86\% (95\% CI: 79\%--93\%) & 40 \\
+    evoskill & 85\% (95\% CI: 77\%--92\%) & 40 \\
+    skillopt & 83\% (95\% CI: 75\%--90\%) & 56 \\
+    full\mbox{-}inject & 82\% (95\% CI: 74\%--89\%) & 40 \\
+    recall\mbox{-}judge & 83\% (95\% CI: 75\%--90\%) & 45 \\
+    recall\mbox{-}agentic & 86\% (95\% CI: 79\%--93\%) & 45 \\
+    oracle\mbox{-}skill & 84\% (95\% CI: 76\%--91\%) & 40 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 % AUTO:HOTPOT_TABLE_END
 
 \subsection{Cross-model skill transfer}
@@ -283,7 +321,20 @@ The same RMC store and recall policy are held fixed; only the grading agent chan
 We replicate the WikiSkill probe across $\geq$3 inference backends (\texttt{scripts/run\_multimodel\_evals.py}): Codex variants when Claude is unavailable, otherwise Codex + Claude cross-check.
 
 % AUTO:MULTIMODEL_TABLE_BEGIN
-% Populated by: python3 scripts/inject_paper_results.py
+\begin{table}[t]
+  \centering
+  \caption{Multi-model WikiSkill probe (recall-agentic vs. full-inject, 3 samples).}
+  \label{tab:multimodel}
+  \begin{tabular}{lccc}
+    \toprule
+    Model & full-inject & recall-agentic & Mean tokens \\
+    \midrule
+    codex & 70\% & 70\% (95\% CI: 43\%--90\%) & 64 \\
+    codex:gpt-5.6-sol & 70\% & 70\% (95\% CI: 37\%--87\%) & 71 \\
+    codex:o4-mini & 0\% & 0\% (95\% CI: 0\%--0\%) & 0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 % AUTO:MULTIMODEL_TABLE_END
 
 \begin{figure}[t]
