@@ -21,8 +21,13 @@ This document tracks readiness for conference submission (NeurIPS / ICML / ICLR)
 |---|---|
 | Bootstrap CIs + paired significance | **Done** — `rmc/stats.py`, in `wikiskill` reports |
 | External baseline arms (Trace2Skill/EvoSkill/SkillOpt/RAG proxies) | **Done** — `rmc/skill_baselines.py` |
-| Upstream benchmark import | **Partial** — SealQA 111 tasks (`evals/upstream/sealqa-test.jsonl`) |
-| Full-scale upstream eval | **Ready** — `scripts/run_competitive_evals.py --agent codex --limit N` |
+| Upstream benchmark import | **Done** — SealQA 111 tasks with URL evidence snippets |
+| Full-scale upstream eval | **In progress** — SealQA Codex run (`--limit 50` then full 111) |
+| Cross-model transfer table | **Done** — `scripts/run_cross_transfer.py`, `fig_cross_transfer.pdf` |
+| Case-study figure | **Done** — `figures/fig_case_study.pdf` |
+| Expanded RMC-Bench (25 cases) | **Done** — `evals/rmc-bench.yaml` |
+| Competitive baseline figure | **Done** — `figures/fig_competitive_baselines.pdf` |
+| Manuscript updated (upstream/cross-transfer) | **Done** — `paper.tex` §upstream, §cross_transfer |
 | MemGPT nested-KV proxy | **Done** — `evals/memgpt-nested-kv.yaml` (8 cases) |
 | Multi-model runner | **Done** — `scripts/run_multimodel_evals.py` |
 | Architecture figure | **Done** — `figures/fig_architecture.pdf` |

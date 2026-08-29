@@ -39,6 +39,40 @@ def _style() -> None:
     )
 
 
+def fig_case_study() -> Path:
+    """Walkthrough case study: compress → fail → descent (WikiSkill Figure 3 style)."""
+    import matplotlib.patches as mpatches
+
+    fig, ax = plt.subplots(figsize=(7.0, 2.8))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 3)
+    ax.axis("off")
+
+    steps = [
+        (0.2, "L0 lesson\n(60 tok)", "#4C72B0"),
+        (2.2, "Compress\n→ L1 (42 tok)", "#55A868"),
+        (4.2, "Held-out task\nFAILS", "#C44E52"),
+        (6.2, "Descent via\n@dropped manifest", "#DD8452"),
+        (8.2, "Rescue\nL0 detail", "#4C72B0"),
+    ]
+    for i, (x, label, color) in enumerate(steps):
+        rect = mpatches.FancyBboxPatch(
+            (x, 0.8), 1.6, 1.2, boxstyle="round,pad=0.04", facecolor=color, alpha=0.35, edgecolor="black"
+        )
+        ax.add_patch(rect)
+        ax.text(x + 0.8, 1.4, label, ha="center", va="center", fontsize=8, fontweight="bold")
+        if i < len(steps) - 1:
+            ax.annotate("", xy=(steps[i + 1][0], 1.4), xytext=(x + 1.6, 1.4), arrowprops=dict(arrowstyle="->", lw=1.2))
+
+    ax.set_title("Case study: meta-tested compaction with descent rescue")
+    fig.tight_layout()
+    out = FIGURES / "fig_case_study.pdf"
+    fig.savefig(out)
+    fig.savefig(out.with_suffix(".png"))
+    plt.close(fig)
+    return out
+
+
 def fig_architecture() -> Path:
     """RSE three-layer architecture (WikiSkill Figure 2 style)."""
     import matplotlib.patches as mpatches
@@ -72,6 +106,101 @@ def fig_architecture() -> Path:
     ax.set_title("RSE three-layer architecture")
     fig.tight_layout()
     out = FIGURES / "fig_architecture.pdf"
+    fig.savefig(out)
+    fig.savefig(out.with_suffix(".png"))
+    plt.close(fig)
+    return out
+
+
+def fig_competitive_baselines(report: dict) -> Path:
+    """External baseline arms on WikiSkill probe or upstream SealQA subset."""
+    data = report.get("upstream", {}).get("sealqa-test") or report.get("wikiskill_probe") or {}
+    arms_data = data.get("arms") or {}
+    if not arms_data:
+        out = FIGURES / "fig_competitive_baselines.pdf"
+        fig, ax = plt.subplots(figsize=(4.0, 2.5))
+        ax.text(0.5, 0.5, "Competitive baselines\n(run scripts/run_competitive_evals.py)", ha="center", va="center")
+        ax.axis("off")
+        fig.savefig(out)
+        fig.savefig(out.with_suffix(".png"))
+        plt.close(fig)
+        return out
+
+    order = [
+        "no-skill",
+        "keyword-rag",
+        "trace2skill",
+        "evoskill",
+        "skillopt",
+        "full-inject",
+        "recall-judge",
+        "recall-agentic",
+        "oracle-skill",
+    ]
+    labels = [a for a in order if a in arms_data]
+    acc = [arms_data[a].get("accuracy", 0) * 100 for a in labels]
+    ci_low = []
+    ci_high = []
+    for a in labels:
+        ci = arms_data[a].get("bootstrap_ci") or {}
+        ci_low.append(ci.get("low", 0) * 100)
+        ci_high.append(ci.get("high", 0) * 100)
+    yerr = [
+        [max(0, acc[i] - ci_low[i]), max(0, ci_high[i] - acc[i])]
+        for i in range(len(labels))
+    ]
+
+    fig, ax = plt.subplots(figsize=(7.0, 3.5))
+    x = np.arange(len(labels))
+    ax.bar(x, acc, color="#4C72B0", yerr=np.array(yerr).T, capsize=3, alpha=0.9)
+    ax.set_xticks(x)
+    ax.set_xticklabels([l.replace("-", "\n") for l in labels], fontsize=7)
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_ylim(0, 105)
+    title = "Upstream SealQA" if "sealqa" in str(data.get("bench_path", "")) else "WikiSkill probe"
+    ax.set_title(f"External baselines + RSE arms ({title})")
+    fig.tight_layout()
+    out = FIGURES / "fig_competitive_baselines.pdf"
+    fig.savefig(out)
+    fig.savefig(out.with_suffix(".png"))
+    plt.close(fig)
+    return out
+
+
+def fig_cross_transfer(data: dict) -> Path:
+    """Cross-model transfer heatmap (WikiSkill Table 2 style)."""
+    table = data.get("table") or {}
+    out = FIGURES / "fig_cross_transfer.pdf"
+    if not table:
+        fig, ax = plt.subplots(figsize=(4.0, 2.5))
+        ax.text(0.5, 0.5, "Cross-model transfer\n(run scripts/run_cross_transfer.py)", ha="center", va="center")
+        ax.axis("off")
+        fig.savefig(out)
+        fig.savefig(out.with_suffix(".png"))
+        plt.close(fig)
+        return out
+
+    models = sorted(table)
+    benchmarks = sorted({b for m in table.values() for b in m})
+    arm = "recall-agentic"
+    matrix = np.zeros((len(models), len(benchmarks)))
+    for i, model in enumerate(models):
+        for j, bench in enumerate(benchmarks):
+            matrix[i, j] = table[model].get(bench, {}).get(arm, 0) * 100
+
+    fig, ax = plt.subplots(figsize=(max(4, len(benchmarks) * 1.2), max(2.5, len(models) * 0.8)))
+    im = ax.imshow(matrix, cmap="Blues", vmin=0, vmax=100, aspect="auto")
+    ax.set_xticks(range(len(benchmarks)))
+    ax.set_xticklabels(benchmarks, rotation=30, ha="right", fontsize=8)
+    ax.set_yticks(range(len(models)))
+    ax.set_yticklabels(models)
+    for i in range(len(models)):
+        for j in range(len(benchmarks)):
+            ax.text(j, i, f"{matrix[i, j]:.0f}", ha="center", va="center", fontsize=9)
+    fig.colorbar(im, ax=ax, label=f"{arm} accuracy (%)")
+    ax.set_title("Cross-model skill transfer")
+    fig.tight_layout()
+    out = FIGURES / "fig_cross_transfer.pdf"
     fig.savefig(out)
     fig.savefig(out.with_suffix(".png"))
     plt.close(fig)
@@ -242,14 +371,19 @@ def main() -> int:
     _style()
     report = _load("submission-latest.json")
     bench = _load("rmc-bench-latest.json") or _load("experiments-full-latest.json").get("bench", {})
+    competitive = _load("competitive-latest.json")
+    cross_transfer = _load("cross-transfer-latest.json")
 
     paths = [
         fig_architecture(),
+        fig_case_study(),
         fig_wikiskill(report),
         fig_recall_ablations(report),
         fig_scaling(report),
         fig_transfer_tokens(report, bench),
         fig_session_study(report),
+        fig_competitive_baselines(competitive),
+        fig_cross_transfer(cross_transfer),
     ]
     for p in paths:
         if p.exists():

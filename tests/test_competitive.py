@@ -33,3 +33,13 @@ class TestMemgptBench(unittest.TestCase):
     def test_mock_run(self) -> None:
         report = run_memgpt(bench_adapter(MockAdapter()), samples=1)
         self.assertGreater(len(report.cases), 0)
+
+
+class TestCrossTransfer(unittest.TestCase):
+    def test_mock_cross_transfer(self) -> None:
+        from rmc.cross_transfer import run_cross_transfer, to_dict
+
+        report = run_cross_transfer(["mock"], samples=1, limit=3)
+        payload = to_dict(report)
+        self.assertIn("table", payload)
+        self.assertTrue(report.cells)

@@ -80,6 +80,13 @@ Thesis: transfer stays flat while $C_{inj}$ falls under compression, and precisi
 \textbf{Knowledge layer:} nodes in a DAG with delta manifests.
 \textbf{Retrieval layer:} index + routing rules + selector agent.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{figures/fig_architecture.pdf}
+  \caption{RSE three-layer architecture with co-evolution loop (WikiSkill Figure~2 style).}
+  \label{fig:architecture}
+\end{figure}
+
 \textbf{Principle:} harness owns structure; model owns meaning.
 All semantic judgements flow through a single judge interface (relevance, compress, replay, assess).
 
@@ -112,6 +119,14 @@ Artifacts: \texttt{papers/rse/results/}; reproduce via \texttt{scripts/run\_all\
 \label{sec:bench}
 
 Hand-written cases (\texttt{evals/rmc-bench.yaml}) covering trap, detail, principle, multi, distractor, conflict, and null kinds.
+The benchmark now includes \textbf{25 cases} (expanded from the original 10) spanning internal API traps, migration policy, billing idempotency, GDPR erasure, and cross-domain distractors.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/fig_case_study.pdf}
+  \caption{Case study: meta-tested compaction fails on held-out task; descent via \texttt{@dropped} manifest recovers L0 detail.}
+  \label{fig:case_study}
+\end{figure}
 
 \begin{table}[t]
   \centering
@@ -195,7 +210,40 @@ We built a WikiSkill-comparable subset (\texttt{evals/wikiskill-bench.yaml}) spa
 \end{table}
 
 This is a curated 10-task probe subset, not the full WikiSkill test splits (124--280 tasks per benchmark).
-It establishes comparison methodology; scaling to upstream task files is future work.
+It establishes comparison methodology; we additionally wire upstream SealQA (111 test tasks) via \texttt{scripts/import\_upstream\_bench.py}.
+
+\subsection{Upstream SealQA and external baselines}
+\label{sec:upstream}
+
+We import the full SealQA test split \citep{sealqa2024} (111 tasks) with URL text-fragment evidence snippets.
+The competitive harness (\texttt{scripts/run\_competitive\_evals.py}) scores nine arms: no-skill, keyword-RAG, Trace2Skill/EvoSkill/SkillOpt inference proxies, full-inject, recall-judge, recall-agentic, and oracle-skill.
+Bootstrap 95\% CIs and paired significance vs.\ full-inject are computed per arm (\texttt{rmc/stats.py}).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig_competitive_baselines.pdf}
+  \caption{External skill-evolution baselines + RSE arms on upstream SealQA (Codex-graded).
+    Error bars: bootstrap 95\% CI.}
+  \label{fig:competitive}
+\end{figure}
+
+\subsection{Cross-model skill transfer}
+\label{sec:cross_transfer}
+
+Following WikiSkill Table~2, we evaluate whether skills evolved in one store transfer when graded by a different inference backend (\texttt{scripts/run\_cross\_transfer.py}).
+The same RMC store and recall policy are held fixed; only the grading agent changes.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.65\linewidth]{figures/fig_cross_transfer.pdf}
+  \caption{Cross-model transfer: recall-agentic accuracy by inference model (WikiSkill Table~2 style).}
+  \label{fig:cross_transfer}
+\end{figure}
+
+\subsection{MemGPT nested-KV proxy}
+\label{sec:memgpt}
+
+We include an 8-case nested key--value retrieval proxy aligned with MemGPT's long-context memory stress tests (\texttt{evals/memgpt-nested-kv.yaml}), scoring RSE recall against flat RAG injection.
 
 \subsection{Session-length paired study}
 \label{sec:session}
@@ -217,7 +265,8 @@ This is a single-turn proxy, not live multi-turn agent sessions.
 
 \textbf{Grading agent:} Codex (\texttt{gpt-5.6-sol}) for all automated scores.
 \textbf{Samples:} 3 per case; pass if majority of samples pass blind judge rubric.
-\textbf{Cross-model validation:} Claude cross-check script provided (\texttt{scripts/run\_claude\_crosscheck.sh}); requires authenticated \texttt{claude} CLI.
+\textbf{Statistical testing:} bootstrap 95\% CIs and paired bootstrap tests vs.\ full-inject on WikiSkill/upstream runs.
+\textbf{Cross-model validation:} \texttt{scripts/run\_cross\_transfer.py} and \texttt{scripts/run\_multimodel\_evals.py}; Claude cross-check via \texttt{scripts/run\_claude\_crosscheck.sh} (requires authenticated \texttt{claude} CLI).
 \textbf{Dogfood:} real-store measurements from one month of usage (N=29 nodes) reported in \texttt{EXPERIMENTS.md}.
 
 \begin{figure}[t]
@@ -246,10 +295,10 @@ This is a single-turn proxy, not live multi-turn agent sessions.
 \section{Analysis and Limitations}
 \label{sec:limitations}
 
-\textbf{RMC-Bench} is hand-written; cases from real captures would be more representative.
-\textbf{WikiSkill comparison} uses 10 curated tasks, not full upstream splits.
-\textbf{Compaction:} held-out retention fails under Codex grading; walkthrough compression fails under the Codex adapter (mock replay ablation still demonstrates the protocol).
-\textbf{Grading:} all main numbers are Codex-graded; Claude/Gemini cross-check recommended before claiming cross-model generalization.
+\textbf{RMC-Bench} is hand-written (25 cases); cases from real captures would be more representative.
+\textbf{WikiSkill comparison} uses a 10-task probe plus full SealQA upstream split; HotPotQA/ALFWorld full splits not yet wired (HF import blocked).
+\textbf{External baselines} use inference-time proxies for Trace2Skill/EvoSkill/SkillOpt, not full evolution loops.
+\textbf{Multi-model:} Codex primary; Claude/Gemini cross-check recommended before claiming cross-model generalization.
 \textbf{Session study} is a single-turn proxy.
 \textbf{Dogfood} store is N=29; steady-state apex reduction unproven at scale.
 \textbf{Latency:} blocking recall $\sim$34s with accurate judge vs.\ $\sim$5s CLI floor.

@@ -44,6 +44,10 @@ def build_report() -> dict:
     session_study = _load("session-study-latest.json")
     full = _load("experiments-full-latest.json")
 
+    competitive = _load("competitive-latest.json")
+    cross_transfer = _load("cross-transfer-latest.json")
+    multimodel = _load("multimodel-latest.json")
+
     agent = summary.get("agent") or wikiskill.get("agent") or full.get("agent") or "unknown"
     samples = summary.get("samples") or wikiskill.get("samples") or full.get("samples")
 
@@ -72,6 +76,9 @@ def build_report() -> dict:
         "compaction": summary.get("compaction") or full.get("compaction"),
         "retention_curve": summary.get("retention_curve") or full.get("retention_curve"),
         "walkthrough": summary.get("walkthrough") or full.get("walkthrough"),
+        "competitive": competitive,
+        "cross_transfer": cross_transfer,
+        "multimodel": multimodel,
         "submission_status": {
             "codex_rmc_bench": bool(bench),
             "wikiskill_comparable": bool(wikiskill.get("arms")),
@@ -85,6 +92,9 @@ def build_report() -> dict:
             "latex_manuscript": (ROOT / "papers" / "rse" / "paper.tex").exists(),
             "paper_pdf": (ROOT / "papers" / "rse" / "paper.pdf").exists(),
             "figures_generated": (ROOT / "papers" / "rse" / "figures" / "fig_wikiskill.pdf").exists(),
+            "competitive_baselines": bool(competitive.get("upstream") or competitive.get("wikiskill_probe")),
+            "cross_model_transfer": bool(cross_transfer.get("table")),
+            "multimodel_eval": bool(multimodel.get("models")),
             "reproducibility_appendix": (ROOT / "papers" / "rse" / "appendix.tex").exists(),
         },
         "headline_findings": [],

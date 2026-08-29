@@ -321,3 +321,167 @@ cases:
     trap: |
       Surfaces the "never use regex to classify intent" lesson, which is about
       harness design and has nothing to say about reading a regex.
+
+  # ----------------------------------------------------------------- trap
+  # Additional cases for competitive-scale RMC-Bench (25+ total).
+
+  - id: webhook-retry-after
+    kind: trap
+    family: webhooks
+    lesson: |
+      Webhook consumers must honor `Retry-After` headers on 429 responses.
+      Exponential backoff without reading Retry-After violates partner SLAs and
+      can extend outages. Parse Retry-After as seconds or HTTP-date.
+    task: |
+      Our webhook receiver gets HTTP 429 from Stripe with `Retry-After: 120`.
+      How should the retry worker schedule the next attempt?
+    expected: |
+      Wait at least 120 seconds per Retry-After before retrying; do not use a
+      shorter fixed backoff that ignores the header.
+    trap: |
+      Applies generic exponential backoff (e.g. 1s, 2s, 4s) without honoring
+      Retry-After: 120.
+
+  - id: jwt-exp-leeway
+    kind: trap
+    family: auth
+    lesson: |
+      JWT validation must use clock skew leeway (e.g. 30s) on `exp` and `nbf`.
+      Reject tokens with `alg: none`. Always verify signature before claims.
+    task: |
+      A token fails validation with "token expired" but the client clock is 15s
+      behind the server. What validation knob fixes false rejects without
+      disabling expiry checks?
+    expected: |
+      Add leeway/skew tolerance (~30s) on exp validation; do not disable expiry.
+    trap: |
+      Disables expiry validation entirely or tells the user to fix clocks only.
+
+  - id: cache-stampede
+    kind: detail
+    family: caching
+    lesson: |
+      On cache miss under load, use single-flight (one recomputer per key) to
+      prevent stampedes. TTL jitter spreads expiry; do not set identical TTL
+      for all keys written in the same request.
+    task: |
+      A hot key expired and 500 workers simultaneously recompute the value,
+      melting the database. What pattern prevents this?
+    expected: |
+      Single-flight / request coalescing so only one worker recomputes per key;
+      optional TTL jitter on write.
+    trap: |
+      Suggests only raising TTL or adding more cache memory without coalescing.
+
+  - id: idempotency-key-scope
+    kind: principle
+    family: payments
+    lesson: |
+      Idempotency-Key scope is per merchant endpoint + HTTP method + route, not
+      global. Reusing the same key for different amounts returns the cached
+      first response — by design.
+    task: |
+      A client retries POST /charges with the same Idempotency-Key but changed
+      amount. The API returns the original charge. Is this a bug?
+    expected: |
+      No — idempotency keys dedupe the entire request; changing body fields
+      requires a new key. Explain scope per route.
+    trap: |
+      Claims the API should apply the new amount on retry with the same key.
+
+  - id: grpc-deadline
+    kind: trap
+    family: rpc
+    lesson: |
+      gRPC deadlines propagate via context; child calls inherit remaining time.
+      Never set deadline=0 (infinite). Client timeouts must be less than LB idle
+      timeout to get actionable errors.
+    task: |
+      A gRPC client hangs until the load balancer closes the connection after
+      60s with no error. The client set no deadline. What should change?
+    expected: |
+      Set an explicit client-side deadline/context timeout shorter than the LB
+      idle timeout so the client fails fast with DEADLINE_EXCEEDED.
+    trap: |
+      Only increases LB timeout without adding client deadlines.
+
+  - id: feature-flag-percentage
+    kind: detail
+    family: flags
+    lesson: |
+      Percentage rollouts hash stable user id, not request id. Evaluating per
+      request flickers UX. Use `hash(user_id) % 100 < pct` for consistency.
+    task: |
+      A 10% feature flag toggles on refresh for the same logged-in user.
+      What is wrong with the rollout implementation?
+    expected: |
+      Rollout must hash stable user identifier, not random per-request; fix to
+      consistent bucketing.
+    trap: |
+      Suggests showing the flag to everyone or using random() per page load.
+
+  - id: oauth-state-csrf
+    kind: trap
+    family: auth
+    lesson: |
+      OAuth authorization flows must include cryptographically random `state`
+      stored server-side and validated on callback. Missing state enables CSRF
+      login attacks.
+    task: |
+      Review our OAuth callback: we pass client_id and redirect_uri but no state
+      parameter. What security fix is required?
+    expected: |
+      Add random state parameter, store in session, validate on callback before
+      exchanging code.
+    trap: |
+      Only validates redirect_uri or skips CSRF protection.
+
+  - id: batch-export-pagination
+    kind: multi
+    family: data
+    lesson: |
+      Large exports paginate with cursor on primary key, not OFFSET. OFFSET
+      scans skipped rows and times out on big tables. Use `WHERE id > :cursor
+      ORDER BY id LIMIT n`.
+    task: |
+      Export 10M rows times out when using LIMIT/OFFSET pagination. Switch to
+      cursor-based export and describe the query pattern.
+    expected: |
+      Keyset/cursor pagination on monotonic id (or created_at tie-break), not
+      OFFSET; loop until no rows.
+    trap: |
+      Suggests increasing OFFSET batch size or adding indexes only without
+      keyset pagination.
+
+  - id: semver-breaking-api
+    kind: principle
+    family: api
+    lesson: |
+      Removing a JSON field is a breaking change under semver for public APIs.
+      Deprecate first, keep field nullable for one major version, document in
+      changelog.
+    task: |
+      We removed `legacy_id` from the v2 response without a major version bump.
+      Is this semver-compliant?
+    expected: |
+      No — field removal is breaking; requires major version or parallel
+      deprecation period with field still present.
+    trap: |
+      Says patch/minor bump is fine because clients should not rely on the field.
+
+  - id: k8s-probe-liveness
+    kind: trap
+    family: k8s
+    lesson: |
+      Liveness probes restart pods; readiness probes remove from service only.
+      Never point liveness at dependencies (DB, queues) — transient blips cause
+      restart storms.
+    task: |
+      Our liveness probe calls the database on every tick. During a brief DB
+      failover all pods restart simultaneously. Fix the probe design.
+    expected: |
+      Move DB check to readiness probe; liveness should check process health
+      only (e.g. HTTP /health on app itself).
+    trap: |
+      Increases liveness timeout only without separating readiness from liveness.
+

@@ -24,6 +24,8 @@ def test_generate_paper_figures_creates_pdfs() -> None:
         cwd=ROOT,
     )
     for name in (
+        "fig_architecture",
+        "fig_case_study",
         "fig_wikiskill",
         "fig_recall_ablations",
         "fig_scaling",

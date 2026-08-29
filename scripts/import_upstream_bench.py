@@ -11,24 +11,70 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import re
+from urllib.parse import unquote
+
 from rmc import yamlish
 
 MANIFEST = ROOT / "evals" / "upstream" / "manifest.yaml"
 OUT_DIR = ROOT / "evals" / "upstream"
 
 
+def _normalize_urls(raw: object) -> list[str]:
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        return [str(u).strip() for u in raw if str(u).strip()]
+    text = str(raw).strip()
+    if not text:
+        return []
+    if text.startswith("[") and text.endswith("]"):
+        try:
+            parsed = json.loads(text.replace("'", '"'))
+            if isinstance(parsed, list):
+                return [str(u).strip() for u in parsed if str(u).strip()]
+        except json.JSONDecodeError:
+            pass
+    return [text]
+
+
+def _url_text_snippets(urls: list[str]) -> list[str]:
+    """Extract Wikipedia #:~:text= fragments as synthetic evidence snippets."""
+    snippets: list[str] = []
+    for url in urls:
+        if ":~:text=" not in url:
+            continue
+        tail = url.split(":~:text=", 1)[1]
+        for frag in re.split(r",-,", tail):
+            text = unquote(frag.replace("+", " ")).strip()
+            text = re.sub(r"\s+", " ", text)
+            if len(text) >= 8:
+                snippets.append(text)
+    return snippets
+
+
 def _row_to_case(row: dict, spec: dict, idx: int) -> dict:
     task_field = spec["task_field"]
     expected_field = spec["expected_field"]
-    task = str(row.get(task_field) or "").strip()
+    question = str(row.get(task_field) or "").strip()
     expected = str(row.get(expected_field) or "").strip()
+    urls = _normalize_urls(row.get("urls"))
+    snippets = _url_text_snippets(urls)
+    evidence = ""
+    if snippets:
+        evidence = "\n\nEvidence snippets (from reference URLs):\n" + "\n".join(
+            f"- {s}" for s in snippets[:4]
+        )
+    elif urls:
+        evidence = "\n\nReference URLs:\n" + "\n".join(f"- {u}" for u in urls[:3])
+    task = f"{question}{evidence}\n\nAnswer with a short factual response starting with 'Answer:'."
     case_id = f"{spec['id']}-{idx:04d}"
     return {
         "id": case_id,
         "benchmark": spec["benchmark"],
         "family": spec.get("family") or spec["benchmark"].lower(),
         "task": task,
-        "expected": expected,
+        "expected": f"Answer: {expected}" if not expected.lower().startswith("answer") else expected,
         "skill": str(spec.get("skill") or "").strip(),
     }
 
