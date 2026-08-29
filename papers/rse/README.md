@@ -16,7 +16,9 @@ python3 scripts/run_all_experiments.py --samples 3
 python3 scripts/run_paper_evals.py
 
 # With a real agent when available
-python3 scripts/run_all_experiments.py --agent claude --samples 3
+python3 scripts/run_all_experiments.py --agent codex --samples 3
+python3 scripts/run_wikiskill_evals.py --agent codex --samples 3
+python3 scripts/generate_submission_report.py
 ```
 
 Results land in `papers/rse/results/`:
@@ -28,6 +30,7 @@ Results land in `papers/rse/results/`:
 | `compaction-ablation-latest.json` | meta-testing on/off |
 | `rmc-bench-latest.json` | Per-case transfer/retrieval scores |
 | `wikiskill-latest.json` | WikiSkill-comparable: no-skill vs full-inject vs recall arms |
+| `submission-latest.json` | Unified report: all evals + comparative baselines |
 
 ## What is measured
 

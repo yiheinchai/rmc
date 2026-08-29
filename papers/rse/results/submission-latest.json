@@ -1,0 +1,317 @@
+{
+  "generated_at": "20260829T015845Z",
+  "agent": "codex",
+  "samples": 3,
+  "rmc_bench": {
+    "lift": 0.20000000000000007,
+    "transfer_rate": 0.9,
+    "transfer": {
+      "passed": 9,
+      "total": 10,
+      "rate": 0.9
+    },
+    "retrieval": {
+      "passed": 7,
+      "total": 7,
+      "rate": 1.0
+    },
+    "mean_l0_tokens": 139
+  },
+  "recall_ablations": {
+    "serve-all": {
+      "arm": "serve-all",
+      "precision": 0.4666666666666667,
+      "recall": 1.0,
+      "hits": 14,
+      "kept": 30,
+      "used": 14,
+      "misses": 0,
+      "noise_tokens": 2054,
+      "useful_tokens": 1653,
+      "baseline_tokens": 3707,
+      "episodes": 11,
+      "searches": 0
+    },
+    "judge": {
+      "arm": "judge",
+      "precision": 1.0,
+      "recall": 1.0,
+      "hits": 14,
+      "kept": 14,
+      "used": 14,
+      "misses": 0,
+      "noise_tokens": 0,
+      "useful_tokens": 1653,
+      "baseline_tokens": 3707,
+      "episodes": 11,
+      "searches": 0
+    },
+    "agentic": {
+      "arm": "agentic",
+      "precision": 0.9285714285714286,
+      "recall": 0.9285714285714286,
+      "hits": 13,
+      "kept": 14,
+      "used": 14,
+      "misses": 1,
+      "noise_tokens": 54,
+      "useful_tokens": 1535,
+      "baseline_tokens": 3707,
+      "episodes": 11,
+      "searches": 35
+    }
+  },
+  "wikiskill": {
+    "no-skill": {
+      "passed": 6,
+      "total": 10,
+      "accuracy": 0.6,
+      "mean_tokens": 0,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    },
+    "full-inject": {
+      "passed": 7,
+      "total": 10,
+      "accuracy": 0.7,
+      "mean_tokens": 534,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    },
+    "recall-judge": {
+      "passed": 7,
+      "total": 10,
+      "accuracy": 0.7,
+      "mean_tokens": 64,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    },
+    "recall-agentic": {
+      "passed": 8,
+      "total": 10,
+      "accuracy": 0.8,
+      "mean_tokens": 64,
+      "by_benchmark": {
+        "ALFWorld": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "LiveMath": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        },
+        "OfficeQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SealQA": {
+          "passed": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "SpreadSheet": {
+          "passed": 1,
+          "total": 2,
+          "accuracy": 0.5
+        }
+      }
+    }
+  },
+  "wikiskill_comparisons": {
+    "full_inject_vs_no_skill": {
+      "delta_accuracy": 0.09999999999999998
+    },
+    "recall_judge_vs_full_inject": {
+      "delta_accuracy": 0.0,
+      "token_savings": 470
+    },
+    "recall_agentic_vs_recall_judge": {
+      "delta_accuracy": 0.10000000000000009
+    }
+  },
+  "scaling": [
+    {
+      "lessons": 25,
+      "apexes": 25,
+      "index_tokens": 740,
+      "index_lines": 0,
+      "routing_tokens_per_prompt": 1375,
+      "mean_served": 1,
+      "judge_precision": 0.6666666666666666,
+      "judge_recall": 1.0
+    },
+    {
+      "lessons": 100,
+      "apexes": 100,
+      "index_tokens": 2503,
+      "index_lines": 0,
+      "routing_tokens_per_prompt": 5500,
+      "mean_served": 1,
+      "judge_precision": 0.6666666666666666,
+      "judge_recall": 1.0
+    },
+    {
+      "lessons": 500,
+      "apexes": 500,
+      "index_tokens": 12303,
+      "index_lines": 0,
+      "routing_tokens_per_prompt": 27500,
+      "mean_served": 1,
+      "judge_precision": 0.6666666666666666,
+      "judge_recall": 1.0
+    },
+    {
+      "lessons": 1000,
+      "apexes": 1000,
+      "index_tokens": 24553,
+      "index_lines": 0,
+      "routing_tokens_per_prompt": 55000,
+      "mean_served": 1,
+      "judge_precision": 0.6666666666666666,
+      "judge_recall": 1.0
+    }
+  ],
+  "compaction": {
+    "with_meta_testing": {
+      "accepted": true,
+      "reason": "accepted at 70% of original, 100% replay pass",
+      "before_tokens": 60,
+      "after_tokens": 42,
+      "pass_rate": 1.0,
+      "replays": 3
+    },
+    "without_meta_testing": {
+      "accepted": true,
+      "reason": "accepted at 70% of original (replay skipped)",
+      "before_tokens": 60,
+      "after_tokens": 42
+    }
+  },
+  "retention_curve": {
+    "levels": {
+      "none": {
+        "pass_rate": 0.0,
+        "tokens": 0
+      },
+      "L0": {
+        "pass_rate": 0.0,
+        "tokens": 60
+      },
+      "L1": {
+        "pass_rate": 0.0,
+        "tokens": 42,
+        "compression_accepted": true,
+        "replay_pass_rate": 1.0
+      }
+    },
+    "compression": {
+      "accepted": true,
+      "ratio": 0.7
+    }
+  },
+  "walkthrough": {
+    "compression_accepted": false,
+    "compression_ratio": 0.0,
+    "replay_pass_rate": 0.0,
+    "apex_level": null,
+    "apex_tokens": null,
+    "dropped_claims": 0,
+    "recall_tokens_before": 68,
+    "descent_attempts": 1,
+    "descent_rescued": null,
+    "descent_escalated": false
+  },
+  "submission_status": {
+    "codex_rmc_bench": true,
+    "wikiskill_comparable": true,
+    "recall_ablations": true,
+    "scaling_study": true,
+    "claude_cross_check": false,
+    "session_length_paired_study": false
+  },
+  "headline_findings": [
+    "RMC-Bench lift (L0 \u2212 control): +20%",
+    "RMC-Bench transfer@L0: 90%",
+    "Recall judge vs serve-all: 100% prec / 100% rec vs 47% prec, noise 2054 \u2192 0 tok",
+    "WikiSkill subset: full-inject 70% @ 534 tok; recall-agentic 80% @ 64 tok"
+  ],
+  "render": "RSE Submission Report \u2014 agent=codex, samples=3\ngenerated 20260829T015845Z\n\n=== Headline findings ===\n  \u2022 RMC-Bench lift (L0 \u2212 control): +20%\n  \u2022 RMC-Bench transfer@L0: 90%\n  \u2022 Recall judge vs serve-all: 100% prec / 100% rec vs 47% prec, noise 2054 \u2192 0 tok\n  \u2022 WikiSkill subset: full-inject 70% @ 534 tok; recall-agentic 80% @ 64 tok\n\n=== RMC-Bench (procedural memory) ===\n  lift: +20%\n  transfer@L0: 9/10\n  retrieval: 7/7\n  mean L0 tokens: 139\n\n=== Recall ablations ===\n  serve-all    prec=47%  rec=100%  noise=2054 tok\n  judge        prec=100%  rec=100%  noise=0 tok\n  agentic      prec=93%  rec=93%  noise=54 tok\n\n=== WikiSkill-comparable (5 domains, 10 tasks) ===\n  no-skill         6/10 (60%)  mean_tokens=0\n  full-inject      7/10 (70%)  mean_tokens=534\n  recall-judge     7/10 (70%)  mean_tokens=64\n  recall-agentic   8/10 (80%)  mean_tokens=64\n\n  Comparisons:\n    full-inject vs no-skill: +10%\n    recall-judge vs full-inject: +0% accuracy, 470 tok saved\n    recall-agentic vs recall-judge: +10%\n\n=== Submission checklist ===\n  \u2713 codex rmc bench\n  \u2713 wikiskill comparable\n  \u2713 recall ablations\n  \u2713 scaling study\n  \u2717 claude cross check\n  \u2717 session length paired study\n\n=== RSE vs baselines (summary) ===\n  vs no memory:     RMC-Bench +20% lift; WikiSkill +10pp with full-inject\n  vs full-inject:   recall-judge matches accuracy at ~88% fewer tokens\n  vs serve-all:     judge filter 100% prec, 0 noise vs 47% prec, 2054 noise\n  vs WikiSkill:     agentic recall beats full-inject (+10pp) at 64 vs 534 tok"
+}
