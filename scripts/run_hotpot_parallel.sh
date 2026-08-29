@@ -76,19 +76,34 @@ fi
 echo "shard2 offset from checkpoint: $SHARD2_OFFSET"
 
 echo "$(date -u +%H:%M:%S) shard1: cases 0-$((SPLIT - 1)) (limit=$SPLIT, resume)"
-python3 scripts/run_competitive_evals.py \
-  --agent codex \
-  --samples 1 \
-  --skip-bench \
-  --skip-probe \
-  --skip-memgpt \
-  --skip-session \
-  --merge "$MAIN" \
-  --out "$WORK" \
-  --resume \
-  --limit "$SPLIT" \
-  --upstream hotpotqa-dev &
-PID1=$!
+SHARD1_PID=""
+if python3 -c "
+import json, re, sys
+p = '$WORK/competitive-latest.json'
+if not __import__('pathlib').Path(p).exists():
+    sys.exit(0)
+d = json.load(open(p))
+cases = (d.get('upstream') or {}).get('hotpotqa-dev') or {}
+ids = [c.get('case_id','') for c in cases.get('cases') or [] if c.get('case_id')]
+nums = [int(re.search(r'(\d+)$', i).group(1)) for i in ids if re.search(r'(\d+)$', i)]
+sys.exit(0 if (nums and min(nums) == 0 and max(nums) >= $SPLIT - 1) else 1)
+" 2>/dev/null; then
+  echo "shard1 already complete through case $((SPLIT - 1)) — skipping"
+else
+  python3 scripts/run_competitive_evals.py \
+    --agent codex \
+    --samples 1 \
+    --skip-bench \
+    --skip-probe \
+    --skip-memgpt \
+    --skip-session \
+    --merge "$MAIN" \
+    --out "$WORK" \
+    --resume \
+    --limit "$SPLIT" \
+    --upstream hotpotqa-dev &
+  SHARD1_PID=$!
+fi
 
 echo "$(date -u +%H:%M:%S) shard2: cases $SHARD2_OFFSET-99 (offset=$SHARD2_OFFSET)"
 python3 scripts/run_competitive_evals.py \
@@ -104,7 +119,11 @@ python3 scripts/run_competitive_evals.py \
   --upstream hotpotqa-dev &
 PID2=$!
 
-wait "$PID1" "$PID2"
+if [[ -n "$SHARD1_PID" ]]; then
+  wait "$SHARD1_PID" "$PID2"
+else
+  wait "$PID2"
+fi
 
 echo "$(date -u +%H:%M:%S) merging HotPot shards into $WORK/competitive-latest.json"
 python3 scripts/merge_competitive_upstream.py \
