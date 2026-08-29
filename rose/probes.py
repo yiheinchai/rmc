@@ -216,8 +216,8 @@ def _detach_from_node(store: "Store", node_id: str, probe_id: str) -> None:
     store.save_node(node)
 
 
-def add(store: "Store", probe: Probe) -> Probe | None:
-    """Store a probe if it adds a new axis; maintain the cap."""
+def add(store: "Store", probe: Probe, *, enforce_cap: bool = True) -> Probe | None:
+    """Store a probe if it adds a new axis; optionally maintain the cap."""
     if not probe.task.strip() or not probe.outcome.strip():
         return None
 
@@ -226,7 +226,7 @@ def add(store: "Store", probe: Probe) -> Probe | None:
     if any(_duplicate(p, probe) for p in existing):
         return None
 
-    if len(existing) >= max_probes:
+    if enforce_cap and len(existing) >= max_probes:
         existing.sort(key=lambda p: p.created)
         drop = existing[0]
         delete(store, drop)
@@ -290,6 +290,61 @@ def distill(
         source_episode=source_episode,
     )
     return add(store, probe)
+
+
+def minimal_task(text: str) -> str:
+    """Strip evidence blocks; keep the standalone question."""
+    lines: list[str] = []
+    for line in (text or "").splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        lower = stripped.lower()
+        if lower.startswith(
+            ("evidence snippets", "reference context", "reference urls", "answer with")
+        ):
+            break
+        lines.append(stripped)
+    out = " ".join(lines).strip()
+    return out[:600] if out else (text or "").strip()[:600]
+
+
+def prune_to_cap(store: "Store", node_id: str) -> list[str]:
+    """Keep the most orthogonal probes up to ``compaction.max_probes``."""
+    node = store.get(node_id)
+    if node is None:
+        return []
+    max_probes = int(store.config.get("compaction.max_probes", 10))
+    kept = select_for_replay(store, node, limit=max_probes)
+    keep_ids = {p.id for p in kept}
+    dropped: list[str] = []
+    for probe in load_for_node(store, node_id):
+        if probe.id not in keep_ids:
+            delete(store, probe)
+            _detach_from_node(store, node_id, probe.id)
+            dropped.append(probe.id)
+    return dropped
+
+
+def seed_from_case(
+    store: "Store",
+    *,
+    case_id: str,
+    node_id: str,
+    task: str,
+    expected: str,
+    axis: str = "",
+    enforce_cap: bool = False,
+) -> Probe | None:
+    """Heuristic probe from a benchmark case (no model call)."""
+    probe = Probe(
+        id=f"p_{case_id}",
+        node_id=node_id,
+        task=minimal_task(task),
+        outcome=expected.strip(),
+        axis=axis or case_id,
+    )
+    return add(store, probe, enforce_cap=enforce_cap)
 
 
 def distill_and_add(

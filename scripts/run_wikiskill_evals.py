@@ -33,6 +33,21 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rose" / "results")
     parser.add_argument("--checkpoint", action="store_true", help="write partial results after each task")
     parser.add_argument("--resume", action="store_true", help="resume from wikiskill-latest.json checkpoint")
+    parser.add_argument(
+        "--with-probes",
+        action="store_true",
+        help="seed minimal regression probes from each case (WikiSkill probe-compaction path)",
+    )
+    parser.add_argument(
+        "--distill-probes",
+        action="store_true",
+        help="use the model to distill probes (default: heuristic strip of evidence blocks)",
+    )
+    parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="compact lessons against probes before scoring (requires --with-probes)",
+    )
     args = parser.parse_args()
 
     raw = get_adapter(args.agent)
@@ -75,6 +90,9 @@ def main() -> int:
                 flush=True,
             )
     print(f"Running WikiSkill-comparable bench (agent={adapter.name}, samples={args.samples})...")
+    if args.compact and not args.with_probes:
+        print("--compact requires --with-probes", file=sys.stderr)
+        return 2
     report = run(
         adapter,
         path=args.bench,
@@ -84,6 +102,9 @@ def main() -> int:
         arms=use_arms,
         on_progress=on_progress,
         existing=existing,
+        with_probes=args.with_probes,
+        distill_probes=args.distill_probes,
+        compact=args.compact,
     )
     text = report.render()
     print(text)
@@ -94,6 +115,9 @@ def main() -> int:
     payload = to_dict(report)
     payload["generated_at"] = stamp
     payload["samples"] = args.samples
+    payload["with_probes"] = args.with_probes
+    payload["distill_probes"] = args.distill_probes
+    payload["compact"] = args.compact
     payload.pop("checkpoint", None)
 
     latest = out / "wikiskill-latest.json"
