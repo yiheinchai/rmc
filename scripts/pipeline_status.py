@@ -43,6 +43,27 @@ def _running(pattern: str) -> bool:
         return False
 
 
+def _running_script(script: str) -> bool:
+    """True if a bash driver for ``scripts/<script>`` is active."""
+    needle = f"scripts/{script}"
+    try:
+        proc = subprocess.run(["pgrep", "-f", needle], capture_output=True, text=True)
+        if proc.returncode != 0:
+            return False
+        for pid in proc.stdout.strip().split():
+            if not pid:
+                continue
+            try:
+                cmd = Path(f"/proc/{pid}/cmdline").read_bytes().decode("latin-1").replace("\0", " ")
+            except OSError:
+                continue
+            if needle in cmd and "python3" not in cmd:
+                return True
+        return False
+    except OSError:
+        return False
+
+
 def _mtime(path: Path) -> str:
     if not path.exists():
         return "—"
@@ -72,16 +93,17 @@ def main() -> int:
     print(f"cross-transfer-latest    models={list((ct.get('table') or {}).keys())}")
 
     jobs = [
-        ("sequential pipeline", "run_sequential_codex_evals.sh"),
-        ("competitive step 2", "scripts/run_competitive_evals.py --agent codex --samples 1 --skip-upstream"),
-        ("SealQA upstream", "scripts/run_wikiskill_evals.py --agent codex"),
-        ("multimodel", "scripts/run_multimodel_evals.py"),
-        ("HotPotQA parallel", "run_hotpot_parallel.sh"),
+        ("sequential pipeline", "run_sequential_codex_evals.sh", "script"),
+        ("competitive step 2", "scripts/run_competitive_evals.py --agent codex --samples 1 --skip-upstream", "py"),
+        ("SealQA upstream", "scripts/run_wikiskill_evals.py --agent codex", "py"),
+        ("multimodel", "scripts/run_multimodel_evals.py", "py"),
+        ("HotPotQA parallel", "run_hotpot_parallel.sh", "script"),
     ]
     print("\nRunning:")
     any_running = False
-    for label, pattern in jobs:
-        if _running(pattern):
+    for label, pattern, kind in jobs:
+        active = _running_script(pattern.replace("scripts/", "")) if kind == "script" else _running(pattern)
+        if active:
             print(f"  • {label}")
             any_running = True
     if not any_running:
@@ -89,8 +111,13 @@ def main() -> int:
 
     logs = sorted(Path("/tmp").glob("codex-sequential-*.log"), key=lambda p: p.stat().st_mtime, reverse=True)
     if logs:
-        tail = logs[0].read_text(encoding="utf-8").strip().splitlines()[-1]
-        print(f"\nLatest sequential log ({logs[0].name}):")
+        text = logs[0].read_text(encoding="utf-8")
+        transfers = re.findall(r"rmc-bench transfer (\d+)/(\d+)", text)
+        if transfers:
+            cur, total = transfers[-1]
+            print(f"\nRMC-Bench transfer: {cur}/{total}")
+        tail = text.strip().splitlines()[-1]
+        print(f"Latest sequential log ({logs[0].name}):")
         print(f"  {tail}")
     return 0
 
