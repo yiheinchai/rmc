@@ -41,18 +41,31 @@ class TestInjectPaperResults(unittest.TestCase):
 
     def test_sealqa_upstream_payload_competitive(self) -> None:
         data = {
+            "agent": "codex",
             "upstream": {
                 "sealqa-test": {
                     "arms": {
                         "full-inject": {"accuracy": 0.6, "total": 50, "mean_tokens": 90},
                     }
                 }
-            }
+            },
         }
         payload = self.inj._sealqa_upstream_payload(data)
         self.assertIsNotNone(payload)
         assert payload is not None
         self.assertEqual(payload["arms"]["full-inject"]["total"], 50)
+
+    def test_sealqa_upstream_rejects_small_mock_subset(self) -> None:
+        data = {
+            "upstream": {
+                "sealqa-test": {
+                    "arms": {
+                        "full-inject": {"accuracy": 1.0, "total": 15, "mean_tokens": 90},
+                    }
+                }
+            },
+        }
+        self.assertIsNone(self.inj._sealqa_upstream_payload(data))
 
     def test_build_hotpot_table(self) -> None:
         data = {
@@ -85,3 +98,31 @@ class TestInjectPaperResults(unittest.TestCase):
         self.assertIn("50 tasks", table)
         self.assertIn("70\\%", table)
         self.assertIn("80\\%", table)
+
+    def test_build_cross_transfer_table(self) -> None:
+        data = {
+            "samples": 3,
+            "table": {
+                "codex": {
+                    "SealQA": {"full-inject": 1.0, "recall-agentic": 1.0},
+                    "ALFWorld": {"full-inject": 0.5, "recall-agentic": 1.0},
+                }
+            },
+            "models": {
+                "codex": {
+                    "agent": "codex",
+                    "arms": {
+                        "full-inject": {"accuracy": 0.7, "mean_tokens": 534},
+                        "recall-agentic": {
+                            "accuracy": 0.8,
+                            "mean_tokens": 59,
+                            "bootstrap_ci": {"low": 0.47, "high": 0.93},
+                        },
+                    },
+                }
+            },
+        }
+        table = self.inj.build_cross_transfer_table(data)
+        self.assertIn("SealQA", table)
+        self.assertIn("80\\%", table)
+        self.assertIn("47", table)

@@ -12,6 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "papers" / "rse" / "results"
 PAPER = ROOT / "papers" / "rse" / "paper.tex"
 
+MIN_UPSTREAM_TASKS = {
+    "sealqa-test": 50,
+    "hotpotqa-dev": 50,
+}
+
 
 def _pct(x: float) -> str:
     return f"{x * 100:.0f}\\%"
@@ -74,6 +79,43 @@ def build_hotpot_table(data: dict) -> str:
     return build_upstream_baseline_table(data, benchmark="HotPotQA", label="hotpot_upstream")
 
 
+def build_cross_transfer_table(data: dict, *, model: str = "codex") -> str:
+    bench_table = (data.get("table") or {}).get(model) or {}
+    model_blob = (data.get("models") or {}).get(model) or {}
+    arms = model_blob.get("arms") or {}
+    fi = arms.get("full-inject") or {}
+    ra = arms.get("recall-agentic") or {}
+    samples = data.get("samples", 3)
+
+    lines = [
+        "\\begin{table}[t]",
+        "  \\centering",
+        f"  \\caption{{Cross-model transfer on WikiSkill probe ({model}, {samples} samples).}}",
+        "  \\label{tab:cross_transfer}",
+        "  \\begin{tabular}{lcc}",
+        "    \\toprule",
+        "    Benchmark & full-inject & recall-agentic \\\\",
+        "    \\midrule",
+    ]
+    for bench in sorted(bench_table):
+        row = bench_table[bench]
+        fi_acc = row.get("full-inject", 0)
+        ra_acc = row.get("recall-agentic", 0)
+        ra_cell = f"\\textbf{{{_pct(ra_acc)}}}" if ra_acc >= fi_acc else _pct(ra_acc)
+        lines.append(f"    {bench} & {_pct(fi_acc)} & {ra_cell} \\\\")
+    ra_ci = ra.get("bootstrap_ci")
+    ra_overall = f"\\textbf{{{_pct(ra.get('accuracy', 0))}}}{_ci(ra_ci)}"
+    lines += [
+        "    \\midrule",
+        f"    Overall & {_pct(fi.get('accuracy', 0))} & {ra_overall} \\\\",
+        f"    Mean tokens & {fi.get('mean_tokens', 0)} & \\textbf{{{ra.get('mean_tokens', 0)}}} \\\\",
+        "    \\bottomrule",
+        "  \\end{tabular}",
+        "\\end{table}",
+    ]
+    return "\n".join(lines)
+
+
 def build_rmc_bench_rows(rb: dict) -> dict[str, str]:
     transfer = rb.get("transfer") or {}
     retrieval = rb.get("retrieval") or {}
@@ -130,13 +172,12 @@ def inject_rmc_bench(paper_path: Path, rb: dict) -> bool:
     marker_start = "% AUTO:RMC_BENCH_TABLE_BEGIN"
     marker_end = "% AUTO:RMC_BENCH_TABLE_END"
     if marker_start in text:
-        text = re.sub(
-            rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}",
-            block,
-            text,
-            count=1,
-            flags=re.DOTALL,
-        )
+        pattern = rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}"
+
+        def _repl(_match: re.Match[str]) -> str:
+            return block
+
+        text = re.sub(pattern, _repl, text, count=1, flags=re.DOTALL)
     else:
         return False
     paper_path.write_text(text, encoding="utf-8")
@@ -147,13 +188,12 @@ def inject_marked_table(paper_path: Path, table: str, marker_start: str, marker_
     text = paper_path.read_text(encoding="utf-8")
     block = f"{marker_start}\n{table}\n{marker_end}"
     if marker_start in text:
-        text = re.sub(
-            rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}",
-            block,
-            text,
-            count=1,
-            flags=re.DOTALL,
-        )
+        pattern = rf"{re.escape(marker_start)}.*?{re.escape(marker_end)}"
+
+        def _repl(_match: re.Match[str]) -> str:
+            return block
+
+        text = re.sub(pattern, _repl, text, count=1, flags=re.DOTALL)
     elif anchor and anchor in text:
         text = text.replace(anchor, f"{anchor}\n\n{block}", 1)
     else:
@@ -182,15 +222,33 @@ def inject_hotpot(paper_path: Path, table: str) -> bool:
     )
 
 
+def inject_cross_transfer(paper_path: Path, table: str) -> bool:
+    return inject_marked_table(
+        paper_path,
+        table,
+        "% AUTO:CROSS_TRANSFER_TABLE_BEGIN",
+        "% AUTO:CROSS_TRANSFER_TABLE_END",
+        anchor="\\label{sec:cross_transfer}",
+    )
+
+
 def _upstream_payload(data: dict, stem: str) -> dict | None:
     upstream = (data.get("upstream") or {}).get(stem)
-    if upstream and (upstream.get("arms") or {}).get("full-inject", {}).get("total", 0):
+    if upstream and _upstream_ready(upstream, stem):
         return upstream
     if stem.replace("-", "") in str(data.get("bench_path", "")).replace("-", "").lower():
         arms = data.get("arms") or {}
-        if arms.get("full-inject", {}).get("total", 0):
+        if data.get("agent") == "codex" and _upstream_ready(data, stem):
             return data
     return None
+
+
+def _upstream_ready(blob: dict, stem: str) -> bool:
+    arms = blob.get("arms") or {}
+    fi = arms.get("full-inject") or {}
+    total = fi.get("total", 0)
+    minimum = MIN_UPSTREAM_TASKS.get(stem, 1)
+    return total >= minimum
 
 
 def _sealqa_upstream_payload(data: dict) -> dict | None:
@@ -223,11 +281,23 @@ def main() -> int:
                 print(f"Updated HotPotQA table from competitive-latest in {PAPER}")
                 updated = True
 
+    ct_path = RESULTS / "cross-transfer-latest.json"
+    if ct_path.exists():
+        ct = json.loads(ct_path.read_text(encoding="utf-8"))
+        for model in sorted((ct.get("table") or {}).keys()):
+            blob = (ct.get("models") or {}).get(model) or {}
+            if blob.get("agent") == "codex" or model == "codex":
+                table = build_cross_transfer_table(ct, model=model)
+                if inject_cross_transfer(PAPER, table):
+                    print(f"Updated cross-transfer table ({model}) in {PAPER}")
+                    updated = True
+                break
+
     path = RESULTS / "wikiskill-latest.json"
     if path.exists():
         data = json.loads(path.read_text(encoding="utf-8"))
         sealqa = _sealqa_upstream_payload(data)
-        if sealqa and not (
+        if sealqa and data.get("agent") == "codex" and not (
             comp.exists()
             and _sealqa_upstream_payload(json.loads(comp.read_text(encoding="utf-8")))
         ):

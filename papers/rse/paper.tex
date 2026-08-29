@@ -248,25 +248,27 @@ We import the first 100 HotPotQA distractor-split validation questions \citep{ya
 Following WikiSkill Table~2, we evaluate whether skills evolved in one store transfer when graded by a different inference backend (\texttt{scripts/run\_cross\_transfer.py}).
 The same RMC store and recall policy are held fixed; only the grading agent changes.
 
+% AUTO:CROSS_TRANSFER_TABLE_BEGIN
 \begin{table}[t]
   \centering
-  \caption{Cross-model transfer on WikiSkill probe (Codex inference, 3 samples).}
+  \caption{Cross-model transfer on WikiSkill probe (codex, 3 samples).}
   \label{tab:cross_transfer}
   \begin{tabular}{lcc}
     \toprule
     Benchmark & full-inject & recall-agentic \\
     \midrule
     ALFWorld & 50\% & \textbf{100\%} \\
-    LiveMath & 50\% & 50\% \\
-    OfficeQA & 100\% & 100\% \\
-    SealQA & 100\% & 100\% \\
-    SpreadSheet & 50\% & 50\% \\
+    LiveMath & 50\% & \textbf{50\%} \\
+    OfficeQA & 100\% & \textbf{100\%} \\
+    SealQA & 100\% & \textbf{100\%} \\
+    SpreadSheet & 50\% & \textbf{50\%} \\
     \midrule
-    Overall & 70\% & \textbf{80\%} (95\% CI: 47--93\%) \\
+    Overall & 70\% & \textbf{80\%} (95\% CI: 47\%--93\%) \\
     Mean tokens & 534 & \textbf{59} \\
     \bottomrule
   \end{tabular}
 \end{table}
+% AUTO:CROSS_TRANSFER_TABLE_END
 
 \begin{figure}[t]
   \centering
