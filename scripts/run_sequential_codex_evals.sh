@@ -12,7 +12,18 @@ python3 scripts/run_wikiskill_evals.py \
   --agent codex \
   --bench evals/upstream/sealqa-test.jsonl \
   --limit 50 \
-  --samples 1
+  --samples 1 \
+  --checkpoint
+
+echo "=== [2b/4] SealQA upstream (full 111 tasks) ==="
+python3 scripts/run_wikiskill_evals.py \
+  --agent codex \
+  --bench evals/upstream/sealqa-test.jsonl \
+  --samples 1 \
+  --checkpoint
+
+echo "=== [2c/4] Multi-model probe (Codex) ==="
+python3 scripts/run_multimodel_evals.py --agents codex --samples 3
 
 echo "=== [3/4] Competitive suite refresh ==="
 python3 scripts/run_competitive_evals.py \

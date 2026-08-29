@@ -30,6 +30,7 @@ def main() -> int:
         help="subset of arms (default: all). e.g. --arms no-skill full-inject recall-agentic",
     )
     parser.add_argument("--out", type=Path, default=ROOT / "papers" / "rse" / "results")
+    parser.add_argument("--checkpoint", action="store_true", help="write partial results after each task")
     args = parser.parse_args()
 
     raw = get_adapter(args.agent)
@@ -38,9 +39,29 @@ def main() -> int:
         raw = get_adapter("mock")
     adapter = bench_adapter(raw) if args.agent == "mock" else raw
 
+    out = args.out
+    out.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+    def _write_checkpoint(report) -> None:
+        payload = to_dict(report)
+        payload["generated_at"] = stamp
+        payload["samples"] = args.samples
+        payload["checkpoint"] = True
+        latest = out / "wikiskill-latest.json"
+        latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+    on_progress = _write_checkpoint if args.checkpoint else None
     use_arms = tuple(args.arms) if args.arms else None
     print(f"Running WikiSkill-comparable bench (agent={adapter.name}, samples={args.samples})...")
-    report = run(adapter, path=args.bench, samples=args.samples, limit=args.limit, arms=use_arms)
+    report = run(
+        adapter,
+        path=args.bench,
+        samples=args.samples,
+        limit=args.limit,
+        arms=use_arms,
+        on_progress=on_progress,
+    )
     text = report.render()
     print(text)
 
@@ -50,6 +71,7 @@ def main() -> int:
     payload = to_dict(report)
     payload["generated_at"] = stamp
     payload["samples"] = args.samples
+    payload.pop("checkpoint", None)
 
     latest = out / "wikiskill-latest.json"
     latest.write_text(json.dumps(payload, indent=2), encoding="utf-8")

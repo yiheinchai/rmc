@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from . import index as index_mod
 from . import yamlish
@@ -283,6 +283,7 @@ def run(
     tmp_base: Path | None = None,
     arms: tuple[str, ...] | None = None,
     limit: int | None = None,
+    on_progress: Callable[[WikiSkillReport], None] | None = None,
 ) -> WikiSkillReport:
     cases, _ = load_bench(path)
     if limit is not None:
@@ -301,10 +302,14 @@ def run(
         with tempfile.TemporaryDirectory() as tmp:
             store = build_store(cases, Path(tmp) / "repo", dedupe_families=dedupe)
             _score_cases(
-                report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms
+                report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms,
+                on_progress=on_progress,
             )
     else:
-        _score_cases(report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms)
+        _score_cases(
+            report, wrapped, store, cases, samples=samples, timeout=timeout, arms=use_arms,
+            on_progress=on_progress,
+        )
 
     return report
 
@@ -318,6 +323,7 @@ def _score_cases(
     samples: int,
     timeout: int,
     arms: tuple[str, ...],
+    on_progress: Callable[[WikiSkillReport], None] | None = None,
 ) -> None:
     from .bench import _grade, _probe
 
@@ -351,6 +357,8 @@ def _score_cases(
                     samples_total=samples,
                 )
             )
+        if on_progress is not None:
+            on_progress(report)
 
 
 def _as_bench_case(case: WikiSkillCase):
