@@ -1,0 +1,288 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in, letterpaper]{geometry}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{subcaption}
+\usepackage{xcolor}
+
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{Recursive Skill Evolution: Co-Evolving Procedural Knowledge and Retrieval with Meta-Tested Compaction}
+
+\author{
+  Yi Hein Chai \\
+  \texttt{yiheinchai@users.noreply.github.com}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Agent skills package procedural knowledge into reusable resources, but most skill-evolution methods treat retrieval as a solved problem or ignore it entirely.
+We introduce \textbf{Recursive Skill Evolution (RSE)}, a framework that co-evolves procedural lessons with the retrieval system that finds them.
+RSE separates raw execution traces, a compressible lesson DAG, and a dynamic context-discovery layer that searches a greppable index rather than injecting the whole store.
+Lessons compress recursively only when \textbf{meta-testing}---fresh-process episode replay---confirms behavioral equivalence; when abstraction fails, a delta manifest enables descent to recover dropped detail.
+Retrieval co-evolves through selection rules and gated self-tuning that keeps changes only when precision and recall both improve.
+On \textbf{RMC-Bench}, a benchmark for procedural memory under compression, RSE achieves \textbf{+20\% lift} over control on core transfer cases and \textbf{90\%} L0 transfer at \textbf{$\sim$139 tokens} per prompt (Codex-graded).
+Judge filtering reaches \textbf{100\%} precision with \textbf{0} noise tokens; agentic search achieves \textbf{93\%} precision/recall at \textbf{54} noise tokens vs.\ \textbf{2,054} for serve-all.
+On a WikiSkill-comparable five-benchmark subset, agentic recall reaches \textbf{80\%} accuracy vs.\ \textbf{70\%} for WikiSkill-style full injection at \textbf{$\sim$88\% lower token cost} (64 vs.\ 534 tokens).
+A scaling study shows index cost stays at \textbf{0 injected tokens} while routing cost grows with apex count---motivating dynamic context discovery over full injection.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+General-purpose agents need domain-specific procedure.
+Skills (filesystem modules with \texttt{SKILL.md}) make that knowledge auditable and reusable.
+Recent work evolves skills from execution traces \citep{wikiskill2026,wang2023voyager,shinn2023reflexion}, but three gaps remain:
+
+\begin{enumerate}
+  \item \textbf{Retrieval is ignored.} WikiSkill full-injects skills at test time to isolate skill \emph{quality} \citep{wikiskill2026}.
+    Production stores outgrow context; selection is the problem.
+  \item \textbf{Compaction is unvalidated.} Skill edits shrink text without a regression gate; lost detail fails silently.
+  \item \textbf{Knowledge and retrieval are not co-evolved.} Selection rules and prompts do not improve from measured outcomes.
+\end{enumerate}
+
+RSE addresses all three.
+It is an ambient loop---recall before work, reflect after, compact when earned, tune retrieval when measured---not a batch training pipeline.
+
+\textbf{Contributions:}
+(1)~\textbf{RSE framework}---three layers (raw traces, lesson DAG, dynamic retrieval) with a continual co-evolution loop;
+(2)~\textbf{Meta-tested recursive compaction}---compression accepted only when episode replay passes at 100\%; delta manifests enable descent on failure;
+(3)~\textbf{Dynamic context discovery}---agentic index search: 0 tokens for the catalog, bounded injection for selected bodies;
+(4)~\textbf{Retrieval co-evolution}---\texttt{rmc tune} proposes prompt/config changes; keeps only if precision \emph{and} recall improve;
+(5)~\textbf{RMC-Bench + scaling study}---four-axis procedural memory benchmark with reproducible harness; synthetic scaling table.
+
+\section{Problem Setup}
+\label{sec:setup}
+
+Let $\mathcal{D}$ be tasks an agent performs over time.
+Unlike WikiSkill's fixed train/val/test split, RSE operates \textbf{online}: each session produces traces $\tau_i$, optional lessons $L$, and attribution of which lessons bore on success.
+
+State at step $k$: $(\mathcal{N}_k, \mathcal{R}_k, \mathcal{I}_k)$ where $\mathcal{N}_k$ is the lesson DAG, $\mathcal{R}_k$ the retrieval policy, and $\mathcal{I}_k$ a greppable index (searched, never injected wholesale).
+
+\textbf{Metrics:} task success $\mathcal{R}_{task}$; retrieval precision/recall vs.\ \texttt{episode.used}; injection tokens $C_{inj}$; routing tokens $C_{route}$ per prompt.
+
+Thesis: transfer stays flat while $C_{inj}$ falls under compression, and precision stays high as $|\mathcal{N}|$ grows.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Three-layer architecture}
+
+\textbf{Raw layer:} episodes, sessions, events.
+\textbf{Knowledge layer:} nodes in a DAG with delta manifests.
+\textbf{Retrieval layer:} index + routing rules + selector agent.
+
+\textbf{Principle:} harness owns structure; model owns meaning.
+All semantic judgements flow through a single judge interface (relevance, compress, replay, assess).
+
+\subsection{Loop}
+
+Recall $\rightarrow$ execute $\rightarrow$ reflect $\rightarrow$ attribute $\rightarrow$ compact $\rightarrow$ tune.
+Recall forks a live session, greps index and nodes, and returns lesson ids.
+Compact accepts candidate $L_{k+1}$ only if $\text{pass\_rate}(L_{k+1}, \mathcal{E}_{reg}) = 1.0$ and $|L_{k+1}| \leq \rho \cdot |L_k|$.
+Replay runs in a \textbf{fresh process} with only the compressed body.
+
+\subsection{Dynamic context discovery}
+
+The index holds one line per lesson ($\sim$0 tokens injected).
+The selector agent searches it and \texttt{nodes/} on demand.
+Warm-prefix caching amortizes routing cost across prompts.
+
+\subsection{Retrieval co-evolution}
+
+\texttt{rmc eval-recall} scores served lessons against \texttt{episode.used}.
+Arms: \texttt{serve-all} (baseline noise), \texttt{judge} (apex-walk filter), \texttt{agentic} (cold search).
+\texttt{rmc tune} closes the loop on $\mathcal{R}_k$.
+
+\section{Experiments}
+\label{sec:experiments}
+
+All main results use Codex (\texttt{gpt-5.6-sol}) as grading agent with 3 samples per case unless noted.
+Artifacts: \texttt{papers/rse/results/}; reproduce via \texttt{scripts/run\_all\_experiments.py --agent codex --samples 3}.
+
+\subsection{RMC-Bench}
+\label{sec:bench}
+
+Hand-written cases (\texttt{evals/rmc-bench.yaml}) covering trap, detail, principle, multi, distractor, conflict, and null kinds.
+
+\begin{table}[t]
+  \centering
+  \caption{RMC-Bench results (Codex-graded, 3 samples).}
+  \label{tab:bench}
+  \begin{tabular}{lc}
+    \toprule
+    Metric & Result \\
+    \midrule
+    Lift (L0 $-$ control, core kinds) & \textbf{+20\%} \\
+    Transfer @ L0 & \textbf{9/10 (90\%)} \\
+    Detail / trap / multi transfer & 3/3, 3/3, 2/2 (100\%) \\
+    Principle transfer & 1/2 (50\%) \\
+    Mean L0 tokens & \textbf{139} \\
+    Bench retrieval axis & \textbf{7/7 (100\%)} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Recall ablations}
+\label{sec:recall}
+
+Fixture store with noise in the served set (Table~\ref{tab:recall}; Figure~\ref{fig:recall}).
+
+\begin{table}[t]
+  \centering
+  \caption{Recall ablations on fixture store.}
+  \label{tab:recall}
+  \begin{tabular}{lccc}
+    \toprule
+    Arm & Precision & Recall & Noise tokens \\
+    \midrule
+    serve-all & 47\% & 100\% & 2,054 \\
+    judge & \textbf{100\%} & \textbf{100\%} & \textbf{0} \\
+    agentic & \textbf{93\%} & \textbf{93\%} & \textbf{54} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Retention curve}
+\label{sec:retention}
+
+Held-out S3 task with walkthrough lesson: compression accepted at L1 (60$\rightarrow$42 tok, 100\% in-sample replay) but held-out transfer fails under Codex grading (0\% at all levels).
+This confirms the descent motivation: in-sample replay can pass while held-out behavior regresses.
+
+\subsection{Scaling study}
+\label{sec:scaling}
+
+Synthetic stores at 25/100/500/1000 lessons (Figure~\ref{fig:scaling}).
+Index tokens grow with store size but are \textbf{not injected}; routing tokens per prompt grow from 1,375 to 55,000.
+Judge precision stays at 67\% with 100\% recall across scales.
+
+\subsection{Comparison to WikiSkill}
+\label{sec:wikiskill}
+
+WikiSkill co-evolves skills offline with \textbf{full skill injection} at test time \citep{wikiskill2026}.
+We built a WikiSkill-comparable subset (\texttt{evals/wikiskill-bench.yaml}) spanning LiveMath, SealQA, SpreadSheet, OfficeQA, and ALFWorld with evolved skills in an RMC store.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig_wikiskill.pdf}
+  \caption{WikiSkill-comparable subset (10 tasks, 5 domains).
+    Agentic recall matches or beats full injection at $\sim$88\% fewer tokens.}
+  \label{fig:wikiskill}
+\end{figure}
+
+\begin{table}[t]
+  \centering
+  \caption{WikiSkill-comparable arms (Codex, 3 samples).}
+  \label{tab:wikiskill}
+  \begin{tabular}{lccc}
+    \toprule
+    Arm & Mechanism & Accuracy & Mean tokens \\
+    \midrule
+    no-skill & bare task & 60\% (6/10) & 0 \\
+    full-inject & WikiSkill-style & 70\% (7/10) & 534 \\
+    recall-judge & RSE judge-walk & 70\% (7/10) & \textbf{64} \\
+    recall-agentic & RSE agentic DCD & \textbf{80\% (8/10)} & \textbf{64} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+This is a curated 10-task probe subset, not the full WikiSkill test splits (124--280 tasks per benchmark).
+It establishes comparison methodology; scaling to upstream task files is future work.
+
+\subsection{Session-length paired study}
+\label{sec:session}
+
+We approximate EXPERIMENTS \S7 with \texttt{evals/session-pairs.yaml}: five follow-up tasks where session~1 captured lessons and session~2 is related (Figure~\ref{fig:session}).
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\linewidth]{figures/fig_session_study.pdf}
+  \caption{Session paired study: structured recall vs.\ narrative-only follow-up.}
+  \label{fig:session}
+\end{figure}
+
+Memory-on (RSE recall) reaches \textbf{100\% (5/5)} vs.\ \textbf{40\% (2/5)} for memory-off (+60pp lift) at 168 mean tokens.
+This is a single-turn proxy, not live multi-turn agent sessions.
+
+\subsection{Evaluation protocol and grading}
+\label{sec:protocol}
+
+\textbf{Grading agent:} Codex (\texttt{gpt-5.6-sol}) for all automated scores.
+\textbf{Samples:} 3 per case; pass if majority of samples pass blind judge rubric.
+\textbf{Cross-model validation:} Claude cross-check script provided (\texttt{scripts/run\_claude\_crosscheck.sh}); requires authenticated \texttt{claude} CLI.
+\textbf{Dogfood:} real-store measurements from one month of usage (N=29 nodes) reported in \texttt{EXPERIMENTS.md}.
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures/fig_recall_ablations.pdf}
+    \caption{Recall ablations}
+    \label{fig:recall}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.48\linewidth}
+    \includegraphics[width=\linewidth]{figures/fig_scaling.pdf}
+    \caption{Scaling study}
+    \label{fig:scaling}
+  \end{subfigure}
+  \caption{Retrieval filtering removes noise; routing cost scales with store size while index stays out of context.}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.55\linewidth]{figures/fig_transfer_tokens.pdf}
+  \caption{Transfer vs.\ injection cost on RMC-Bench core cases and held-out retention probe.}
+  \label{fig:transfer}
+\end{figure}
+
+\section{Analysis and Limitations}
+\label{sec:limitations}
+
+\textbf{RMC-Bench} is hand-written; cases from real captures would be more representative.
+\textbf{WikiSkill comparison} uses 10 curated tasks, not full upstream splits.
+\textbf{Compaction:} held-out retention fails under Codex grading; walkthrough compression fails under the Codex adapter (mock replay ablation still demonstrates the protocol).
+\textbf{Grading:} all main numbers are Codex-graded; Claude/Gemini cross-check recommended before claiming cross-model generalization.
+\textbf{Session study} is a single-turn proxy.
+\textbf{Dogfood} store is N=29; steady-state apex reduction unproven at scale.
+\textbf{Latency:} blocking recall $\sim$34s with accurate judge vs.\ $\sim$5s CLI floor.
+
+\section{Related Work}
+\label{sec:related}
+
+\textbf{Skill evolution.} WikiSkill \citep{wikiskill2026}, Voyager \citep{wang2023voyager}, and Reflexion \citep{shinn2023reflexion} evolve procedural knowledge from traces but typically full-inject at test or keep retrieval separate from compaction validation.
+
+\textbf{Skill retrieval and tools.} RAG \citep{lewis2020rag}, Toolformer \citep{schick2024toolformer}, and ToolLLM \citep{qin2023toolllm} address retrieval and tool use without validated recursive compression of procedural memory.
+
+\textbf{Agent memory.} MemGPT \citep{packer2023memgpt}, generative agents \citep{park2023generative}, and cognitive architectures for language agents \citep{sumers2024cognitive} manage long context but do not meta-test compressions against episode replay.
+
+RSE combines WikiSkill's persistent-knowledge insight with explicit retrieval co-evolution and meta-tested compaction.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+RSE compiles agent experience into recursively compressible lessons while co-evolving the retrieval that finds them.
+Meta-testing prevents silent behavioral drift; dynamic context discovery keeps catalog cost at zero injected tokens.
+RMC-Bench and scaling studies provide reproducible quantitative hooks; WikiSkill-comparable evals show agentic recall beating full skill injection on accuracy (80\% vs.\ 70\%) at $\sim$88\% lower token cost on a five-benchmark subset.
+
+\section*{Reproducibility Statement}
+
+All evaluation harnesses, task YAML files, and result JSON artifacts ship with the repository.
+Run \texttt{scripts/validate\_agent\_harness.py --agent codex} then \texttt{scripts/run\_all\_experiments.py --agent codex --samples 3}.
+Figures regenerate via \texttt{scripts/generate\_paper\_figures.py}.
+See Appendix~\ref{app:repro} for the NeurIPS-style checklist.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\input{appendix}
+
+\end{document}

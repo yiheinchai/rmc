@@ -1,12 +1,12 @@
 # Recursive Skill Evolution: Co-Evolving Procedural Knowledge and Retrieval with Meta-Tested Compaction
 
-**Working title.** RSE is the research framing for RMC (Recursive Memory Compaction).
+RSE is the research framing for RMC (Recursive Memory Compaction). LaTeX source: `paper.tex`; build with `make`.
 
 ---
 
 ## Abstract
 
-Agent skills package procedural knowledge into reusable resources, but most skill-evolution methods treat retrieval as a solved problem or ignore it entirely. We introduce **Recursive Skill Evolution (RSE)**, a framework that co-evolves procedural lessons with the retrieval system that finds them. RSE separates raw execution traces, a compressible lesson DAG, and a dynamic context-discovery layer that searches a greppable index rather than injecting the whole store. Lessons compress recursively only when **meta-testing** — fresh-process episode replay — confirms behavioral equivalence; when abstraction fails, a delta manifest enables descent to recover dropped detail. Retrieval co-evolves through selection rules and gated self-tuning that keeps changes only when precision and recall both improve. On **RMC-Bench**, a benchmark for procedural memory under compression, RSE achieves **+20% lift** over control on core transfer cases and **90%** L0 transfer at **~111 tokens** per prompt (Codex-graded, `gpt-5.6-sol`). Judge filtering reaches **100%** precision with **0** noise tokens; agentic search achieves **93%** precision/recall at **54** noise tokens vs **2,054** for serve-all. On a **WikiSkill-comparable** five-benchmark subset, agentic recall reaches **80%** accuracy vs **70%** for WikiSkill-style full injection at **~88% lower token cost** (64 vs 534 tokens). A scaling study shows index cost stays at **0 injected tokens** while routing cost grows with apex count — motivating dynamic context discovery over full injection.
+Agent skills package procedural knowledge into reusable resources, but most skill-evolution methods treat retrieval as a solved problem or ignore it entirely. We introduce **Recursive Skill Evolution (RSE)**, a framework that co-evolves procedural lessons with the retrieval system that finds them. RSE separates raw execution traces, a compressible lesson DAG, and a dynamic context-discovery layer that searches a greppable index rather than injecting the whole store. Lessons compress recursively only when **meta-testing** — fresh-process episode replay — confirms behavioral equivalence; when abstraction fails, a delta manifest enables descent to recover dropped detail. Retrieval co-evolves through selection rules and gated self-tuning that keeps changes only when precision and recall both improve. On **RMC-Bench**, a benchmark for procedural memory under compression, RSE achieves **+20% lift** over control on core transfer cases and **90%** L0 transfer at **~139 tokens** per prompt (Codex-graded, `gpt-5.6-sol`). Judge filtering reaches **100%** precision with **0** noise tokens; agentic search achieves **93%** precision/recall at **54** noise tokens vs **2,054** for serve-all. On a **WikiSkill-comparable** five-benchmark subset, agentic recall reaches **80%** accuracy vs **70%** for WikiSkill-style full injection at **~88% lower token cost** (64 vs 534 tokens). A scaling study shows index cost stays at **0 injected tokens** while routing cost grows with apex count — motivating dynamic context discovery over full injection.
 
 ---
 
@@ -120,7 +120,7 @@ Hand-written cases (`evals/rmc-bench.yaml`) covering trap, detail, principle, mu
 | Transfer @ L0 | **9/10 (90%)** |
 | Detail / trap / multi transfer | 3/3, 3/3, 2/2 (100%) |
 | Principle transfer | 1/2 (50%) |
-| Mean L0 tokens | **111** |
+| Mean L0 tokens | **139** |
 | Bench retrieval axis | **7/7 (100%)** |
 
 ### 4.2 Recall ablations (fixture store, noise in served set)
@@ -172,14 +172,15 @@ From `EXPERIMENTS.md` (Aug 2026):
 | Haiku router | 35% | 75% | 8,818 |
 | After tune (1 round) | **51%** | **88%** | — |
 
-### 4.7 Remaining for submission
+### 4.7 Evaluation protocol
 
-| Experiment | Status |
+| Item | Detail |
 |---|---|
-| Codex-graded RMC-Bench | **Done** (`--agent codex`) |
-| Claude-graded RMC-Bench | Blocked — `claude` installed but not authenticated; run `scripts/run_claude_crosscheck.sh` after `/login` |
-| WikiSkill-comparable bench (Codex) | **Done** — see §4.8 |
-| End-to-end session-length paired study | **Done** (proxy) — see §4.9 |
+| Grading agent | Codex (`gpt-5.6-sol`), 3 samples per case |
+| Cross-model check | `scripts/run_claude_crosscheck.sh` (requires authenticated `claude` CLI) |
+| Artifacts | `papers/rse/results/submission-latest.json` |
+| Figures | `papers/rse/figures/` via `scripts/generate_paper_figures.py` |
+| PDF | `papers/rse/paper.pdf` via `make` |
 
 ### 4.8 Comparison to WikiSkill
 
@@ -219,7 +220,7 @@ This is a single-turn proxy, not live multi-turn agent sessions. Reproduce: `pyt
 
 ### 5.1 Transfer–token curve (headline figure)
 
-Plot transfer@level vs mean tokens across compression levels. Codex-graded bench establishes **+20% lift** and **90%** transfer@L0; held-out retention curve and walkthrough compression remain open under real grading.
+Figure: `figures/fig_transfer_tokens.pdf`. Codex-graded bench establishes **+20% lift** and **90%** transfer@L0; held-out retention curve shows 0% transfer under Codex grading, motivating descent.
 
 ### 5.2 Case study
 
@@ -259,4 +260,4 @@ RSE compiles agent experience into recursively compressible lessons while co-evo
 
 ---
 
-*Generated evaluation artifacts: `papers/rse/results/`. Reproduce: `python3 scripts/validate_agent_harness.py --agent codex` then `python3 scripts/run_all_experiments.py --agent codex --samples 3`.*
+*Submission package: `papers/rse/SUBMISSION.md`. Reproduce: `python3 scripts/validate_agent_harness.py --agent codex` then `python3 scripts/run_all_experiments.py --agent codex --samples 3`; build PDF with `cd papers/rse && make`.*

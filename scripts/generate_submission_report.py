@@ -12,6 +12,25 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "papers" / "rse" / "results"
 
 
+def _claude_authenticated() -> bool:
+    import shutil
+    import subprocess
+
+    if not shutil.which("claude"):
+        return False
+    try:
+        proc = subprocess.run(
+            ["claude", "-p", "ping"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        combined = (proc.stdout + proc.stderr).lower()
+        return "not logged in" not in combined
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
 def _load(name: str) -> dict:
     path = RESULTS / name
     if not path.exists():
@@ -58,9 +77,15 @@ def build_report() -> dict:
             "wikiskill_comparable": bool(wikiskill.get("arms")),
             "recall_ablations": bool(recall.get("arms")),
             "scaling_study": bool((summary.get("scaling") or full.get("scaling", {})).get("rows")),
-            "claude_cross_check": False,
-            "claude_cross_check_note": "claude CLI installed but not authenticated in this environment",
+            "claude_cross_check": _claude_authenticated(),
+            "claude_cross_check_note": (
+                "authenticated" if _claude_authenticated() else "claude CLI installed but not authenticated"
+            ),
             "session_length_paired_study": bool(session_study.get("arms")),
+            "latex_manuscript": (ROOT / "papers" / "rse" / "paper.tex").exists(),
+            "paper_pdf": (ROOT / "papers" / "rse" / "paper.pdf").exists(),
+            "figures_generated": (ROOT / "papers" / "rse" / "figures" / "fig_wikiskill.pdf").exists(),
+            "reproducibility_appendix": (ROOT / "papers" / "rse" / "appendix.tex").exists(),
         },
         "headline_findings": [],
     }

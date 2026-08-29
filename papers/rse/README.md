@@ -1,73 +1,75 @@
-# Publishing RSE — reproduction guide
+# Publishing RSE — manuscript and reproduction guide
 
-This directory contains the **Recursive Skill Evolution (RSE)** paper draft and
-machine-readable evaluation results.
+This directory contains the **Recursive Skill Evolution (RSE)** submission package:
+LaTeX manuscript, figures, evaluation results, and reproducibility appendix.
 
-## Quick start
+## Manuscript
+
+| File | Purpose |
+|---|---|
+| `paper.tex` | Main LaTeX source (9 pages + appendix) |
+| `appendix.tex` | Reproducibility checklist + supplementary tables |
+| `references.bib` | Bibliography (15 citations) |
+| `paper.pdf` | Built PDF (`make`) |
+| `figures/` | Publication figures (PDF + PNG) |
+| `SUBMISSION.md` | Pre-submission checklist |
+| `paper.md` | Markdown draft (kept in sync) |
 
 ```bash
-# Install
-pip install -e ".[dev]"
+cd papers/rse
+make          # build paper.pdf
+make figures  # regenerate figures from results JSON
+```
 
-# Run ALL experiments (bench, scaling, recall ablations, compaction, retention curve)
-python3 scripts/run_all_experiments.py --samples 3
+## Quick start (evaluations)
 
-# Bench + scaling only
-python3 scripts/run_paper_evals.py
+```bash
+pip install -e ".[dev,paper]"
 
-# With a real agent when available
+# Run ALL experiments (bench, scaling, recall, compaction, retention, wikiskill, session)
 python3 scripts/run_all_experiments.py --agent codex --samples 3
+
+# Individual suites
 python3 scripts/run_wikiskill_evals.py --agent codex --samples 3
 python3 scripts/run_session_study.py --agent codex --samples 3
 python3 scripts/generate_submission_report.py
+python3 scripts/generate_paper_figures.py
 ```
 
 Results land in `papers/rse/results/`:
 
 | File | Contents |
 |---|---|
-| `experiments-full-latest.json` | Complete suite: bench + scaling + recall + compaction + retention |
-| `recall-ablations-latest.json` | serve-all vs judge precision/recall |
-| `compaction-ablation-latest.json` | meta-testing on/off |
-| `rmc-bench-latest.json` | Per-case transfer/retrieval scores |
-| `wikiskill-latest.json` | WikiSkill-comparable: no-skill vs full-inject vs recall arms |
-| `session-study-latest.json` | Session paired study: memory-off vs memory-on |
 | `submission-latest.json` | Unified report: all evals + comparative baselines |
+| `experiments-full-latest.json` | Complete suite |
+| `wikiskill-latest.json` | WikiSkill-comparable four-arm comparison |
+| `session-study-latest.json` | Session paired study |
+| `rmc-bench-latest.json` | Per-case transfer/retrieval scores |
+| `recall-ablations-latest.json` | serve-all vs judge vs agentic |
+| `scaling-latest.json` | Synthetic scaling table |
 
 ## What is measured
 
 ### RMC-Bench (`evals/rmc-bench.yaml`)
 
-Four axes from `evals/README.md`:
+Four axes: transfer, retention, retrieval, cost.
 
-1. **Transfer** — control vs L0 on trap/detail/principle/multi cases
-2. **Retention** — L0 vs L1 after meta-tested compression (detail cases)
-3. **Retrieval** — distractor/null/conflict/multi selection quality
-4. **Cost** — mean tokens injected per prompt
+### WikiSkill-comparable (`evals/wikiskill-bench.yaml`)
+
+Five domains, four arms: no-skill, full-inject, recall-judge, recall-agentic.
+
+### Session paired study (`evals/session-pairs.yaml`)
+
+Memory-off vs memory-on follow-up tasks.
 
 ### Scaling study (`rmc/scaling.py`)
 
-Synthetic stores at 25/100/500 lessons. Reports index size, apex count, routing
-token estimate, and mock judge precision/recall on seeded episodes.
+Synthetic stores at 25/100/500/1000 lessons.
 
-### Dogfood numbers (`EXPERIMENTS.md`)
+## Submission status
 
-Real-store measurements from one month of RMC usage — retrieval filtering,
-tuning, negative results. Cite alongside benchmark numbers.
+See `SUBMISSION.md` for the full checklist.
 
-## Paper status
+**Ready now:** LaTeX manuscript, figures, reproducibility appendix, Codex-graded results.
 
-| Section | Status |
-|---|---|
-| Abstract + contributions | Draft in `paper.md` |
-| Method (§3) | Mapped to `DESIGN.md` / codebase |
-| RMC-Bench + full suite | **Run** — `experiments-full-latest.json` |
-| Recall ablations | **Run** — judge 100% prec vs serve-all 47% |
-| Retention curve | **Run** — L0 100% → L1 0% on held-out S3 |
-| Session paired study | **Run** — `session-study-latest.json` (+60pp lift) |
-
-## Next steps for submission-quality numbers
-
-1. `python3 scripts/run_all_experiments.py --agent claude --samples 3` (needs `claude` on PATH)
-2. ~~Wire WikiSkill benchmark harness with RSE recall~~ **Done**
-3. ~~Session-length paired study~~ **Done** (proxy) — `scripts/run_session_study.py`
+**Author action:** swap in official venue LaTeX template, run Claude cross-check (`./scripts/run_claude_crosscheck.sh` after `claude` login), anonymize for double-blind if required.

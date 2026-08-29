@@ -1,0 +1,111 @@
+\section{Reproducibility Checklist}
+\label{app:repro}
+
+This appendix follows the NeurIPS reproducibility checklist structure.
+
+\subsection{Scope of reproducibility}
+
+Claims supported by automated harness runs in this repository:
+(1)~RMC-Bench transfer and retrieval scores;
+(2)~recall ablation precision/recall/noise;
+(3)~WikiSkill-comparable four-arm comparison;
+(4)~session paired study lift;
+(5)~synthetic scaling table.
+Claims from dogfood (\texttt{EXPERIMENTS.md}) are directional measurements on one user's store.
+
+\subsection{Algorithm}
+
+The full RSE loop is implemented in the \texttt{rmc} Python package:
+\texttt{recall}, \texttt{reflect}, \texttt{compact}, \texttt{tune}, and \texttt{eval-recall} subcommands.
+Design specification: \texttt{DESIGN.md}.
+
+\subsection{Dataset and benchmarks}
+
+\begin{itemize}
+  \item \textbf{RMC-Bench:} \texttt{evals/rmc-bench.yaml} (10 hand-written cases).
+  \item \textbf{WikiSkill-comparable:} \texttt{evals/wikiskill-bench.yaml} (10 tasks, 5 domains).
+  \item \textbf{Session pairs:} \texttt{evals/session-pairs.yaml} (5 follow-up pairs).
+  \item \textbf{Recall ablations:} fixture store under \texttt{evals/fixtures/recall-store/}.
+\end{itemize}
+
+\subsection{Hyperparameters}
+
+\begin{itemize}
+  \item Grading agent: Codex (\texttt{gpt-5.6-sol}).
+  \item Samples per case: 3 (majority vote).
+  \item Compression ratio target $\rho = 0.7$.
+  \item Replay pass threshold: 100\%.
+\end{itemize}
+
+\subsection{Computational resources}
+
+Full Codex suite (\texttt{run\_all\_experiments.py --agent codex --samples 3}) requires authenticated Codex CLI and approximately 30--60 minutes wall time depending on API latency.
+Preflight validation (\texttt{validate\_agent\_harness.py}) uses $\sim$4 Codex calls.
+
+\subsection{Code and data availability}
+
+\begin{itemize}
+  \item Repository: \url{https://github.com/yiheinchai/rmc}
+  \item Results: \texttt{papers/rse/results/submission-latest.json}
+  \item Figures: \texttt{papers/rse/figures/}
+\end{itemize}
+
+\subsection{Experimental setup}
+
+\begin{verbatim}
+pip install -e ".[dev]"
+python3 scripts/validate_agent_harness.py --agent codex
+python3 scripts/run_all_experiments.py --agent codex --samples 3
+python3 scripts/generate_submission_report.py
+python3 scripts/generate_paper_figures.py
+cd papers/rse && make
+\end{verbatim}
+
+\subsection{Statistical significance}
+
+Current runs use 3 samples without confidence intervals.
+For submission to a main-track venue, we recommend expanding to $\geq$5 samples with bootstrap CIs; the harness supports arbitrary \texttt{--samples N}.
+
+\subsection{Known limitations of reproduction}
+
+\begin{itemize}
+  \item Codex CLI authentication required; results vary with model version.
+  \item Claude cross-check (\texttt{scripts/run\_claude\_crosscheck.sh}) requires separate \texttt{claude} authentication.
+  \item WikiSkill subset is curated; full upstream splits not yet wired.
+\end{itemize}
+
+\section{Supplementary Tables}
+
+\subsection{Dogfood retrieval (real store, N=29 nodes)}
+
+From \texttt{EXPERIMENTS.md} (Aug 2026):
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lccc}
+    \toprule
+    Configuration & Precision & Recall & Noise tokens \\
+    \midrule
+    Serve everything & 28\% & 100\% & 15,917 \\
+    Judge filter & 48\% & 100\% & 7,146 \\
+    Haiku router & 35\% & 75\% & 8,818 \\
+    After tune (1 round) & 51\% & 88\% & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Scaling study (full table)}
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{rrrrrr}
+    \toprule
+    Lessons & Apexes & Index tok & Routing tok/prompt & Judge prec & Judge rec \\
+    \midrule
+    25 & 25 & 740 & 1,375 & 67\% & 100\% \\
+    100 & 100 & 2,503 & 5,500 & 67\% & 100\% \\
+    500 & 500 & 12,303 & 27,500 & 67\% & 100\% \\
+    1000 & 1000 & 24,553 & 55,000 & 67\% & 100\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
