@@ -126,3 +126,28 @@ class TestInjectPaperResults(unittest.TestCase):
         self.assertIn("SealQA", table)
         self.assertIn("80\\%", table)
         self.assertIn("47", table)
+
+    def test_build_multimodel_table_requires_three_models(self) -> None:
+        data = {
+            "samples": 3,
+            "models": {
+                "codex": {
+                    "arms": {
+                        "full-inject": {"accuracy": 0.7, "total": 10, "mean_tokens": 534},
+                        "recall-agentic": {
+                            "accuracy": 0.8,
+                            "total": 10,
+                            "mean_tokens": 64,
+                            "bootstrap_ci": {"low": 0.5, "high": 0.9},
+                        },
+                    }
+                },
+            },
+        }
+        self.assertIsNone(self.inj.build_multimodel_table(data))
+        data["models"]["codex:gpt-5.6-sol"] = data["models"]["codex"]
+        data["models"]["codex:o4-mini"] = data["models"]["codex"]
+        table = self.inj.build_multimodel_table(data)
+        assert table is not None
+        self.assertIn("codex", table)
+        self.assertIn("80\\%", table)
